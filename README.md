@@ -1,3 +1,31 @@
+## Planned Work
+
+```bash
+
+-Polling
+--Create, Edit, Delete -> Name of Polling, Polling dates
+
+-OrderMember
+--Create, Edit, Delete? Security for create and delete would be at the admin level
+
+-Polling-Note-Vote
+--Creates notes and votes associated with a specific candidate and polling, which will be attributed to the contributor
+
+-Polling-Summary
+--Pulls data for each poll, and lists all candidates and thier data
+
+-Candidate
+--Create, Edit, Delete
+
+-Candidate-External-Notes
+--Create, Edit, Delete -> this would be for data added outside of a polling for a candidate
+
+-Admin
+--Update Admin and Admin assistant
+
+```
+
+
 ## Pre Reqs
 
 ```bash
