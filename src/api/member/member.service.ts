@@ -1,10 +1,11 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { createQueryBuilder, Like, Repository } from 'typeorm';
 import { CreateMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Order } from '../polling_order/order.entity';
 
 @Injectable()
 
@@ -12,6 +13,7 @@ export class MemberService {
   constructor(private jwtTokenService: JwtService) { }
   private readonly logger = new Logger(MemberService.name)
   @InjectRepository(Member)
+  @InjectRepository(Order)
   private readonly repository: Repository<Member>;
 
   public getMemberById(id: number): Promise<Member> {
@@ -20,11 +22,15 @@ export class MemberService {
     });
   }
 
-  public getMember(memberEmail: string, order_id: number): Promise<Member> {
-    return this.repository.findOneBy({
-      email: memberEmail,
-      polling_order_id: order_id
-    });
+  public async getMember(memberEmail: string, orderID: number): Promise<Member> {
+    const result = await this.repository
+      .createQueryBuilder('member')
+      .select('member')
+      .leftJoinAndMapOne('member.polling_order_id', Order, 'order', 'order.polling_order_id=member.polling_order_id')
+      .where('member.email = :memberEmail', { memberEmail })
+      .andWhere('member.polling_order_id = :orderID', { orderID })
+      .getOne();
+    return result;
   }
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
@@ -40,26 +46,26 @@ export class MemberService {
 
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
     const member = await this.getMember(memberEmail, polling_order_id);
-    const validPassword = await bcrypt.compare(password, member.password);
+    this.logger.warn('Accessed', JSON.stringify(member));
     if (member) {
-        if (validPassword) {
-            const { password, ...result } = member
-            return result
-        }
-        return false
+      const validPassword = await bcrypt.compare(password, member.password);
+      if (validPassword) {
+        const { password, ...result } = member
+        return result
+      }
+      return false
     }
-}
+  }
 
-async loginWithCredentials(member: any) {
+  async loginWithCredentials(member: any) {
     const goodLogin = await this.checkMemberCredentials(member.body.email, member.body.password, member.body.polling_order_id);
-    const payload = { email: goodLogin.email, sub: goodLogin.polling_order_id };
     if (!goodLogin) {
-        throw new UnauthorizedException();
+      throw new UnauthorizedException();
     }
+    const payload = { email: goodLogin.email, sub: goodLogin.polling_order_id };
     return {
-        access_token: this.jwtTokenService.sign(payload),
+      access_token: this.jwtTokenService.sign(payload),
     };
-}
-
+  }
 
 }
