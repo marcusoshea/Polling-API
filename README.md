@@ -16,7 +16,6 @@
 -Login
 --Password reset
 
-
 -Polling
 --Create, Edit, Delete -> Name of Polling, Polling dates
 
@@ -24,7 +23,8 @@
 --Edit
 
 -Polling-Note-Vote
---Creates notes and votes associated with a specific candidate and polling, which will be attributed to the contributor
+--Creates notes and votes associated with a specific candidate and polling, 
+which will be attributed to the contributor
 
 -Polling-Summary
 --Pulls data for each poll, and lists all candidates and thier data
@@ -69,7 +69,8 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 
-If you use Postman ( https://www.postman.com/downloads/ ) you can use the Polling.postman_collection.json file which will have the most up to date endpoints listed.
+If you use Postman ( https://www.postman.com/downloads/ ) you can use the 
+Polling.postman_collection.json file which will have the most up to date endpoints listed.
 ```
 
 ## Test
