@@ -1,12 +1,14 @@
 ## Planned Work
 
+$${\color{green}Green}$$ text denotes completed
+
 ```bash
 
 -Polling
---Create, Edit, Delete -> Name of Polling, Polling dates
+-- Create, Edit, Delete -> Name of Polling, Polling dates
 
 -OrderMember
---Create, Edit, Delete? Security for create and delete would be at the admin level
+--$${\color{green}Create}$$ (Admin & Assistant Only), Edit, $${\color{green}Delete}$$ (Admin & Assistant Only)
 
 -Polling-Note-Vote
 --Creates notes and votes associated with a specific candidate and polling, which will be attributed to the contributor
