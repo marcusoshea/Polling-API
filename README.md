@@ -1,14 +1,25 @@
-## Planned Work
 
-$${\color{green}Green}$$ text denotes completed
+## Completed Work
+-Login
+--Get Auth Token
+
+-OrderMember
+--Create, Delete (Admin & Assistant Order Roles), Get
+
+
+## Planned Work
 
 ```bash
 
+-Login
+--Password reset
+
+
 -Polling
--- Create, Edit, Delete -> Name of Polling, Polling dates
+--Create, Edit, Delete -> Name of Polling, Polling dates
 
 -OrderMember
---$${\color{green}Create}$$ (Admin & Assistant Only), Edit, $${\color{green}Delete}$$ (Admin & Assistant Only)
+--Edit
 
 -Polling-Note-Vote
 --Creates notes and votes associated with a specific candidate and polling, which will be attributed to the contributor
