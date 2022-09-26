@@ -5,7 +5,7 @@
 --Get Auth Token
 
 -OrderMember
---Create, Delete (Admin & Assistant Order Roles), Get
+--Create, Delete, Get - All secured to Admin roles
 
 ```
 
