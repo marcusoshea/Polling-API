@@ -1,11 +1,13 @@
 
 ## Completed Work
+```bash
 -Login
 --Get Auth Token
 
 -OrderMember
 --Create, Delete (Admin & Assistant Order Roles), Get
 
+```
 
 ## Planned Work
 
