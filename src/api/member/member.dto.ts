@@ -14,5 +14,8 @@ export class CreateMemberDto {
   
   @IsNotEmpty()
   public polling_order_id: number;
+
+  @IsNotEmpty()
+  public authToken: string;
   
 }

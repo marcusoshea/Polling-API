@@ -1,16 +1,18 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createQueryBuilder, Like, Repository } from 'typeorm';
+import { Any, createQueryBuilder, Like, Repository } from 'typeorm';
 import { CreateMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Order } from '../polling_order/order.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { json } from 'stream/consumers';
 
 @Injectable()
 
 export class MemberService {
-  constructor(private jwtTokenService: JwtService) { }
+  constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
   private readonly logger = new Logger(MemberService.name)
   @InjectRepository(Member)
   @InjectRepository(Order)
@@ -26,7 +28,7 @@ export class MemberService {
     const result = await this.repository
       .createQueryBuilder('member')
       .select('member')
-      .leftJoinAndMapOne('member.polling_order_id', Order, 'order', 'order.polling_order_id=member.polling_order_id')
+      .leftJoinAndMapOne('member.pollingOrderInfo', Order, 'order', 'order.polling_order_id=member.polling_order_id')
       .where('member.email = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
       .getOne();
@@ -34,14 +36,18 @@ export class MemberService {
   }
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
-    const member: Member = new Member();
-    // this.logger.warn('Accessed', JSON.stringify(body));
-    member.name = body.name;
-    member.email = body.email;
-    const salt = await bcrypt.genSalt(10);
-    member.password = await bcrypt.hash(body.password, salt);
-    member.polling_order_id = body.polling_order_id;
-    return this.repository.save(member);
+
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+      const member: Member = new Member();
+      member.name = body.name;
+      member.email = body.email;
+      const salt = await bcrypt.genSalt(10);
+      member.password = await bcrypt.hash(body.password, salt);
+      member.polling_order_id = body.polling_order_id;
+      return this.repository.save(member);
+    
   }
 
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
@@ -62,9 +68,8 @@ export class MemberService {
     if (!goodLogin) {
       throw new UnauthorizedException();
     }
-    const payload = { email: goodLogin.email, sub: goodLogin.polling_order_id };
     return {
-      access_token: this.jwtTokenService.sign(payload),
+      access_token: this.jwtTokenService.sign(goodLogin),
     };
   }
 

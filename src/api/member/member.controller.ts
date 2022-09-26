@@ -15,6 +15,7 @@ export class MemberController {
   @Inject(MemberService)
   private readonly service: MemberService;
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   public getMemberById(@Param('id', ParseIntPipe) id: number): Promise<Member> {
     return this.service.getMemberById(id);
