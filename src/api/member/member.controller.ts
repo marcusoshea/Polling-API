@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Inject, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
-import { CreateMemberDto } from './member.dto';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
+import { CreateMemberDto, DeleteMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import { MemberService } from './member.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -22,9 +22,15 @@ export class MemberController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/create-member/new')
+  @Post('/create')
   public createMember(@Body() body: CreateMemberDto): Promise<Member> {
     return this.service.createMember(body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/delete')
+  public deleteMember(@Body() body: DeleteMemberDto): Promise<boolean> {
+    return this.service.deleteMember(body);
   }
 
   @Post('login')

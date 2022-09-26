@@ -19,3 +19,11 @@ export class CreateMemberDto {
   public authToken: string;
   
 }
+
+export class DeleteMemberDto {
+  @IsNotEmpty()
+  public polling_order_member_id: number;
+
+  @IsNotEmpty()
+  public authToken: string;
+}

@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Any, createQueryBuilder, Like, Repository } from 'typeorm';
-import { CreateMemberDto } from './member.dto';
+import { CreateMemberDto, DeleteMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -36,18 +36,25 @@ export class MemberService {
   }
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
-
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
-      const member: Member = new Member();
-      member.name = body.name;
-      member.email = body.email;
-      const salt = await bcrypt.genSalt(10);
-      member.password = await bcrypt.hash(body.password, salt);
-      member.polling_order_id = body.polling_order_id;
-      return this.repository.save(member);
-    
+    const member: Member = new Member();
+    member.name = body.name;
+    member.email = body.email;
+    const salt = await bcrypt.genSalt(10);
+    member.password = await bcrypt.hash(body.password, salt);
+    member.polling_order_id = body.polling_order_id;
+    return this.repository.save(member);
+  }
+
+  public async deleteMember(body: DeleteMemberDto): Promise<boolean> {
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+    await this.repository.delete(body.polling_order_member_id);
+
+    return true;
   }
 
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
