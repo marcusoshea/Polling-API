@@ -5,8 +5,8 @@
 --Get Auth Token
 
 -OrderMember
---Create, Delete, Get - All secured to Admin roles
-
+--Create, Delete, Get, (All secured to Admin roles) 
+--Edit (Secured to record owner changes only)
 ```
 
 ## Planned Work
@@ -18,9 +18,6 @@
 
 -Polling
 --Create, Edit, Delete -> Name of Polling, Polling dates
-
--OrderMember
---Edit
 
 -Polling-Note-Vote
 --Creates notes and votes associated with a specific candidate and polling, 

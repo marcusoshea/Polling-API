@@ -23,4 +23,14 @@ export class AuthService {
         return false;
     }
 
+    public isRecordOwner(authToken: any, recordOwner: number):boolean {
+        const requestingMember = JSON.parse(JSON.stringify(this.jwtService.decode(authToken)));
+        const mappedReqMember = new Map(Object.entries(requestingMember));
+        const memberReqId = mappedReqMember.get("polling_order_member_id");
+        if (recordOwner === memberReqId) {
+            return true;
+        }
+        return false;
+    }
+
 }

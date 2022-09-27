@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Any, createQueryBuilder, Like, Repository } from 'typeorm';
-import { CreateMemberDto, DeleteMemberDto } from './member.dto';
+import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -45,6 +45,7 @@ export class MemberService {
     const salt = await bcrypt.genSalt(10);
     member.password = await bcrypt.hash(body.password, salt);
     member.polling_order_id = body.polling_order_id;
+    member.pom_created_at = new Date(body.pom_created_at);
     return this.repository.save(member);
   }
 
@@ -57,9 +58,22 @@ export class MemberService {
     return true;
   }
 
+
+  public async editMember(body: EditMemberDto, isRecordOwner: number): Promise<boolean> {
+    if (!this.authService.isRecordOwner(body.authToken, isRecordOwner)) {
+      throw new UnauthorizedException();
+    }
+    const bodyUpdate = {
+      email: body.email,
+      name: body.name,
+      pom_created_at: body.pom_created_at
+    }
+    await this.repository.update(body.polling_order_member_id, bodyUpdate);
+    return true;
+  }
+
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
     const member = await this.getMember(memberEmail, polling_order_id);
-    this.logger.warn('Accessed', JSON.stringify(member));
     if (member) {
       const validPassword = await bcrypt.compare(password, member.password);
       if (validPassword) {

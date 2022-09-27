@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
-import { CreateMemberDto, DeleteMemberDto } from './member.dto';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import { MemberService } from './member.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -31,6 +31,12 @@ export class MemberController {
   @Delete('/delete')
   public deleteMember(@Body() body: DeleteMemberDto): Promise<boolean> {
     return this.service.deleteMember(body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('/edit/:id')
+  public editMember(@Body() body: EditMemberDto, @Param('id', ParseIntPipe) id: number,): Promise<boolean> {
+    return this.service.editMember(body, id);
   }
 
   @Post('login')
