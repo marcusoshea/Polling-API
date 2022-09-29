@@ -2,7 +2,7 @@
 ## Completed Work
 ```bash
 -Login
---Get Auth Token
+--Password reset
 
 -OrderMember
 --Create, Delete, Get, (All secured to Admin roles) 
@@ -12,9 +12,6 @@
 ## Planned Work
 
 ```bash
-
--Login
---Password reset
 
 -Polling
 --Create, Edit, Delete -> Name of Polling, Polling dates
