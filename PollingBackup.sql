@@ -5,7 +5,7 @@
 -- Dumped from database version 14.5
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-09-26 21:32:29
+-- Started on 2022-09-28 22:10:49
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -362,7 +362,9 @@ CREATE TABLE public."PollingOrderMember" (
     email text NOT NULL,
     password text,
     polling_order_id integer NOT NULL,
-    pom_created_at date NOT NULL
+    pom_created_at date NOT NULL,
+    new_password_token integer,
+    new_password_token_timestamp date
 );
 
 
@@ -622,7 +624,40 @@ ALTER TABLE ONLY public."PollingOrder" ALTER COLUMN polling_order_id SET DEFAULT
 
 
 
+--
+-- TOC entry 3378 (class 0 OID 16428)
+-- Dependencies: 219
+-- Data for Name: PollingNotes; Type: TABLE DATA; Schema: public; Owner: postgres
+--
 
+
+
+--
+-- TOC entry 3384 (class 0 OID 16481)
+-- Dependencies: 225
+-- Data for Name: PollingOrder; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public."PollingOrder" (polling_order_id, polling_order_name, polling_order_admin, polling_order_admin_assistant) VALUES (1, 'White Scarf', 1, 1);
+
+
+--
+-- TOC entry 3369 (class 0 OID 16397)
+-- Dependencies: 210
+-- Data for Name: PollingOrderMember; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp) OVERRIDING SYSTEM VALUE VALUES (17, 'Donnan', 'some@some.com', '$2b$10$2Cyk/t9EihvL0AypsJvmNe8kO07zdKZTO.MsZmKT8JpIDq5QqIBIG', 1, '2022-09-11', NULL, NULL);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp) OVERRIDING SYSTEM VALUE VALUES (59, 'Newguy ttttt', 'some12435555@some.com', '$2b$10$PWTp1oY0xb0MciAPQgEmM.tRhY3r1S7v65COr1EUuEjyfBVkr6MqW', 1, '2022-09-01', NULL, NULL);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp) OVERRIDING SYSTEM VALUE VALUES (56, 'Newguy fff', 'some1243@some.com', '$2b$10$smjvryYzT6YZvVzZZTspRui5v8wm3.aPNqbOFMJtasKZuCWGpOw3q', 1, '2022-09-13', NULL, NULL);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp) OVERRIDING SYSTEM VALUE VALUES (1, 'Markus skalpr Grimsson', 'marcusoshea100@gmail.com', '$2b$10$5iWfl7wKSp7F.qOStLDrBu2oC49cibidM8/NUuwvmt3o9EmuebGGq', 1, '2022-09-11', 0, '2022-09-28');
+
+
+--
+-- TOC entry 3413 (class 0 OID 0)
+-- Dependencies: 213
+-- Name: Candidate_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
 
 SELECT pg_catalog.setval('public."Candidate_candidate_id_seq"', 1, false);
 
@@ -911,7 +946,7 @@ ALTER TABLE ONLY public."Candidate"
     ADD CONSTRAINT polling_order_id FOREIGN KEY (polling_order_id) REFERENCES public."PollingOrder"(polling_order_id) NOT VALID;
 
 
--- Completed on 2022-09-26 21:32:30
+-- Completed on 2022-09-28 22:10:49
 
 --
 -- PostgreSQL database dump complete

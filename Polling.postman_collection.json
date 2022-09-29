@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"email\": \"some@some.com\", \"password\": \"123456\", \"polling_order_id\":1}",
+					"raw": "{\"email\": \"marcusoshea100@gmail.com\", \"password\": \"12345678\", \"polling_order_id\":1}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -36,6 +36,68 @@
 			"response": []
 		},
 		{
+			"name": "Verify Token",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"marcusoshea100@gmail.com\", \"password\": \"12345678\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/member/verify/3388347",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"member",
+						"verify",
+						"3388347"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Password Reset Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"marcusoshea100@gmail.com\", \"polling_order_id\":1}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/member/passwordToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"member",
+						"passwordToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create Member",
 			"request": {
 				"auth": {
@@ -52,7 +114,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"name\": \"Newguy\", \"password\": \"123456\", \"polling_order_id\":1,\"email\": \"some1243@some.com\", \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
+					"raw": "{\"name\": \"Newguy ttttt\", \"password\": \"123456\", \"polling_order_id\":1,\"email\": \"some12435555@some.com\", \"pom_created_at\": \"2022-09-02\", \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -69,6 +131,46 @@
 					"path": [
 						"member",
 						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Member",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Newguy fff\", \"polling_order_id\":1, \"email\": \"some1243@some.com\", \"polling_order_member_id\": \"56\",  \"pom_created_at\": \"2022-09-13\", \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6NTYsIm5hbWUiOiJOZXdndXkiLCJlbWFpbCI6InNvbWUxMjQzQHNvbWUuY29tIiwicG9sbGluZ19vcmRlcl9pZCI6MSwicG9tX2NyZWF0ZWRfYXQiOiIyMDIyLTA5LTI3VDAwOjM4OjIwLjA3M1oiLCJwb2xsaW5nT3JkZXJJbmZvIjp7InBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbGxpbmdfb3JkZXJfbmFtZSI6IldoaXRlIFNjYXJmIiwicG9sbGluZ19vcmRlcl9hZG1pbiI6MSwicG9sbGluZ19vcmRlcl9hZG1pbl9hc3Npc3RhbnQiOjF9LCJpYXQiOjE2NjQyMzk4NDAsImV4cCI6MTY2NjgzMTg0MH0.uU4Ap_m6ny0LUD3zoR08p2fVrFFmbiIzqZZ6hWaerM0\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/member/edit/56",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"member",
+						"edit",
+						"56"
 					]
 				}
 			},

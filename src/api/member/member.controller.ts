@@ -44,8 +44,14 @@ export class MemberController {
     return this.service.loginWithCredentials(req);
   }
 
-  @Post('forgot-password')
-  async sendEmailForgotPassword(@Request() req) {
+  @Post('passwordToken')
+  async sendEmailToken(@Request() req) {
     return this.service.sendEmailForgotPassword(req);
   }
+
+  @Get('verify/:token')
+  public async resetPassword(@Request() params): Promise<boolean> {
+      return await this.service.resetPassword(params);
+  }
+
 }

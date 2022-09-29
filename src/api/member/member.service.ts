@@ -7,9 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Order } from '../polling_order/order.entity';
 import { AuthService } from 'src/auth/auth.service';
-import { json } from 'stream/consumers';
 import * as nodemailer from 'nodemailer';
-
 
 @Injectable()
 
@@ -88,6 +86,7 @@ export class MemberService {
   }
 
   async loginWithCredentials(member: any) {
+    this.logger.warn('tttt', member.body);
     const goodLogin = await this.checkMemberCredentials(member.body.email, member.body.password, member.body.polling_order_id);
     if (!goodLogin) {
       throw new UnauthorizedException();
@@ -98,37 +97,26 @@ export class MemberService {
   }
 
   async createForgottenPasswordToken(member: Member): Promise<Member> {
+    let tempToken = (Math.floor(Math.random() * (9000000)) + 1000000);
+    let tempDate = new Date();
 
+    const tokenUpdate = {
+      email: member.email,
+      new_password_token: tempToken,
+      new_password_token_timestamp: tempDate
+    }
+    member.new_password_token = tempToken;
+    member.new_password_token_timestamp = tempDate;
+    await this.repository.update(member.polling_order_member_id, tokenUpdate);
+    return member;
 
-      let tempToken = (Math.floor(Math.random() * (9000000)) + 1000000);
-      let tempDate = new Date();
-
-      const tokenUpdate = {
-        email: member.email,
-        new_password_token: tempToken,
-        new_password_token_timestamp: tempDate
-      }
-      member.new_password_token = tempToken;
-      member.new_password_token_timestamp = tempDate;
-      await this.repository.update(member.polling_order_member_id, tokenUpdate);
-      return member;
-    
   }
 
-
-
   async sendEmailForgotPassword(reqMember: any): Promise<boolean> {
-
     const member = await this.getMember(reqMember.body.email, reqMember.body.polling_order_id);
     if (!member) throw new HttpException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
 
     const tokenMember = await this.createForgottenPasswordToken(member);
-    this.logger.warn('MAIL_HOST', process.env.MAIL_HOST);
-    this.logger.warn('MAIL_PORT', process.env.MAIL_PORT);
-    this.logger.warn('MAIL_SECURE', process.env.MAIL_SECURE);
-    this.logger.warn('MAIL_USERNAME', process.env.MAIL_USERNAME);
-    this.logger.warn('MAIL_PASSWORD', process.env.MAIL_PASSWORD);
-    this.logger.warn('MAIL_PORT', process.env.MAIL_PORT);
 
     if (tokenMember && tokenMember.new_password_token) {
       let transporter = nodemailer.createTransport({
@@ -137,23 +125,23 @@ export class MemberService {
         secure: process.env.MAIL_SECURE,
         auth: {
           user: process.env.MAIL_USERNAME,
-          pass:   process.env.MAIL_PASSWORD
+          pass: process.env.MAIL_PASSWORD
         }
       });
 
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
         to: member.email,
-        subject: 'Frogotten Password',
+        subject: 'Forgotten Password',
         text: 'Forgot Password',
         html: 'Hi! <br><br> If you requested to reset your password<br><br>' +
           '<a href=' + process.env.BASE_URL + ':' + process.env.PORT + '/member/reset-password/' + tokenMember.new_password_token + '>Click here</a>'  // html body
       };
 
       const result = await transporter
-      .sendMail(mailOptions)
-      .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
-      .catch(e => { this.logger.warn('error', e) });
+        .sendMail(mailOptions)
+        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
+        .catch(e => { this.logger.warn('error', e) });
 
       return result;
     } else {
@@ -161,6 +149,26 @@ export class MemberService {
     }
   }
 
+  async resetPassword(reqMember: any): Promise<boolean> {
+    const memberFound = await this.repository.findOneBy({
+      new_password_token: reqMember.token,
+      email: reqMember.body.email
+    });
 
+    if (memberFound) {
+
+      const salt = await bcrypt.genSalt(10);
+      const password = await bcrypt.hash(reqMember.body.password, salt);
+
+      const passwordUpdate = {
+        password: password,
+        pom_created_at: memberFound.pom_created_at,
+        new_password_token:0
+      }
+      await this.repository.update(memberFound.polling_order_member_id, passwordUpdate);
+      return true;
+    }
+    return false;
+  }
 
 }
