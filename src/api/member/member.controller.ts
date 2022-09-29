@@ -43,4 +43,9 @@ export class MemberController {
   async login(@Request() req) {
     return this.service.loginWithCredentials(req);
   }
+
+  @Post('forgot-password')
+  async sendEmailForgotPassword(@Request() req) {
+    return this.service.sendEmailForgotPassword(req);
+  }
 }

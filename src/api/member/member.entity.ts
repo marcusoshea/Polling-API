@@ -21,4 +21,10 @@ export class Member {
   @CreateDateColumn({ type: 'timestamp' })
   public pom_created_at!: Date;
 
+  @Column({ type: 'integer' })
+  public new_password_token: number;
+
+  @Column({ type: 'date' })
+  public new_password_token_timestamp: Date;
+
 }
