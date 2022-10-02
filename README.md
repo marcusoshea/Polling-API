@@ -10,6 +10,9 @@
 
 -Polling
 --Create, Edit, Delete -> Name of Polling, Polling dates
+
+-Candidate
+--Create, Edit, Delete
 ```
 
 ## Planned Work
@@ -21,9 +24,6 @@ which will be attributed to the contributor
 
 -Polling-Summary
 --Pulls data for each poll, and lists all candidates and thier data
-
--Candidate
---Create, Edit, Delete
 
 -Candidate-External-Notes
 --Create, Edit, Delete -> this would be for data added outside of a polling for a candidate

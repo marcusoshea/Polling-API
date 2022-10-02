@@ -216,45 +216,6 @@
 			"response": []
 		},
 		{
-			"name": "Delete Polling",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"polling_id\": \"1\",\"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/polling/delete",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"polling",
-						"delete"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get Member",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -291,6 +252,48 @@
 					"path": [
 						"member",
 						"56"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Polling",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"2"
 					]
 				}
 			},
@@ -369,6 +372,204 @@
 					"path": [
 						"polling",
 						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Polling",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"polling_id\": \"1\",\"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Candidate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Competent Candidate\", \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/candidate/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"candidate",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Candidate",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/candidate/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"candidate",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Candidate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Somewhat Competent Candidate\", \"candidate_id\":1, \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/candidate/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"candidate",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Candidate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"candidate_id\": \"1\",\"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/candidate/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"candidate",
+						"delete"
 					]
 				}
 			},
