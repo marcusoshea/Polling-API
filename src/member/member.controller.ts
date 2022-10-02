@@ -3,7 +3,7 @@ import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import { MemberService } from './member.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Injectable()
 

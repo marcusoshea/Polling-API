@@ -209,7 +209,7 @@ ALTER SEQUENCE public."ExternalNotes_ws_id_seq" OWNED BY public."ExternalNotes".
 CREATE TABLE public."Polling" (
     polling_id integer NOT NULL,
     name text NOT NULL,
-    create_date date NOT NULL,
+    start_date date NOT NULL,
     end_date date NOT NULL,
     polling_order_id integer NOT NULL
 );

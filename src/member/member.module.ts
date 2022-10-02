@@ -5,9 +5,9 @@ import { Member } from './member.entity';
 import { MemberService } from './member.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConstants } from '../../auth/constants';
-import { JwtStrategy } from '../../auth/jwt.strategy';
-import { AuthModule } from '../../auth/auth.module'
+import { jwtConstants } from '../auth/constants';
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { AuthModule } from '../auth/auth.module'
 import { Order } from '../polling_order/order.entity';
 
 @Module({

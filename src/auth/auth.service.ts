@@ -10,20 +10,22 @@ export class AuthService {
         return this.jwtService.decode(authToken);
     }
 
-    public isOrderAdmin(authToken: any):boolean {
+    public isOrderAdmin(authToken: any): boolean {
         const requestingMember = JSON.parse(JSON.stringify(this.jwtService.decode(authToken)));
-        const mappedReqMember = new Map(Object.entries(requestingMember));
-        const memberReqId = mappedReqMember.get("polling_order_member_id")
-        const mappedPollingOrder = new Map(Object.entries(mappedReqMember.get("pollingOrderInfo")));
-        const PollingAdminId = mappedPollingOrder.get("polling_order_admin")
-        const PollingAdminAsstId = mappedPollingOrder.get("polling_order_admin_assistant")
-        if (memberReqId === PollingAdminId || memberReqId === PollingAdminAsstId) {
-            return true;
+        if (requestingMember) {
+            const mappedReqMember = new Map(Object.entries(requestingMember));
+            const memberReqId = mappedReqMember.get("polling_order_member_id")
+            const mappedPollingOrder = new Map(Object.entries(mappedReqMember.get("pollingOrderInfo")));
+            const PollingAdminId = mappedPollingOrder.get("polling_order_admin")
+            const PollingAdminAsstId = mappedPollingOrder.get("polling_order_admin_assistant")
+            if (memberReqId === PollingAdminId || memberReqId === PollingAdminAsstId) {
+                return true;
+            }
         }
         return false;
     }
 
-    public isRecordOwner(authToken: any, recordOwner: number):boolean {
+    public isRecordOwner(authToken: any, recordOwner: number): boolean {
         const requestingMember = JSON.parse(JSON.stringify(this.jwtService.decode(authToken)));
         const mappedReqMember = new Map(Object.entries(requestingMember));
         const memberReqId = mappedReqMember.get("polling_order_member_id");

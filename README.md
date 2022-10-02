@@ -7,15 +7,14 @@
 -OrderMember
 --Create, Delete, Get, (All secured to Admin roles) 
 --Edit (Secured to record owner changes only)
+
+-Polling
+--Create, Edit, Delete -> Name of Polling, Polling dates
 ```
 
 ## Planned Work
 
 ```bash
-
--Polling
---Create, Edit, Delete -> Name of Polling, Polling dates
-
 -Polling-Note-Vote
 --Creates notes and votes associated with a specific candidate and polling, 
 which will be attributed to the contributor

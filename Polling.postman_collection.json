@@ -216,6 +216,45 @@
 			"response": []
 		},
 		{
+			"name": "Delete Polling",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"polling_id\": \"1\",\"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/delete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Member",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -226,7 +265,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
 							"type": "string"
 						}
 					]
@@ -243,7 +282,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/member/1",
+					"raw": "http://localhost:3000/member/56",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -251,7 +290,85 @@
 					"port": "3000",
 					"path": [
 						"member",
-						"1"
+						"56"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Polling",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Fall Polling\", \"start_date\": \"2022-10-02\",  \"end_date\": \"2022-10-14\", \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Polling",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"polling_id\":1, \"name\": \"Fall Polling\", \"start_date\": \"2022-10-02\",  \"end_date\": \"2022-10-14\", \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/edit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"edit"
 					]
 				}
 			},
