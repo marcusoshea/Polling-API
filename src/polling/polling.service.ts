@@ -20,7 +20,7 @@ export class PollingService {
 
   public getPollingById(id: number): Promise<Polling> {
     return this.repository.findOneBy({
-      polling_order_id: id
+      polling_id: id
     });
   }
 
