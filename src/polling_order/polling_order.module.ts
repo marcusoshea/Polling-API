@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PollingController } from './polling.controller';
-import { Polling } from './polling.entity';
-import { PollingService } from './polling.service';
+import { PollingOrderController } from './polling_order.controller';
+import { PollingOrder } from './polling_order.entity';
+import { PollingOrderService } from './polling_order.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from '../auth/constants';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { AuthModule } from '../auth/auth.module'
-import { PollingOrder } from '../polling_order/polling_order.entity';
 
 @Module({
   imports: [
@@ -16,9 +15,9 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '30d'}
-    }), TypeOrmModule.forFeature([Polling]), TypeOrmModule.forFeature([PollingOrder]),
+    }), TypeOrmModule.forFeature([PollingOrder]), TypeOrmModule.forFeature([PollingOrder]),
     AuthModule],
-  controllers: [PollingController],
-  providers: [PollingService, JwtStrategy]
+  controllers: [PollingOrderController],
+  providers: [PollingOrderService, JwtStrategy]
 })
-export class PollingModule {}
+export class PollingOrderModule {}

@@ -8,7 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from '../auth/constants';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { AuthModule } from '../auth/auth.module'
-import { Order } from '../polling_order/order.entity';
+import { PollingOrder } from '../polling_order/polling_order.entity';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { Order } from '../polling_order/order.entity';
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '30d'}
-    }), TypeOrmModule.forFeature([Member]), TypeOrmModule.forFeature([Order]),
+    }), TypeOrmModule.forFeature([Member]), TypeOrmModule.forFeature([PollingOrder]),
     AuthModule],
   controllers: [MemberController],
   providers: [MemberService, JwtStrategy]

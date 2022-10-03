@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreatePollingDto, DeletePollingDto, EditPollingDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { JwtService } from '@nestjs/jwt';
-import { Order } from '../polling_order/order.entity';
+import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
 
 
@@ -14,7 +14,7 @@ export class PollingService {
   constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
-  @InjectRepository(Order)
+  @InjectRepository(PollingOrder)
 
   private readonly repository: Repository<Polling>;
 

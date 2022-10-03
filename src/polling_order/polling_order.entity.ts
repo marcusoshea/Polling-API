@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Member } from '../member/member.entity';
 
 @Entity({name: 'PollingOrder'})
-export class Order {
+export class PollingOrder {
   @PrimaryGeneratedColumn()
   public polling_order_id: number;
 

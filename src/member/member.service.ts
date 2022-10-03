@@ -5,7 +5,7 @@ import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Order } from '../polling_order/order.entity';
+import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
 import * as nodemailer from 'nodemailer';
 
@@ -15,7 +15,7 @@ export class MemberService {
   constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
   private readonly logger = new Logger(MemberService.name)
   @InjectRepository(Member)
-  @InjectRepository(Order)
+  @InjectRepository(PollingOrder)
 
   private readonly repository: Repository<Member>;
 
@@ -29,7 +29,7 @@ export class MemberService {
     const result = await this.repository
       .createQueryBuilder('member')
       .select('member')
-      .leftJoinAndMapOne('member.pollingOrderInfo', Order, 'order', 'order.polling_order_id=member.polling_order_id')
+      .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
       .where('member.email = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
       .getOne();

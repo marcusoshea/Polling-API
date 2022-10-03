@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
-import { Order } from '../polling_order/order.entity';
+import { PollingOrder } from '../polling_order/polling_order.entity';
 
 @Entity({name: 'PollingOrderMember'})
 export class Member {

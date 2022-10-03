@@ -345,7 +345,7 @@ CREATE TABLE public."PollingOrder" (
     polling_order_id integer NOT NULL,
     polling_order_name text,
     polling_order_admin integer NOT NULL,
-    polling_order_admin_assistant integer NOT NULL
+    polling_order_admin_assistant integer 
 );
 
 
