@@ -230,7 +230,8 @@ CREATE TABLE public."PollingNotes" (
     candidate_id integer NOT NULL,
     polling_order_id integer NOT NULL,
     pn_created_at timestamp without time zone DEFAULT now() NOT NULL,
-    polling_order_member_id integer
+    polling_order_member_id integer,
+    completed boolean
 );
 
 

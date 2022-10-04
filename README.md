@@ -16,14 +16,15 @@
 
 -Polling Order
 --Create Edit, Delete
+
+-Polling-Note-Vote
+--Creates notes and votes associated with a specific candidate and polling, 
+which will be attributed to the contributor
 ```
 
 ## Planned Work
 
 ```bash
--Polling-Note-Vote
---Creates notes and votes associated with a specific candidate and polling, 
-which will be attributed to the contributor
 
 -Polling-Summary
 --Pulls data for each poll, and lists all candidates and thier data
