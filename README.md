@@ -32,7 +32,7 @@ which will be attributed to the contributor
 ## Planned Work
 
 ```bash
--Candidate-External-Notes
+-Candidate-External-Notes (possibly after initial full application release)
 --Create, Edit, Delete -> this would be for data added outside of a polling for a candidate
 
 ```
