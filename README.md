@@ -35,9 +35,6 @@ which will be attributed to the contributor
 -Candidate-External-Notes
 --Create, Edit, Delete -> this would be for data added outside of a polling for a candidate
 
--Admin
---Update Admin and Admin assistant
-
 ```
 
 
