@@ -297,6 +297,84 @@
 			"response": []
 		},
 		{
+			"name": "Add Polling Candidates",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{ \"polling_id\":2, \"candidate_id\":2, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"},{ \"polling_id\":2, \"candidate_id\":3},{ \"polling_id\":2, \"candidate_id\":4}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/candidates",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"candidates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Polling Candidate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"polling_candidate_id\": \"6\",\"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/candidate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"candidate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Polling",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -332,6 +410,49 @@
 					"port": "3000",
 					"path": [
 						"polling",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Polling Summary",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/polling/pollingsummary/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"polling",
+						"pollingsummary",
 						"2"
 					]
 				}
@@ -433,7 +554,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"name\": \"Competent Candidate 22222\", \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"raw": "{\"name\": \"Competent Candidate 3333333\", \"polling_order_id\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
 					"options": {
 						"raw": {
 							"language": "json"

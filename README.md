@@ -20,15 +20,18 @@
 -Polling-Note-Vote
 --Creates notes and votes associated with a specific candidate and polling, 
 which will be attributed to the contributor
+
+-Polling-Summary
+--Pulls data for each poll, and lists all candidates and thier data
+
+-Polling-Candidates
+-- Add, Remove
+
 ```
 
 ## Planned Work
 
 ```bash
-
--Polling-Summary
---Pulls data for each poll, and lists all candidates and thier data
-
 -Candidate-External-Notes
 --Create, Edit, Delete -> this would be for data added outside of a polling for a candidate
 

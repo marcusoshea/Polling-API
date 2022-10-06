@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { CreatePollingDto, DeletePollingDto, EditPollingDto } from './polling.dto';
+import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { PollingService } from './polling.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PollingCandidate } from './polling_candidate.entity';
 
 @Injectable()
 
@@ -19,6 +20,24 @@ export class PollingController {
   @Get(':id')
   public getPollingById(@Param('id', ParseIntPipe) id: number): Promise<Polling> {
     return this.service.getPollingById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/pollingsummary/:id')
+  public getPollingSummary(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    return this.service.getPollingSummary(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/candidates')
+  public addPollingCandidates(@Body() body: AddPollingCandidateDto[]): Promise<PollingCandidate[]> {
+    return this.service.addPollingCandidates(body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/candidate')
+  public removePollingCandidate(@Body() body: RemovePollingCandidateDto): Promise<boolean> {
+    return this.service.removePollingCandidate(body);
   }
 
   @UseGuards(JwtAuthGuard)

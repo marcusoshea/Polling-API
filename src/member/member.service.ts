@@ -86,7 +86,6 @@ export class MemberService {
   }
 
   async loginWithCredentials(member: any) {
-    this.logger.warn('tttt', member.body);
     const goodLogin = await this.checkMemberCredentials(member.body.email, member.body.password, member.body.polling_order_id);
     if (!goodLogin) {
       throw new UnauthorizedException();

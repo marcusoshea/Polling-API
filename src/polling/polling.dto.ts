@@ -47,3 +47,19 @@ export class DeletePollingDto {
     public authToken: string;
 }
 
+export class AddPollingCandidateDto {
+    @IsNotEmpty()
+    public polling_id: number;
+    @IsNotEmpty()
+    public candidate_id: number;
+    @IsNotEmpty()
+    public authToken: string;
+}
+
+export class RemovePollingCandidateDto {
+    @IsNotEmpty()
+    public polling_candidate_id: number;
+
+    @IsNotEmpty()
+    public authToken: string;
+}

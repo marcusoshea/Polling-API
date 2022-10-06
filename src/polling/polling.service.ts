@@ -1,20 +1,26 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreatePollingDto, DeletePollingDto, EditPollingDto } from './polling.dto';
+import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { JwtService } from '@nestjs/jwt';
-import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { PollingNotes } from 'src/polling_notes/polling_notes.entity';
+import { Candidate } from 'src/candidate/candidate.entity';
+import { Member } from 'src/member/member.entity';
+import { PollingCandidate } from './polling_candidate.entity';
 
 
 @Injectable()
 
 export class PollingService {
-  constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
+  constructor(public authService: AuthService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
-  @InjectRepository(PollingOrder)
+  @InjectRepository(PollingNotes)
+  @InjectRepository(Candidate)
+  @InjectRepository(Member)
+  @InjectRepository(PollingCandidate)
 
   private readonly repository: Repository<Polling>;
 
@@ -49,12 +55,59 @@ export class PollingService {
     return true;
   }
 
-
   public async deletePolling(body: DeletePollingDto): Promise<boolean> {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
     await this.repository.delete(body.polling_id);
+
+    return true;
+  }
+
+  public async getPollingSummary(pollingId: number): Promise<string> {
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'polling')
+      .addSelect('t2.*', 'pollingcandidates')
+      .addSelect('t3.*', 'candidate')
+      .addSelect('t4.*', 'pollingnotes')
+      .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+      .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+      .leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
+      .where('t1.polling_id = :pollingId', { pollingId }) 
+      .getRawMany()
+    this.logger.warn('stringify', JSON.stringify(result));
+    this.logger.warn('result note', result[0].note);
+    return ''
+  }
+
+  public async addPollingCandidates(body: AddPollingCandidateDto[]): Promise<PollingCandidate[]> {
+    if (!this.authService.isOrderAdmin(body[0].authToken)) {
+      throw new UnauthorizedException();
+    }
+    const result = await this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(PollingCandidate)
+      .values(body)
+      .execute()  
+      return result.raw;
+  }
+
+  public async removePollingCandidate(body: RemovePollingCandidateDto): Promise<boolean> {
+    this.logger.warn('parse', JSON.parse(JSON.stringify(body)));
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+
+
+    const polling_candidate_id = body.polling_candidate_id;
+      await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(PollingCandidate)
+      .where('polling_candidate_id = :polling_candidate_id', { polling_candidate_id }) // WHERE t3.event = 2019
+      .execute()  
 
     return true;
   }
