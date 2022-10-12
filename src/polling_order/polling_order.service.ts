@@ -16,13 +16,18 @@ export class PollingOrderService {
 
   private readonly repository: Repository<PollingOrder>;
 
-  public getPollingById(id: number): Promise<PollingOrder> {
+
+  public getPollingOrders(): Promise<PollingOrder[]> {
+    return this.repository.find();
+  }
+
+  public getPollingOrderById(id: number): Promise<PollingOrder> {
     return this.repository.findOneBy({
       polling_order_id: id
     });
   }
 
-  public async createPolling(body: CreatePollingOrderDto): Promise<PollingOrder> {
+  public async createPollingOrder(body: CreatePollingOrderDto): Promise<PollingOrder> {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
@@ -33,7 +38,7 @@ export class PollingOrderService {
     return this.repository.save(polling);
   }
 
-  public async editPolling(body: EditPollingOrderDto): Promise<boolean> {
+  public async editPollingOrder(body: EditPollingOrderDto): Promise<boolean> {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
@@ -47,7 +52,7 @@ export class PollingOrderService {
   }
 
 
-  public async deletePolling(body: DeletePollingOrderDto): Promise<boolean> {
+  public async deletePollingOrder(body: DeletePollingOrderDto): Promise<boolean> {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }

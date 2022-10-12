@@ -25,6 +25,12 @@ export class MemberService {
     });
   }
 
+  public getAllMembers(orderId: number): Promise<Member[]> {
+    return this.repository.findBy({
+      polling_order_id: orderId
+    });
+  }
+
   public async getMember(memberEmail: string, orderID: number): Promise<Member> {
     const result = await this.repository
       .createQueryBuilder('member')
@@ -90,8 +96,12 @@ export class MemberService {
     if (!goodLogin) {
       throw new UnauthorizedException();
     }
+    const accessToken = await this.jwtTokenService.sign(goodLogin);
+    const isOrderAdmin = await this.authService.isOrderAdmin(accessToken)
+
+
     return {
-      access_token: this.jwtTokenService.sign(goodLogin),
+      access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id
     };
   }
 

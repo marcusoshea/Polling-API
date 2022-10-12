@@ -22,6 +22,12 @@ export class MemberController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/all/:id')
+  public getAllMembers(@Param('id', ParseIntPipe) id: number): Promise<Member[]> {
+    return this.service.getAllMembers(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   public createMember(@Body() body: CreateMemberDto): Promise<Member> {
     return this.service.createMember(body);
