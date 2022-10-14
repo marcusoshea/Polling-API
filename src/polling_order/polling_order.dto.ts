@@ -6,7 +6,8 @@ export class CreatePollingOrderDto {
 
     @IsNotEmpty()
     public polling_order_admin: number;
-
+    
+    @IsNotEmpty()
     public polling_order_admin_assistant: number;
 
     @IsNotEmpty()
@@ -21,9 +22,10 @@ export class EditPollingOrderDto {
     public polling_order_admin: number;
 
     @IsNotEmpty()
-    public polling_order_id: number;
-
     public polling_order_admin_assistant: number;
+
+    @IsNotEmpty()
+    public polling_order_id: number;
 
     @IsNotEmpty()
     public authToken: string;

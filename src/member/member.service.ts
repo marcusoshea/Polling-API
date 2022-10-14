@@ -25,10 +25,14 @@ export class MemberService {
     });
   }
 
-  public getAllMembers(orderId: number): Promise<Member[]> {
-    return this.repository.findBy({
-      polling_order_id: orderId
-    });
+  public async getAllMembers(orderId: number): Promise<Member[]> {
+    const result = await this.repository
+      .createQueryBuilder('member')
+      .select(['member.polling_order_member_id', 'member.name', 'member.email'])
+      .where('member.polling_order_id = :orderId', { orderId })
+      .getMany();
+    return result;
+
   }
 
   public async getMember(memberEmail: string, orderID: number): Promise<Member> {
@@ -172,7 +176,7 @@ export class MemberService {
       const passwordUpdate = {
         password: password,
         pom_created_at: memberFound.pom_created_at,
-        new_password_token:0
+        new_password_token: 0
       }
       await this.repository.update(memberFound.polling_order_member_id, passwordUpdate);
       return true;

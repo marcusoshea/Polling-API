@@ -28,19 +28,20 @@ export class PollingOrderController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create')
-  public createPolling(@Body() body: CreatePollingOrderDto): Promise<PollingOrder> {
+  public createPollingOrder(@Body() body: CreatePollingOrderDto): Promise<PollingOrder> {
     return this.service.createPollingOrder(body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put('/edit')
-  public editPolling(@Body() body: EditPollingOrderDto): Promise<boolean> {
+  public editPollingOrder(@Body() body: EditPollingOrderDto): Promise<boolean> {
+    console.log('body', body);
     return this.service.editPollingOrder(body);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/delete')
-  public deletePolling(@Body() body: DeletePollingOrderDto): Promise<boolean> {
+  public deletePollingOrder(@Body() body: DeletePollingOrderDto): Promise<boolean> {
     return this.service.deletePollingOrder(body);
   }
 
