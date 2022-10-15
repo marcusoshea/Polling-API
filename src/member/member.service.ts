@@ -28,7 +28,7 @@ export class MemberService {
   public async getAllMembers(orderId: number): Promise<Member[]> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select(['member.polling_order_member_id', 'member.name', 'member.email'])
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved'])
       .where('member.polling_order_id = :orderId', { orderId })
       .getMany();
     return result;
@@ -69,15 +69,15 @@ export class MemberService {
     return true;
   }
 
-
   public async editMember(body: EditMemberDto, isRecordOwner: number): Promise<boolean> {
-    if (!this.authService.isRecordOwner(body.authToken, isRecordOwner)) {
+    if (!this.authService.isRecordOwner(body.authToken, isRecordOwner) && !this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
     const bodyUpdate = {
       email: body.email,
       name: body.name,
-      pom_created_at: body.pom_created_at
+      pom_created_at: body.pom_created_at,
+      approved: body.approved
     }
     await this.repository.update(body.polling_order_member_id, bodyUpdate);
     return true;
@@ -102,8 +102,6 @@ export class MemberService {
     }
     const accessToken = await this.jwtTokenService.sign(goodLogin);
     const isOrderAdmin = await this.authService.isOrderAdmin(accessToken)
-
-
     return {
       access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id
     };

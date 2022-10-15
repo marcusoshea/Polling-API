@@ -27,4 +27,7 @@ export class Member {
   @Column({ type: 'date' })
   public new_password_token_timestamp: Date;
 
+  @Column({ type: 'boolean' })
+  public approved: boolean;
+
 }

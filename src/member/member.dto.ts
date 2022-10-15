@@ -42,6 +42,9 @@ export class EditMemberDto {
 
   @IsNotEmpty()
   public pom_created_at: string;
+
+  @IsNotEmpty()
+  public approved: boolean;
 }
 
 export class DeleteMemberDto {
