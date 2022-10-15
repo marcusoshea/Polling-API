@@ -17,9 +17,6 @@ export class CreateMemberDto {
 
   @IsNotEmpty()
   public pom_created_at: string;
-
-  @IsNotEmpty()
-  public authToken: string;
 }
 
 export class EditMemberDto {

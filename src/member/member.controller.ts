@@ -27,7 +27,6 @@ export class MemberController {
     return this.service.getAllMembers(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/create')
   public createMember(@Body() body: CreateMemberDto): Promise<Member> {
     return this.service.createMember(body);

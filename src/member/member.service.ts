@@ -47,9 +47,6 @@ export class MemberService {
   }
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
-    if (!this.authService.isOrderAdmin(body.authToken)) {
-      throw new UnauthorizedException();
-    }
     const member: Member = new Member();
     member.name = body.name;
     member.email = body.email;
@@ -87,7 +84,7 @@ export class MemberService {
     const member = await this.getMember(memberEmail, polling_order_id);
     if (member) {
       const validPassword = await bcrypt.compare(password, member.password);
-      if (validPassword) {
+      if (validPassword && member.approved) {
         const { password, ...result } = member
         return result
       }
