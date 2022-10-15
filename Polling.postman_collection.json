@@ -114,7 +114,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"name\": \"Newguy eeeee\", \"password\": \"123456\", \"polling_order_id\":1,\"email\": \"some1243555544@some.com\", \"pom_created_at\": \"2022-09-02\", \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0xMC0wMiIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc2MDE0NSwiZXhwIjoxNjY3MzUyMTQ1fQ.IJU-rUr9Q9gCu9peBRy89gLCtTXxHmuPRoV8gRp5UMk\"}",
+					"raw": "{\"name\": \"New Guy Scarlet Guard\", \"password\": \"123456\", \"polling_order_id\":5,\"email\": \"some1243555544@some.com\", \"pom_created_at\": \"2022-09-02\", \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0xMC0wMiIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc2MDE0NSwiZXhwIjoxNjY3MzUyMTQ1fQ.IJU-rUr9Q9gCu9peBRy89gLCtTXxHmuPRoV8gRp5UMk\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -153,7 +153,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{   \r\n    \"name\": \"Newguy rrrgggg\",\r\n    \"email\": \"some1243555544@some.com\",\r\n    \"password\": \"$2b$10$lmJgpE6oaMIq3DQvz13TCuuLCaHNUiFIF2pIiHNAkedCh/BXG3y12\",\r\n    \"polling_order_id\": 1,\r\n    \"pom_created_at\": \"2022-09-01T04:00:00.000Z\",\r\n    \"polling_order_member_id\": 61, \"authToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6NjEsIm5hbWUiOiJOZXdndXkgZWVlZWUiLCJlbWFpbCI6InNvbWUxMjQzNTU1NTQ0QHNvbWUuY29tIiwicG9sbGluZ19vcmRlcl9pZCI6MSwicG9tX2NyZWF0ZWRfYXQiOiIyMDIyLTA5LTAxVDA0OjAwOjAwLjAwMFoiLCJuZXdfcGFzc3dvcmRfdG9rZW4iOm51bGwsIm5ld19wYXNzd29yZF90b2tlbl90aW1lc3RhbXAiOm51bGwsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc2MDIyOCwiZXhwIjoxNjY3MzUyMjI4fQ.Eg3rujYg4IuqxTdoizYzgp8PKEgstklIpoR8E4RuF08\"\r\n    }",
+					"raw": "{\"name\":\"Newguy rrrgggg\",\"email\":\"some1243555544@some.com\",\"polling_order_member_id\":61,\"approved\":true,\"polling_order_id\":1,\"pom_created_at\":\"2022-10-14\",\"authToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0xMC0wMiIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NTc5MTU3MCwiZXhwIjoxNjY4MzgzNTcwfQ.puV3Ze4VO7V9fzoNSDAl1tjeIhXKq6JAoGDqsRuah-0\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -252,6 +252,49 @@
 					"path": [
 						"member",
 						"61"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Order Members",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/member/all/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"member",
+						"all",
+						"1"
 					]
 				}
 			},
@@ -736,6 +779,47 @@
 			"response": []
 		},
 		{
+			"name": "Get All Polling Orders",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/pollingorder",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"pollingorder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get  Polling Order",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -785,7 +869,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQyMTozNzozMS4xNTRaIiwicG9sbGluZ09yZGVySW5mbyI6eyJwb2xsaW5nX29yZGVyX2lkIjoxLCJwb2xsaW5nX29yZGVyX25hbWUiOiJXaGl0ZSBTY2FyZiIsInBvbGxpbmdfb3JkZXJfYWRtaW4iOjEsInBvbGxpbmdfb3JkZXJfYWRtaW5fYXNzaXN0YW50IjoxfSwiaWF0IjoxNjY0MTU0MDE4LCJleHAiOjE2NjY3NDYwMTh9.wUuCegW9kTb51SRF9lOlciSNZrVsOb5dUl_nT98B0X0",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0xMC0wMiIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NTcxMjUwOCwiZXhwIjoxNjY4MzA0NTA4fQ.v1hQiKkPGJo3RcGbtylMnhylIBNA7DNlCkRrAHCdzV4",
 							"type": "string"
 						}
 					]
@@ -794,7 +878,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"polling_order_name\": \"New Order 2\", \"polling_order_id\":3, \"polling_order_admin\":1, \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0wOS0yOCIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NDc0NzgxOCwiZXhwIjoxNjY3MzM5ODE4fQ.W2P-NIpvqlwleTgQXankYDzH3kzIRT0RuUT1OEnFlbY\"}",
+					"raw": "{\"polling_order_name\":\"White Scarf\",\"polling_order_admin\":\"1\",\"polling_order_admin_assistant\":\"61\",\"polling_order_id\":1,\"authToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwb2xsaW5nX29yZGVyX21lbWJlcl9pZCI6MSwibmFtZSI6Ik1hcmt1cyBza2FscHIgR3JpbXNzb24iLCJlbWFpbCI6Im1hcmN1c29zaGVhMTAwQGdtYWlsLmNvbSIsInBvbGxpbmdfb3JkZXJfaWQiOjEsInBvbV9jcmVhdGVkX2F0IjoiMjAyMi0wOS0xMVQwNDowMDowMC4wMDBaIiwibmV3X3Bhc3N3b3JkX3Rva2VuIjowLCJuZXdfcGFzc3dvcmRfdG9rZW5fdGltZXN0YW1wIjoiMjAyMi0xMC0wMiIsInBvbGxpbmdPcmRlckluZm8iOnsicG9sbGluZ19vcmRlcl9pZCI6MSwicG9sbGluZ19vcmRlcl9uYW1lIjoiV2hpdGUgU2NhcmYiLCJwb2xsaW5nX29yZGVyX2FkbWluIjoxLCJwb2xsaW5nX29yZGVyX2FkbWluX2Fzc2lzdGFudCI6MX0sImlhdCI6MTY2NTcxMjUwOCwiZXhwIjoxNjY4MzA0NTA4fQ.v1hQiKkPGJo3RcGbtylMnhylIBNA7DNlCkRrAHCdzV4\"}",
 					"options": {
 						"raw": {
 							"language": "json"
