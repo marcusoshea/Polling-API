@@ -112,6 +112,33 @@ export class MemberService {
       approved: body.approved
     }
     await this.repository.update(body.polling_order_member_id, bodyUpdate);
+
+    //new account approved by order clerk
+    if(this.authService.isOrderAdmin(body.authToken)) {
+      const orderClerk = await this.getOrderClerk(body.polling_order_id);
+      let transporter = nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        secure: process.env.MAIL_SECURE,
+        auth: {
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD
+        }
+      });
+      let mailOptions = {
+        from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
+        to: body.email,
+        subject: orderClerk.pollingOrderInfo.polling_order_name +' Registration complete',
+        text: orderClerk.pollingOrderInfo.polling_order_name +' Registration complete',
+        html: 'Hi! <br><br>Your registration has been approved for the polling website<br><br>' +
+          '<a href=' +process.env.WEBSITE_URL+'>Click here</a>'  
+      };
+
+     await transporter
+        .sendMail(mailOptions)
+        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
+        .catch(e => { this.logger.warn('error', e) });
+    }
     return true;
   }
 
