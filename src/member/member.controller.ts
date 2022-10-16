@@ -27,6 +27,11 @@ export class MemberController {
     return this.service.getAllMembers(id);
   }
 
+  @Get('/orderclerk/:id')
+  public getOrderClerk(@Param('id', ParseIntPipe) id: number): Promise<Member> {
+    return this.service.getOrderClerk(id);
+  }
+
   @Post('/create')
   public createMember(@Body() body: CreateMemberDto): Promise<Member> {
     return this.service.createMember(body);
@@ -54,7 +59,7 @@ export class MemberController {
     return this.service.sendEmailForgotPassword(req);
   }
 
-  @Get('verify/:token')
+  @Post('verify/:token')
   public async resetPassword(@Request() params): Promise<boolean> {
       return await this.service.resetPassword(params);
   }

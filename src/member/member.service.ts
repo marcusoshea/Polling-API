@@ -46,7 +46,42 @@ export class MemberService {
     return result;
   }
 
+  public async getOrderClerk(orderID: number): Promise<any> {
+    const result = await this.repository
+      .createQueryBuilder('member')
+      .select('member')
+      .innerJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_admin=member.polling_order_member_id')
+      .where('member.polling_order_id = :orderID', { orderID })
+      .getOne();
+    return result;
+  }
+
   public async createMember(body: CreateMemberDto): Promise<Member> {
+    const orderClerk = await this.getOrderClerk(body.polling_order_id);
+      let transporter = nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        secure: process.env.MAIL_SECURE,
+        auth: {
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD
+        }
+      });
+
+      let mailOptions = {
+        from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
+        to: orderClerk.email,
+        subject: 'New ' + orderClerk.pollingOrderInfo.polling_order_name +' Polling Member Registered',
+        text: 'New Polling ' + orderClerk.pollingOrderInfo.polling_order_name +' Member Registered',
+        html: 'Hi! <br><br> A New Polling ' + orderClerk.pollingOrderInfo.polling_order_name +' Member has Registered<br><br>' +
+          '<a href=' +process.env.WEBSITE_URL+'>Click here</a>'  
+      };
+
+     await transporter
+        .sendMail(mailOptions)
+        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
+        .catch(e => { this.logger.warn('error', e) });
+
     const member: Member = new Member();
     member.name = body.name;
     member.email = body.email;
@@ -142,8 +177,8 @@ export class MemberService {
         to: member.email,
         subject: 'Forgotten Password',
         text: 'Forgot Password',
-        html: 'Hi! <br><br> If you requested to reset your password<br><br>' +
-          '<a href=' + process.env.BASE_URL + ':' + process.env.PORT + '/member/reset-password/' + tokenMember.new_password_token + '>Click here</a>'  // html body
+        html: 'Hi! <br><br> If you requested to reset your polling member password<br><br>' +
+          'Click here <a href=' + process.env.WEBSITE_URL + '/reset-password?token=' + tokenMember.new_password_token + '>Click here</a>'  // html body
       };
 
       const result = await transporter
