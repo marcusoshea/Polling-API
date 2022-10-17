@@ -16,12 +16,6 @@ export class MemberController {
   private readonly service: MemberService;
 
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  public getMemberById(@Param('id', ParseIntPipe) id: number): Promise<Member> {
-    return this.service.getMemberById(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('/all/:id')
   public getAllMembers(@Param('id', ParseIntPipe) id: number): Promise<Member[]> {
     return this.service.getAllMembers(id);
@@ -62,6 +56,11 @@ export class MemberController {
   @Post('verify/:token')
   public async resetPassword(@Request() params): Promise<boolean> {
       return await this.service.resetPassword(params);
+  }
+
+  @Put('changePassword')
+  public async changePassword(@Request() params): Promise<boolean> {
+      return await this.service.changePassword(params);
   }
 
 }

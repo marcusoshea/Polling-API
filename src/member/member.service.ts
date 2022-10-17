@@ -19,10 +19,14 @@ export class MemberService {
 
   private readonly repository: Repository<Member>;
 
-  public getMemberById(id: number): Promise<Member> {
-    return this.repository.findOneBy({
-      polling_order_member_id: id
-    });
+  public async getMemberById(id: number): Promise<Member> {
+    const result = await this.repository
+      .createQueryBuilder('member')
+      .select('member')
+      .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
+      .where('member.polling_order_member_id = :id', { id })
+      .getOne();
+    return result;
   }
 
   public async getAllMembers(orderId: number): Promise<Member[]> {
@@ -38,7 +42,7 @@ export class MemberService {
   public async getMember(memberEmail: string, orderID: number): Promise<Member> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select('member')
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved'])
       .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
       .where('member.email = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
@@ -46,6 +50,16 @@ export class MemberService {
     return result;
   }
 
+  public async getMemberAuth(memberEmail: string, orderID: number): Promise<Member> {
+    const result = await this.repository
+      .createQueryBuilder('member')
+      .select('member')
+      .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
+      .where('member.email = :memberEmail', { memberEmail })
+      .andWhere('member.polling_order_id = :orderID', { orderID })
+      .getOne();
+    return result;
+  }
   public async getOrderClerk(orderID: number): Promise<any> {
     const result = await this.repository
       .createQueryBuilder('member')
@@ -58,29 +72,32 @@ export class MemberService {
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
     const orderClerk = await this.getOrderClerk(body.polling_order_id);
-      let transporter = nodemailer.createTransport({
-        host: process.env.MAIL_HOST,
-        port: process.env.MAIL_PORT,
-        secure: process.env.MAIL_SECURE,
-        auth: {
-          user: process.env.MAIL_USERNAME,
-          pass: process.env.MAIL_PASSWORD
-        }
-      });
+    if ((await this.getMember(body.email, body.polling_order_id))?.email) {
+      throw new HttpException('Account exists already.', HttpStatus.NOT_ACCEPTABLE);         
+    }
+    let transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      secure: process.env.MAIL_SECURE,
+      auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD
+      }
+    });
 
-      let mailOptions = {
-        from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
-        to: orderClerk.email,
-        subject: 'New ' + orderClerk.pollingOrderInfo.polling_order_name +' Polling Member Registered',
-        text: 'New Polling ' + orderClerk.pollingOrderInfo.polling_order_name +' Member Registered',
-        html: 'Hi! <br><br> A New Polling ' + orderClerk.pollingOrderInfo.polling_order_name +' Member has Registered<br><br>' +
-          '<a href=' +process.env.WEBSITE_URL+'>Click here</a>'  
-      };
+    let mailOptions = {
+      from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
+      to: orderClerk.email,
+      subject: 'New ' + orderClerk.pollingOrderInfo.polling_order_name + ' Polling Member Registered',
+      text: 'New Polling ' + orderClerk.pollingOrderInfo.polling_order_name + ' Member Registered',
+      html: 'Hi! <br><br> A New Polling ' + orderClerk.pollingOrderInfo.polling_order_name + ' Member has Registered<br><br>' +
+        '<a href=' + process.env.WEBSITE_URL + '>Click here</a>'
+    };
 
-     await transporter
-        .sendMail(mailOptions)
-        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
-        .catch(e => { this.logger.warn('error', e) });
+    await transporter
+      .sendMail(mailOptions)
+      .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
+      .catch(e => { this.logger.warn('error', e) });
 
     const member: Member = new Member();
     member.name = body.name;
@@ -102,19 +119,41 @@ export class MemberService {
   }
 
   public async editMember(body: EditMemberDto, isRecordOwner: number): Promise<boolean> {
-    if (!this.authService.isRecordOwner(body.authToken, isRecordOwner) && !this.authService.isOrderAdmin(body.authToken)) {
+    const recordOwner = this.authService.isRecordOwner(body.authToken, isRecordOwner);
+    const orderAdmin = this.authService.isOrderAdmin(body.authToken);
+
+    if (!recordOwner && !orderAdmin) {
       throw new UnauthorizedException();
     }
-    const bodyUpdate = {
-      email: body.email,
-      name: body.name,
-      pom_created_at: body.pom_created_at,
-      approved: body.approved
+
+    let bodyUpdate = {}
+    const memberInfo = await this.getMemberById(body.polling_order_member_id)
+    const year = memberInfo.pom_created_at.getFullYear();
+    const month = parseInt(memberInfo.pom_created_at.getMonth().toString().padStart(3, "0")) + 1;
+    const day = parseInt(memberInfo.pom_created_at.getDate().toString().padStart(3, "0")) + 1;
+    //const created = year + '-' + month + '-' + day;
+
+    const created = memberInfo.pom_created_at.toISOString().split('T')[0];
+
+    if (recordOwner) {
+      bodyUpdate = {
+        email: body.email,
+        name: body.name,
+        pom_created_at: created,
+        approved: memberInfo.approved
+      }
+    } else {
+      bodyUpdate = {
+        email: body.email,
+        name: body.name,
+        pom_created_at: created,
+        approved: body.approved
+      }
     }
     await this.repository.update(body.polling_order_member_id, bodyUpdate);
 
     //new account approved by order clerk
-    if(this.authService.isOrderAdmin(body.authToken)) {
+    if (orderAdmin && !recordOwner) {
       const orderClerk = await this.getOrderClerk(body.polling_order_id);
       let transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
@@ -128,13 +167,13 @@ export class MemberService {
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
         to: body.email,
-        subject: orderClerk.pollingOrderInfo.polling_order_name +' Registration complete',
-        text: orderClerk.pollingOrderInfo.polling_order_name +' Registration complete',
+        subject: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
+        text: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
         html: 'Hi! <br><br>Your registration has been approved for the polling website<br><br>' +
-          '<a href=' +process.env.WEBSITE_URL+'>Click here</a>'  
+          '<a href=' + process.env.WEBSITE_URL + '>Click here</a>'
       };
 
-     await transporter
+      await transporter
         .sendMail(mailOptions)
         .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
         .catch(e => { this.logger.warn('error', e) });
@@ -143,7 +182,7 @@ export class MemberService {
   }
 
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
-    const member = await this.getMember(memberEmail, polling_order_id);
+    const member = await this.getMemberAuth(memberEmail, polling_order_id);
     if (member) {
       const validPassword = await bcrypt.compare(password, member.password);
       if (validPassword && member.approved) {
@@ -162,7 +201,8 @@ export class MemberService {
     const accessToken = await this.jwtTokenService.sign(goodLogin);
     const isOrderAdmin = await this.authService.isOrderAdmin(accessToken)
     return {
-      access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id
+      access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id,
+      memberId: goodLogin.polling_order_member_id, name: goodLogin.name, email: goodLogin.email
     };
   }
 
@@ -236,6 +276,29 @@ export class MemberService {
         new_password_token: 0
       }
       await this.repository.update(memberFound.polling_order_member_id, passwordUpdate);
+      return true;
+    }
+    return false;
+  }
+
+
+  async changePassword(reqMember: any): Promise<boolean> {
+    const goodLogin = await this.checkMemberCredentials(reqMember.body.email, reqMember.body.password, reqMember.body.pollingOrderId);
+    if (!goodLogin) {
+      throw new UnauthorizedException();
+    }
+
+    if (goodLogin) {
+
+      const salt = await bcrypt.genSalt(10);
+      const password = await bcrypt.hash(reqMember.body.newPassword, salt);
+
+      const passwordUpdate = {
+        password: password,
+        pom_created_at: goodLogin.pom_created_at,
+        new_password_token: 0
+      }
+      await this.repository.update(goodLogin.polling_order_member_id, passwordUpdate);
       return true;
     }
     return false;

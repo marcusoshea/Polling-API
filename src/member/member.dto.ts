@@ -37,10 +37,10 @@ export class EditMemberDto {
   @IsNotEmpty()
   public authToken: string;
 
-  @IsNotEmpty()
+
   public pom_created_at: string;
 
-  @IsNotEmpty()
+
   public approved: boolean;
 }
 
