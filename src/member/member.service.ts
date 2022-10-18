@@ -36,7 +36,6 @@ export class MemberService {
       .where('member.polling_order_id = :orderId', { orderId })
       .getMany();
     return result;
-
   }
 
   public async getMember(memberEmail: string, orderID: number): Promise<Member> {

@@ -55,4 +55,13 @@ export class CandidateService {
     return true;
   }
 
+  public async getAllCandidates(orderId: number): Promise<Candidate[]> {
+    const result = await this.repository
+      .createQueryBuilder('candidate')
+      .select(['candidate'])
+      .where('candidate.polling_order_id = :orderId', { orderId })
+      .getMany();
+    return result;
+  }
+
 }

@@ -22,6 +22,12 @@ export class CandidateController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/all/:id')
+  public getAllCandidates(@Param('id', ParseIntPipe) id: number): Promise<Candidate[]> {
+    return this.service.getAllCandidates(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   public createCandidate(@Body() body: CreateCandidateDto): Promise<Candidate> {
     return this.service.createCandidate(body);
