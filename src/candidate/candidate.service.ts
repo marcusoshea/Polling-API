@@ -60,6 +60,7 @@ export class CandidateService {
       .createQueryBuilder('candidate')
       .select(['candidate'])
       .where('candidate.polling_order_id = :orderId', { orderId })
+      .orderBy('name')
       .getMany();
     return result;
   }
