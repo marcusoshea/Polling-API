@@ -22,6 +22,12 @@ export class ExternalNoteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/candidate/:id')
+  public getExternalNoteByCandidateId(@Param('id', ParseIntPipe) id: number): Promise<ExternalNotes[]> {
+    return this.service.getExternalNoteByCandidateId(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   public createExternalNote(@Body() body: CreateExternalNoteDto): Promise<ExternalNotes> {
     return this.service.createExternalNote(body);

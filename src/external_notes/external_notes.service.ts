@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateExternalNoteDto, EditExternalNoteDto, DeleteExternalNoteDto } from './external_notes.dto';
 import { ExternalNotes } from './external_notes.entity';
+import { Member } from '../member/member.entity';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -19,6 +20,20 @@ export class ExternalNotesService {
     return this.repository.findOneBy({
       external_notes_id: id
     });
+  }
+
+  public async getExternalNoteByCandidateId(id: number): Promise<ExternalNotes[]> {
+    const result = await this.repository
+    .createQueryBuilder('externalnotes')
+    .select('externalnotes','member')
+    .innerJoinAndMapOne('externalnotes.polling_order_member_id', Member, 'member', 'member.polling_order_member_id=externalnotes.polling_order_member_id')
+    .where('externalnotes.candidate_id = :id', { id })
+    .orderBy('externalnotes.en_created_at')
+    .getMany()
+    ;
+    return result;
+
+
   }
 
   public async createExternalNote(body: CreateExternalNoteDto): Promise<ExternalNotes> {
