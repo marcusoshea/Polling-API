@@ -1,6 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from "typeorm"
+
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
@@ -22,4 +24,35 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       synchronize: false, // never use TRUE in production!
     };
   }
+
+  public workDataSource(): DataSource {
+    const AppDataSource = new DataSource({
+      type: 'postgres',
+      host: this.config.get<string>('DATABASE_HOST'),
+      port: this.config.get<number>('DATABASE_PORT'),
+      database: this.config.get<string>('DATABASE_NAME'),
+      username: this.config.get<string>('DATABASE_USER'),
+      password: this.config.get<string>('DATABASE_PASSWORD'),
+      entities: ['dist/**/*.entity.{ts,js}'],
+      migrations: ['dist/migrations/*.{ts,js}'],
+      subscribers: ["src/subscriber/**/*.ts"],
+      migrationsTableName: 'typeorm_migrations',
+      logger: 'file',
+      synchronize: false, // never use TRUE in production!
+    });
+
+    AppDataSource.initialize()
+    .then(() => {
+        console.log("Data Source has been initialized!")
+    })
+    .catch((err) => {
+        console.error("Error during Data Source initialization", err)
+    })
+    
+
+    return AppDataSource;
+  }
+
 }
+
+

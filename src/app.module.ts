@@ -14,7 +14,8 @@ import { ExternalNotesModule } from './external_notes/external_notes.module';
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
-  imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, ConfigModule.forRoot({ envFilePath, isGlobal: true }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],
+  imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, 
+    ConfigModule.forRoot({ envFilePath, isGlobal: true }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],
   controllers: [],
   providers: [AppService],
 })

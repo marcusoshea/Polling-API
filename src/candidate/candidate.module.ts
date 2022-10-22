@@ -9,6 +9,9 @@ import { jwtConstants } from '../auth/constants';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { AuthModule } from '../auth/auth.module'
 import { PollingOrder } from '../polling_order/polling_order.entity';
+import { ExternalNotes } from '../external_notes/external_notes.entity';
+import { PollingNotes } from '../polling_notes/polling_notes.entity';
+import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 
 @Module({
   imports: [
@@ -17,8 +20,9 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '30d'}
     }), TypeOrmModule.forFeature([Candidate]), TypeOrmModule.forFeature([PollingOrder]),
+     TypeOrmModule.forFeature([ExternalNotes]), TypeOrmModule.forFeature([PollingNotes]),
     AuthModule],
   controllers: [CandidateController],
-  providers: [CandidateService, JwtStrategy]
+  providers: [CandidateService, JwtStrategy, TypeOrmConfigService]
 })
 export class CandidateModule {}

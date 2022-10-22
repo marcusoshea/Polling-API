@@ -6,17 +6,25 @@ import { Candidate } from './candidate.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
-
+import { ExternalNotes } from '../external_notes/external_notes.entity';
+import { PollingNotes } from '../polling_notes/polling_notes.entity';
+import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 
 @Injectable()
 
 export class CandidateService {
-  constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
+  constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService:TypeOrmConfigService) { }
   private readonly logger = new Logger(CandidateService.name)
   @InjectRepository(Candidate)
   @InjectRepository(PollingOrder)
+  @InjectRepository(ExternalNotes)
+  @InjectRepository(PollingNotes)
 
   private readonly repository: Repository<Candidate>;
+  
+  private readonly ENRepo: Repository<ExternalNotes>;
+    
+  private readonly PNRepo: Repository<PollingNotes>;
 
   public getCandidateById(id: number): Promise<Candidate> {
     return this.repository.findOneBy({
@@ -47,11 +55,23 @@ export class CandidateService {
 
 
   public async deleteCandidate(body: DeleteCandidateDto): Promise<boolean> {
+    let candidateId = body.candidate_id; 
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
-    }
-    await this.repository.delete(body.candidate_id);
-
+    }   
+        
+    let data = this.typeOrmConfigService.workDataSource();
+    data.initialize().then(newdata => 
+      newdata.createQueryBuilder()
+      .delete()
+      .from(ExternalNotes)
+      .where('candidate_id = :candidateId', { candidateId })
+      .execute()
+      .then(()=> 
+      this.repository.delete(body.candidate_id)
+      )
+    );
+  
     return true;
   }
 
