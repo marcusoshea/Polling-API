@@ -110,7 +110,8 @@ export class PollingService {
       .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
       .innerJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
       .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
-      .where('t2.candidate_id = :candidateId', { candidateId }) 
+      .where('t3.candidate_id = :candidateId', { candidateId }) 
+      .andWhere('t4.candidate_id = :candidateId', { candidateId }) 
       .orderBy('pn_created_at')
       .getRawMany()
 
