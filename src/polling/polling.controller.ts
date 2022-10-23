@@ -61,10 +61,17 @@ export class PollingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/all/:id')
-  public getAllCandidates(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
+  public getAllPollings(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
     return this.service.getAllPollings(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/allpn/:id')
+  public getPollingNotesByCandidateId(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
+    return this.service.getPollingNotesByCandidateId(id);
+  }
+
+  
 
 
 }

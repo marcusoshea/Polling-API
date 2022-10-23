@@ -35,7 +35,7 @@ export class PollingService {
       throw new UnauthorizedException();
     }
     const polling: Polling = new Polling();
-    polling.name = body.name;
+    polling.polling_name = body.name;
     polling.start_date = new Date(body.start_date);
     polling.end_date = new Date(body.end_date);
     polling.polling_order_id = body.polling_order_id;
@@ -81,22 +81,42 @@ export class PollingService {
     return true;
   }
 
-  public async getPollingSummary(pollingId: number): Promise<string> {
+  public async getPollingSummary(pollingId: number): Promise<any> {
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'polling')
+      .addSelect('t2.*', 'pollingcandidates')
+      .addSelect('t3.*', 'candidate')
+      //.addSelect('t4.*', 'pollingnotes')
+      .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+      .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+      //.leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
+      .where('t1.polling_id = :pollingId', { pollingId }) 
+      .getRawMany()
+    this.logger.warn('stringify', JSON.stringify(result));
+    this.logger.warn('result note', result[0].note);
+    return result;
+  }
+
+  public async getPollingNotesByCandidateId(candidateId: number): Promise<any> {
     const result = await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .addSelect('t2.*', 'pollingcandidates')
       .addSelect('t3.*', 'candidate')
       .addSelect('t4.*', 'pollingnotes')
+      .addSelect('t5.*', 'pollingordermember')
       .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
       .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
-      .leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
-      .where('t1.polling_id = :pollingId', { pollingId }) 
+      .innerJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
+      .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
+      .where('t2.candidate_id = :candidateId', { candidateId }) 
+      .orderBy('pn_created_at')
       .getRawMany()
-    this.logger.warn('stringify', JSON.stringify(result));
-    this.logger.warn('result note', result[0].note);
-    return ''
+
+    return result;
   }
+
 
   public async addPollingCandidates(body: AddPollingCandidateDto[]): Promise<PollingCandidate[]> {
     if (!this.authService.isOrderAdmin(body[0].authToken)) {
@@ -133,7 +153,7 @@ export class PollingService {
       .createQueryBuilder('polling')
       .select(['polling'])
       .where('polling.polling_order_id = :orderId', { orderId })
-      .orderBy('name')
+      .orderBy('polling_name')
       .getMany();
     return result;
   }

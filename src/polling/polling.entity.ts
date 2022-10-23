@@ -6,7 +6,7 @@ export class Polling {
   public polling_id!: number;
 
   @Column({ type: 'varchar', length: 120 })
-  public name: string;
+  public polling_name: string;
 
   @Column({ type: 'integer' })
   public polling_order_id: number;
