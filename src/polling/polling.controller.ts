@@ -58,4 +58,13 @@ export class PollingController {
     return this.service.deletePolling(body);
   }
 
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/all/:id')
+  public getAllCandidates(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
+    return this.service.getAllPollings(id);
+  }
+
+
+
 }

@@ -9,12 +9,12 @@ import { PollingNotes } from 'src/polling_notes/polling_notes.entity';
 import { Candidate } from 'src/candidate/candidate.entity';
 import { Member } from 'src/member/member.entity';
 import { PollingCandidate } from './polling_candidate.entity';
-
+import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 
 @Injectable()
 
 export class PollingService {
-  constructor(public authService: AuthService) { }
+  constructor(public authService: AuthService, public typeOrmConfigService:TypeOrmConfigService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
   @InjectRepository(PollingNotes)
@@ -56,10 +56,27 @@ export class PollingService {
   }
 
   public async deletePolling(body: DeletePollingDto): Promise<boolean> {
+    let pollingId = body.polling_id; 
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
-    await this.repository.delete(body.polling_id);
+    let data = this.typeOrmConfigService.workDataSource();
+    data.initialize().then(newdata => 
+      newdata.createQueryBuilder()
+      .delete()
+      .from(PollingNotes)
+      .where('polling_id = :pollingId', { pollingId })
+      .execute()
+      .then(()=> 
+      newdata.createQueryBuilder()
+      .delete()
+      .from(PollingCandidate)
+      .where('polling_id = :pollingId', { pollingId })
+      .execute()
+      .then(()=> 
+      this.repository.delete(body.polling_id)
+      ))
+    );
 
     return true;
   }
@@ -100,7 +117,6 @@ export class PollingService {
       throw new UnauthorizedException();
     }
 
-
     const polling_candidate_id = body.polling_candidate_id;
       await this.repository
       .createQueryBuilder()
@@ -111,5 +127,17 @@ export class PollingService {
 
     return true;
   }
+
+  public async getAllPollings(orderId: number): Promise<Polling[]> {
+    const result = await this.repository
+      .createQueryBuilder('polling')
+      .select(['polling'])
+      .where('polling.polling_order_id = :orderId', { orderId })
+      .orderBy('name')
+      .getMany();
+    return result;
+  }
+
+
 
 }

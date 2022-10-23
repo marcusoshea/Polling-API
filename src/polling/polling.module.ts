@@ -13,6 +13,7 @@ import { PollingNotes } from 'src/polling_notes/polling_notes.entity';
 import { Candidate } from 'src/candidate/candidate.entity';
 import { Member } from 'src/member/member.entity';
 import { PollingCandidate } from './polling_candidate.entity';
+import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { PollingCandidate } from './polling_candidate.entity';
     TypeOrmModule.forFeature([Candidate]),TypeOrmModule.forFeature([Member]),TypeOrmModule.forFeature([PollingCandidate]),
     AuthModule],
   controllers: [PollingController],
-  providers: [PollingService, JwtStrategy]
+  providers: [PollingService, JwtStrategy, TypeOrmConfigService]
 })
 export class PollingModule {}
