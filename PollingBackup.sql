@@ -5,7 +5,31 @@
 -- Dumped from database version 14.5
 -- Dumped by pg_dump version 14.4
 
--- Started on 2022-10-14 22:58:03
+-- Started on 2022-10-24 22:20:07
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP DATABASE polling;
+--
+-- TOC entry 3407 (class 1262 OID 16394)
+-- Name: polling; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE polling WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'English_United States.1252';
+
+
+ALTER DATABASE polling OWNER TO postgres;
+
+\connect polling
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -53,7 +77,7 @@ CREATE SEQUENCE public."Candidate_candidate_id_seq"
 ALTER TABLE public."Candidate_candidate_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3407 (class 0 OID 0)
+-- TOC entry 3408 (class 0 OID 0)
 -- Dependencies: 213
 -- Name: Candidate_candidate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -78,7 +102,7 @@ CREATE SEQUENCE public."Candidate_polling_order_id_seq"
 ALTER TABLE public."Candidate_polling_order_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3408 (class 0 OID 0)
+-- TOC entry 3409 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: Candidate_polling_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -119,7 +143,7 @@ CREATE SEQUENCE public."ExternalNotes_candidate_id_seq"
 ALTER TABLE public."ExternalNotes_candidate_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3409 (class 0 OID 0)
+-- TOC entry 3410 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: ExternalNotes_candidate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -144,7 +168,7 @@ CREATE SEQUENCE public."ExternalNotes_external_notes_id_seq"
 ALTER TABLE public."ExternalNotes_external_notes_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3410 (class 0 OID 0)
+-- TOC entry 3411 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: ExternalNotes_external_notes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -169,7 +193,7 @@ CREATE SEQUENCE public."ExternalNotes_ws_id_seq"
 ALTER TABLE public."ExternalNotes_ws_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3411 (class 0 OID 0)
+-- TOC entry 3412 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: ExternalNotes_ws_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -184,7 +208,7 @@ ALTER SEQUENCE public."ExternalNotes_ws_id_seq" OWNED BY public."ExternalNotes".
 
 CREATE TABLE public."Polling" (
     polling_id integer NOT NULL,
-    name text NOT NULL,
+    polling_name text NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
     polling_order_id integer NOT NULL
@@ -224,7 +248,7 @@ CREATE SEQUENCE public."PollingCandidates_polling_candidate_id_seq"
 ALTER TABLE public."PollingCandidates_polling_candidate_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3412 (class 0 OID 0)
+-- TOC entry 3413 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: PollingCandidates_polling_candidate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -269,7 +293,7 @@ CREATE SEQUENCE public."PollingNotes_candidate_id_seq"
 ALTER TABLE public."PollingNotes_candidate_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3413 (class 0 OID 0)
+-- TOC entry 3414 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: PollingNotes_candidate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -294,7 +318,7 @@ CREATE SEQUENCE public."PollingNotes_polling_id_seq"
 ALTER TABLE public."PollingNotes_polling_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3414 (class 0 OID 0)
+-- TOC entry 3415 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: PollingNotes_polling_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -319,7 +343,7 @@ CREATE SEQUENCE public."PollingNotes_polling_notes_id_seq"
 ALTER TABLE public."PollingNotes_polling_notes_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3415 (class 0 OID 0)
+-- TOC entry 3416 (class 0 OID 0)
 -- Dependencies: 215
 -- Name: PollingNotes_polling_notes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -344,7 +368,7 @@ CREATE SEQUENCE public."PollingNotes_ws_id_seq"
 ALTER TABLE public."PollingNotes_ws_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3416 (class 0 OID 0)
+-- TOC entry 3417 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: PollingNotes_ws_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -404,7 +428,7 @@ CREATE SEQUENCE public."PollingOrderMember_polling_order_id_seq"
 ALTER TABLE public."PollingOrderMember_polling_order_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3417 (class 0 OID 0)
+-- TOC entry 3418 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: PollingOrderMember_polling_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -444,7 +468,7 @@ CREATE SEQUENCE public."PollingOrder_polling_order_admin_assistant_seq"
 ALTER TABLE public."PollingOrder_polling_order_admin_assistant_seq" OWNER TO postgres;
 
 --
--- TOC entry 3418 (class 0 OID 0)
+-- TOC entry 3419 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: PollingOrder_polling_order_admin_assistant_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -469,7 +493,7 @@ CREATE SEQUENCE public."PollingOrder_polling_order_admin_seq"
 ALTER TABLE public."PollingOrder_polling_order_admin_seq" OWNER TO postgres;
 
 --
--- TOC entry 3419 (class 0 OID 0)
+-- TOC entry 3420 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: PollingOrder_polling_order_admin_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -494,7 +518,7 @@ CREATE SEQUENCE public."PollingOrder_polling_order_id_seq"
 ALTER TABLE public."PollingOrder_polling_order_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3420 (class 0 OID 0)
+-- TOC entry 3421 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: PollingOrder_polling_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -519,7 +543,7 @@ CREATE SEQUENCE public."Polling_polling_id_seq"
 ALTER TABLE public."Polling_polling_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3421 (class 0 OID 0)
+-- TOC entry 3422 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: Polling_polling_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -544,7 +568,7 @@ CREATE SEQUENCE public."Polling_polling_order_member_id_seq"
 ALTER TABLE public."Polling_polling_order_member_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3422 (class 0 OID 0)
+-- TOC entry 3423 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: Polling_polling_order_member_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -569,7 +593,7 @@ CREATE SEQUENCE public."WhiteScarves_ws_id_seq"
 ALTER TABLE public."WhiteScarves_ws_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 3423 (class 0 OID 0)
+-- TOC entry 3424 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: WhiteScarves_ws_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -631,11 +655,9 @@ ALTER TABLE ONLY public."PollingOrder" ALTER COLUMN polling_order_id SET DEFAULT
 -- Data for Name: Candidate; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Candidate" (candidate_id, name, polling_order_id) FROM stdin;
-2	Competent Candidate	1
-3	Competent Candidate 22222	1
-4	Competent Candidate 3333333	1
-\.
+INSERT INTO public."Candidate" (candidate_id, name, polling_order_id) VALUES (2, 'Competent Candidate', 1);
+INSERT INTO public."Candidate" (candidate_id, name, polling_order_id) VALUES (12, 'Competent Candidate A', 1);
+INSERT INTO public."Candidate" (candidate_id, name, polling_order_id) VALUES (18, 'a Competent Candidate f', 1);
 
 
 --
@@ -644,8 +666,14 @@ COPY public."Candidate" (candidate_id, name, polling_order_id) FROM stdin;
 -- Data for Name: ExternalNotes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) FROM stdin;
-\.
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (6, 2, 1, '3rd External note info for candidate', '2022-09-01 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (7, 2, 1, 'test', '2022-10-22 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (8, 2, 1, 'test2', '2022-10-22 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (9, 2, 1, 'test3', '2022-10-22 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (10, 2, 1, 'test4', '2022-10-22 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (11, 2, 1, 'test5', '2022-10-23 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (12, 2, 17, 'testing as donnan', '2022-10-23 20:00:00');
+INSERT INTO public."ExternalNotes" (external_notes_id, candidate_id, polling_order_member_id, external_note, en_created_at) VALUES (13, 18, 1, 'non polling note for a Competent Candidate f', '2022-10-23 20:00:00');
 
 
 --
@@ -654,9 +682,7 @@ COPY public."ExternalNotes" (external_notes_id, candidate_id, polling_order_memb
 -- Data for Name: Polling; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Polling" (polling_id, name, start_date, end_date, polling_order_id) FROM stdin;
-2	Fall Polling	2022-10-01	2022-10-13	1
-\.
+INSERT INTO public."Polling" (polling_id, polling_name, start_date, end_date, polling_order_id) VALUES (11, 'Nov 2022 Polling', '2022-10-21', '2022-10-28', 1);
 
 
 --
@@ -665,11 +691,8 @@ COPY public."Polling" (polling_id, name, start_date, end_date, polling_order_id)
 -- Data for Name: PollingCandidates; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."PollingCandidates" (polling_id, candidate_id, polling_candidate_id) FROM stdin;
-2	2	1
-2	3	2
-2	4	3
-\.
+INSERT INTO public."PollingCandidates" (polling_id, candidate_id, polling_candidate_id) VALUES (11, 18, 14);
+INSERT INTO public."PollingCandidates" (polling_id, candidate_id, polling_candidate_id) VALUES (11, 2, 15);
 
 
 --
@@ -678,9 +701,7 @@ COPY public."PollingCandidates" (polling_id, candidate_id, polling_candidate_id)
 -- Data for Name: PollingNotes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."PollingNotes" (polling_notes_id, note, vote, polling_id, candidate_id, polling_order_id, pn_created_at, polling_order_member_id, completed) FROM stdin;
-1	Newguy is good	\N	2	2	1	2022-09-01 20:00:00	1	f
-\.
+INSERT INTO public."PollingNotes" (polling_notes_id, note, vote, polling_id, candidate_id, polling_order_id, pn_created_at, polling_order_member_id, completed) VALUES (4, 'polling note', NULL, 11, 2, 1, '2022-10-23 00:46:52.269866', 1, false);
 
 
 --
@@ -689,10 +710,8 @@ COPY public."PollingNotes" (polling_notes_id, note, vote, polling_id, candidate_
 -- Data for Name: PollingOrder; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."PollingOrder" (polling_order_id, polling_order_name, polling_order_admin, polling_order_admin_assistant) FROM stdin;
-1	White Scarf	1	1
-5	Scarlet Guard	63	63
-\.
+INSERT INTO public."PollingOrder" (polling_order_id, polling_order_name, polling_order_admin, polling_order_admin_assistant) VALUES (1, 'White Scarf', 1, 1);
+INSERT INTO public."PollingOrder" (polling_order_id, polling_order_name, polling_order_admin, polling_order_admin_assistant) VALUES (5, 'Scarlet Guard', 63, 63);
 
 
 --
@@ -701,26 +720,29 @@ COPY public."PollingOrder" (polling_order_id, polling_order_name, polling_order_
 -- Data for Name: PollingOrderMember; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) FROM stdin;
-63	Juan Miguel Cezar	111111@gmail.com	$2b$10$UkcDIdA8yynTZrMnUKgt4ezhSNdcc5pYprtLJ4.G4j7Y8S9t0LNsy	5	2022-10-14	\N	\N	t
-64	New Guy Scarlet Guard	some1243555544@some.com	$2b$10$ak84ggu5Nqm6Zjlz3VWtDeylAY.S24hwGpkiAmFgYN5rK3pLihPKm	5	2022-09-01	\N	\N	f
-1	Markus skalpr Grimsson	111111@gmail.com	$2b$10$WMA6o2VpVquNtF5ceWsRe.K0LFAooZab8EqGWokIWp65joYsDyQty	1	2022-09-11	0	2022-10-02	t
-17	Donnan	some@some.com	$2b$10$2Cyk/t9EihvL0AypsJvmNe8kO07zdKZTO.MsZmKT8JpIDq5QqIBIG	1	2022-09-11	\N	\N	t
-62	Newguy eeeee	some1243555544@some.com	$2b$10$FYkBujKMihsGFbZSaxbmtu..oWapp3vDlgKofriqQU8PVDfBXjxCG	1	2022-10-14	\N	\N	t
-\.
-
-
---
--- TOC entry 3424 (class 0 OID 0)
--- Dependencies: 213
--- Name: Candidate_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public."Candidate_candidate_id_seq"', 4, true);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (64, 'New Guy Scarlet Guard', 'some1243555544@some.com', '$2b$10$ak84ggu5Nqm6Zjlz3VWtDeylAY.S24hwGpkiAmFgYN5rK3pLihPKm', 5, '2022-09-01', NULL, NULL, false);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (1, 'Markus skalpr Grimsson', 'marcusoshea100@gmail.com', '$2b$10$nC2pHNTOlWEO1xdXI6XPjevP8coT1NIWxoY2WqW/6RpALgoC5PQsW', 1, '2022-08-09', 0, '2022-10-15', true);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (63, 'Juan Miguel Cezar', 'testjuan@gmail.com', '$2b$10$WxUM7MS3Cf5LHnEQW4Y4LeorAqE4671LaGu49OP7PYkCpSync0xPS', 5, '2022-10-14', 0, NULL, true);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (65, 'Markus skalpr Grimsson', 'marcusoshea100@gmail.com', '$2b$10$H9TBqQJyZ0x542xOsh0OduJiz4R3.9ehPrSM53V86kunXw7Q9JX8y', 5, '2022-10-13', 0, NULL, false);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (71, 'ffffffffeeeeeeeeeeeeeee', 'marcusoshea100fffffffffffffff@gmail.com', '$2b$10$WLTpEGB3nWnfFX6id0hdOOAR3iooT4rXlgdDYySRKHUxuVwjVtZqC', 1, '2022-10-16', NULL, NULL, false);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (68, 'GGGGGGG', 'marcusoshea100333@gmail.com', '$2b$10$Uh1vmvOzFetPxGg53sDDw.XioQyO7JShHmHT2.r6KSOYhFhc8TMqm', 1, '2022-10-16', 3821996, '2022-10-15', true);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (69, 'Some good fencer', 'marcusoshea10340@gmail.com', '$2b$10$vHX3mliv4F7sZ5kivq3xies/0n40Yji9Mnd93I7BDkoaMDNGXq/KO', 1, '2022-10-15', NULL, NULL, false);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (70, 'tttt', 'marcusoshea4444444444@gmail.com', '$2b$10$goly2qdVdw31ymXjfR6c1u7DQd74JUVi0pBCxF9nG78bvPBa5j8m.', 1, '2022-10-16', NULL, NULL, false);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (17, 'Donnan', 'some@some.com', '$2b$10$2Cyk/t9EihvL0AypsJvmNe8kO07zdKZTO.MsZmKT8JpIDq5QqIBIG', 1, '2022-09-11', NULL, NULL, true);
+INSERT INTO public."PollingOrderMember" (polling_order_member_id, name, email, password, polling_order_id, pom_created_at, new_password_token, new_password_token_timestamp, approved) OVERRIDING SYSTEM VALUE VALUES (62, 'Newguy eeeee', 'some1243555544@some.com', '$2b$10$FYkBujKMihsGFbZSaxbmtu..oWapp3vDlgKofriqQU8PVDfBXjxCG', 1, '2022-10-14', NULL, NULL, true);
 
 
 --
 -- TOC entry 3425 (class 0 OID 0)
+-- Dependencies: 213
+-- Name: Candidate_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Candidate_candidate_id_seq"', 18, true);
+
+
+--
+-- TOC entry 3426 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: Candidate_polling_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -729,7 +751,7 @@ SELECT pg_catalog.setval('public."Candidate_polling_order_id_seq"', 1, false);
 
 
 --
--- TOC entry 3426 (class 0 OID 0)
+-- TOC entry 3427 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: ExternalNotes_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -738,16 +760,16 @@ SELECT pg_catalog.setval('public."ExternalNotes_candidate_id_seq"', 1, false);
 
 
 --
--- TOC entry 3427 (class 0 OID 0)
+-- TOC entry 3428 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: ExternalNotes_external_notes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ExternalNotes_external_notes_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."ExternalNotes_external_notes_id_seq"', 13, true);
 
 
 --
--- TOC entry 3428 (class 0 OID 0)
+-- TOC entry 3429 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: ExternalNotes_ws_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -756,16 +778,16 @@ SELECT pg_catalog.setval('public."ExternalNotes_ws_id_seq"', 1, false);
 
 
 --
--- TOC entry 3429 (class 0 OID 0)
+-- TOC entry 3430 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: PollingCandidates_polling_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."PollingCandidates_polling_candidate_id_seq"', 6, true);
+SELECT pg_catalog.setval('public."PollingCandidates_polling_candidate_id_seq"', 15, true);
 
 
 --
--- TOC entry 3430 (class 0 OID 0)
+-- TOC entry 3431 (class 0 OID 0)
 -- Dependencies: 217
 -- Name: PollingNotes_candidate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -774,7 +796,7 @@ SELECT pg_catalog.setval('public."PollingNotes_candidate_id_seq"', 1, false);
 
 
 --
--- TOC entry 3431 (class 0 OID 0)
+-- TOC entry 3432 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: PollingNotes_polling_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -783,16 +805,16 @@ SELECT pg_catalog.setval('public."PollingNotes_polling_id_seq"', 1, false);
 
 
 --
--- TOC entry 3432 (class 0 OID 0)
+-- TOC entry 3433 (class 0 OID 0)
 -- Dependencies: 215
 -- Name: PollingNotes_polling_notes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."PollingNotes_polling_notes_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."PollingNotes_polling_notes_id_seq"', 4, true);
 
 
 --
--- TOC entry 3433 (class 0 OID 0)
+-- TOC entry 3434 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: PollingNotes_ws_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -801,7 +823,7 @@ SELECT pg_catalog.setval('public."PollingNotes_ws_id_seq"', 1, false);
 
 
 --
--- TOC entry 3434 (class 0 OID 0)
+-- TOC entry 3435 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: PollingOrderMember_polling_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -810,16 +832,16 @@ SELECT pg_catalog.setval('public."PollingOrderMember_polling_order_id_seq"', 6, 
 
 
 --
--- TOC entry 3435 (class 0 OID 0)
+-- TOC entry 3436 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: PollingOrderMember_polling_order_member_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."PollingOrderMember_polling_order_member_id_seq"', 64, true);
+SELECT pg_catalog.setval('public."PollingOrderMember_polling_order_member_id_seq"', 71, true);
 
 
 --
--- TOC entry 3436 (class 0 OID 0)
+-- TOC entry 3437 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: PollingOrder_polling_order_admin_assistant_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -828,7 +850,7 @@ SELECT pg_catalog.setval('public."PollingOrder_polling_order_admin_assistant_seq
 
 
 --
--- TOC entry 3437 (class 0 OID 0)
+-- TOC entry 3438 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: PollingOrder_polling_order_admin_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -837,7 +859,7 @@ SELECT pg_catalog.setval('public."PollingOrder_polling_order_admin_seq"', 1, fal
 
 
 --
--- TOC entry 3438 (class 0 OID 0)
+-- TOC entry 3439 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: PollingOrder_polling_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -846,16 +868,16 @@ SELECT pg_catalog.setval('public."PollingOrder_polling_order_id_seq"', 5, true);
 
 
 --
--- TOC entry 3439 (class 0 OID 0)
+-- TOC entry 3440 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: Polling_polling_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Polling_polling_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."Polling_polling_id_seq"', 11, true);
 
 
 --
--- TOC entry 3440 (class 0 OID 0)
+-- TOC entry 3441 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: Polling_polling_order_member_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -864,7 +886,7 @@ SELECT pg_catalog.setval('public."Polling_polling_order_member_id_seq"', 1, fals
 
 
 --
--- TOC entry 3441 (class 0 OID 0)
+-- TOC entry 3442 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: WhiteScarves_ws_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -1021,7 +1043,7 @@ ALTER TABLE ONLY public."Candidate"
     ADD CONSTRAINT polling_order_id FOREIGN KEY (polling_order_id) REFERENCES public."PollingOrder"(polling_order_id) NOT VALID;
 
 
--- Completed on 2022-10-14 22:58:04
+-- Completed on 2022-10-24 22:20:07
 
 --
 -- PostgreSQL database dump complete
