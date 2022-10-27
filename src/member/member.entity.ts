@@ -30,4 +30,7 @@ export class Member {
   @Column({ type: 'boolean' })
   public approved: boolean;
 
+  @Column({ type: 'boolean' })
+  public removed: boolean;
+
 }

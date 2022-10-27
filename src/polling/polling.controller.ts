@@ -72,6 +72,12 @@ export class PollingController {
   }
 
   
+  @UseGuards(JwtAuthGuard)
+  @Get('/currentpolling/:id')
+  public getCurrentPolling(@Param('id', ParseIntPipe) id: number): Promise<Polling> {
+    return this.service.getCurrentPolling(id);
+  }
+  
 
 
 }

@@ -87,14 +87,24 @@ export class PollingService {
       .select('t1.*', 'polling')
       .addSelect('t2.*', 'pollingcandidates')
       .addSelect('t3.*', 'candidate')
-      //.addSelect('t4.*', 'pollingnotes')
+      .addSelect('t4.*', 'pollingnotes')
       .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
       .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
-      //.leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
+      .leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
       .where('t1.polling_id = :pollingId', { pollingId }) 
+      .andWhere('t4.candidate_id = t2.candidate_id') 
       .getRawMany()
-    this.logger.warn('stringify', JSON.stringify(result));
-    this.logger.warn('result note', result[0].note);
+    return result;
+  }
+
+  public async getCurrentPolling(orderId: number): Promise<any> {
+    const today = new Date();
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'polling')
+      .where('t1.polling_order_id = :orderId', { orderId })
+      .andWhere('CURRENT_DATE BETWEEN "t1"."start_date" AND "t1"."end_date"') 
+      .getRawOne()
     return result;
   }
 
@@ -114,7 +124,6 @@ export class PollingService {
       .andWhere('t4.candidate_id = :candidateId', { candidateId }) 
       .orderBy('pn_created_at')
       .getRawMany()
-
     return result;
   }
 
@@ -133,7 +142,7 @@ export class PollingService {
   }
 
   public async removePollingCandidate(body: RemovePollingCandidateDto): Promise<boolean> {
-    this.logger.warn('parse', JSON.parse(JSON.stringify(body)));
+
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }

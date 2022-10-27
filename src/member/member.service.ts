@@ -32,7 +32,7 @@ export class MemberService {
   public async getAllMembers(orderId: number): Promise<Member[]> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved'])
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved', 'member.removed'])
       .where('member.polling_order_id = :orderId', { orderId })
       .getMany();
     return result;
@@ -146,13 +146,14 @@ export class MemberService {
         email: body.email,
         name: body.name,
         pom_created_at: created,
-        approved: body.approved
+        approved: body.approved,
+        removed: body.removed
       }
     }
     await this.repository.update(body.polling_order_member_id, bodyUpdate);
 
     //new account approved by order clerk
-    if (orderAdmin && !recordOwner) {
+    if (orderAdmin && !recordOwner && !body.removed) {
       const orderClerk = await this.getOrderClerk(body.polling_order_id);
       let transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
@@ -184,7 +185,7 @@ export class MemberService {
     const member = await this.getMemberAuth(memberEmail, polling_order_id);
     if (member) {
       const validPassword = await bcrypt.compare(password, member.password);
-      if (validPassword && member.approved) {
+      if (validPassword && member.approved && !member.removed) {
         const { password, ...result } = member
         return result
       }

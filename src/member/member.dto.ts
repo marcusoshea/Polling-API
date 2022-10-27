@@ -37,11 +37,13 @@ export class EditMemberDto {
   @IsNotEmpty()
   public authToken: string;
 
-
   public pom_created_at: string;
 
-
+  @IsNotEmpty()
   public approved: boolean;
+
+  @IsNotEmpty()
+  public removed: boolean;
 }
 
 export class DeleteMemberDto {
