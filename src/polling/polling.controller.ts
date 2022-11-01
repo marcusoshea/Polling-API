@@ -23,9 +23,9 @@ export class PollingController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/pollingsummary/:id')
-  public getPollingSummary(@Param('id', ParseIntPipe) id: number): Promise<string> {
-    return this.service.getPollingSummary(id);
+  @Get('/pollingsummary/:id/:orderMemberId')
+  public getPollingSummary(@Param('id', ParseIntPipe) id: number, @Param('orderMemberId', ParseIntPipe) orderMemberId: number): Promise<string> {
+    return this.service.getPollingSummary(id, orderMemberId);
   }
 
   @UseGuards(JwtAuthGuard)

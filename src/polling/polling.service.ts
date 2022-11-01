@@ -14,7 +14,7 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 @Injectable()
 
 export class PollingService {
-  constructor(public authService: AuthService, public typeOrmConfigService:TypeOrmConfigService) { }
+  constructor(public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
   @InjectRepository(PollingNotes)
@@ -56,33 +56,51 @@ export class PollingService {
   }
 
   public async deletePolling(body: DeletePollingDto): Promise<boolean> {
-    let pollingId = body.polling_id; 
+    let pollingId = body.polling_id;
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
     let data = this.typeOrmConfigService.workDataSource();
-    data.initialize().then(newdata => 
+    data.initialize().then(newdata =>
       newdata.createQueryBuilder()
-      .delete()
-      .from(PollingNotes)
-      .where('polling_id = :pollingId', { pollingId })
-      .execute()
-      .then(()=> 
-      newdata.createQueryBuilder()
-      .delete()
-      .from(PollingCandidate)
-      .where('polling_id = :pollingId', { pollingId })
-      .execute()
-      .then(()=> 
-      this.repository.delete(body.polling_id)
-      ))
+        .delete()
+        .from(PollingNotes)
+        .where('polling_id = :pollingId', { pollingId })
+        .execute()
+        .then(() =>
+          newdata.createQueryBuilder()
+            .delete()
+            .from(PollingCandidate)
+            .where('polling_id = :pollingId', { pollingId })
+            .execute()
+            .then(() =>
+              this.repository.delete(body.polling_id)
+            ))
     );
 
     return true;
   }
 
-  public async getPollingSummary(pollingId: number): Promise<any> {
-    const result = await this.repository
+  /*   public async getPollingSummary(pollingId: number): Promise<any> {
+      const result = await this.repository
+        .createQueryBuilder('t1')
+        .select('t1.*', 'polling')
+        .addSelect('t2.*', 'pollingcandidates')
+        .addSelect('t3.*', 'candidate')
+        .addSelect('t4.*', 'pollingnotes')
+        .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+        .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+        .leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
+        .where('t1.polling_id = :pollingId', { pollingId }) 
+        .andWhere('t4.candidate_id = t2.candidate_id') 
+        .getSql()
+      return result;
+    }
+   */
+
+  public async getPollingSummary(pollingId: number, orderMemberId: number): Promise<any> {
+    let result = {};
+    await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .addSelect('t2.*', 'pollingcandidates')
@@ -91,11 +109,34 @@ export class PollingService {
       .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
       .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
       .leftJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
-      .where('t1.polling_id = :pollingId', { pollingId }) 
-      .andWhere('t4.candidate_id = t2.candidate_id') 
+      .where('t1.polling_id = :pollingId', { pollingId })
+      .andWhere('t4.candidate_id = t2.candidate_id')
+      .andWhere('t4.polling_order_member_id = :orderMemberId', { orderMemberId })
       .getRawMany()
+      .then(async (data) => {
+        let candidateIds = data.map(d => d.candidate_id);
+        const result2 = await this.repository
+          .createQueryBuilder('t1')
+          .select('t1.*', 'polling')
+          .addSelect('t2.*', 'pollingcandidates')
+          .addSelect('t3.*', 'candidate')
+          .addSelect('null', 'polling_notes_id')
+          .addSelect('null', 'note')
+          .addSelect('null', 'vote')
+          .addSelect('null', 'pn_created_at')
+          .addSelect('null', 'polling_order_member_id')
+          .addSelect('false', 'completed')
+          .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+          .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+          .where('t1.polling_id = :pollingId', { pollingId })
+          .andWhere('t3.candidate_id not in ('+ candidateIds +')')          
+          .getRawMany()
+          data.push(result2);
+        result = data.flat();
+      })
     return result;
   }
+
 
   public async getCurrentPolling(orderId: number): Promise<any> {
     const today = new Date();
@@ -103,7 +144,7 @@ export class PollingService {
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .where('t1.polling_order_id = :orderId', { orderId })
-      .andWhere('CURRENT_DATE BETWEEN "t1"."start_date" AND "t1"."end_date"') 
+      .andWhere('CURRENT_DATE BETWEEN "t1"."start_date" AND "t1"."end_date"')
       .getRawOne()
     return result;
   }
@@ -120,8 +161,8 @@ export class PollingService {
       .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
       .innerJoin(PollingNotes, 't4', 't1.polling_id = t2.polling_id')
       .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
-      .where('t3.candidate_id = :candidateId', { candidateId }) 
-      .andWhere('t4.candidate_id = :candidateId', { candidateId }) 
+      .where('t3.candidate_id = :candidateId', { candidateId })
+      .andWhere('t4.candidate_id = :candidateId', { candidateId })
       .orderBy('pn_created_at')
       .getRawMany()
     return result;
@@ -137,8 +178,8 @@ export class PollingService {
       .insert()
       .into(PollingCandidate)
       .values(body)
-      .execute()  
-      return result.raw;
+      .execute()
+    return result.raw;
   }
 
   public async removePollingCandidate(body: RemovePollingCandidateDto): Promise<boolean> {
@@ -148,12 +189,12 @@ export class PollingService {
     }
 
     const polling_candidate_id = body.polling_candidate_id;
-      await this.repository
+    await this.repository
       .createQueryBuilder()
       .delete()
       .from(PollingCandidate)
       .where('polling_candidate_id = :polling_candidate_id', { polling_candidate_id }) // WHERE t3.event = 2019
-      .execute()  
+      .execute()
 
     return true;
   }
@@ -167,7 +208,5 @@ export class PollingService {
       .getMany();
     return result;
   }
-
-
 
 }
