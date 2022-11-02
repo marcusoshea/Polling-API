@@ -114,7 +114,10 @@ export class PollingService {
       .andWhere('t4.polling_order_member_id = :orderMemberId', { orderMemberId })
       .getRawMany()
       .then(async (data) => {
-        let candidateIds = data.map(d => d.candidate_id);
+        let candidateIds = [0];
+        if(data.length > 0) { 
+          candidateIds = data.map(d => d.candidate_id);
+        }
         const result2 = await this.repository
           .createQueryBuilder('t1')
           .select('t1.*', 'polling')

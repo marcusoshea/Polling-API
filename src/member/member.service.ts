@@ -89,7 +89,7 @@ export class MemberService {
       to: orderClerk.email,
       subject: 'New ' + orderClerk.pollingOrderInfo.polling_order_name + ' Polling Member Registered',
       text: 'New Polling ' + orderClerk.pollingOrderInfo.polling_order_name + ' Member Registered',
-      html: 'Hi! <br><br> A New Polling ' + orderClerk.pollingOrderInfo.polling_order_name + ' Member has Registered<br><br>' +
+      html: 'Hi! <br><br> A New Polling ' + orderClerk.pollingOrderInfo.polling_order_name + ' Order Member has Registered<br><br>' +
         '<a href=' + process.env.WEBSITE_URL + '>Click here</a>'
     };
 
@@ -173,7 +173,7 @@ export class MemberService {
         subject: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
         text: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
         html: 'Hi! <br><br>Your registration has been approved for the polling website<br><br>' +
-          '<a href=' + process.env.WEBSITE_URL + '>Click here</a>'
+          '<a href=' + process.env.WEBSITE_URL + '>Click here</a> to visit the site'
       };
 
       await transporter
@@ -247,8 +247,8 @@ export class MemberService {
         to: member.email,
         subject: 'Forgotten Password',
         text: 'Forgot Password',
-        html: 'Hi! <br><br> If you requested to reset your polling member password<br><br>' +
-          'Click here <a href=' + process.env.WEBSITE_URL + '/reset-password?token=' + tokenMember.new_password_token + '>Click here</a>'  // html body
+        html: 'Hi! <br><br> This is a message from the AEPolling.org website. If you requested to reset your polling member password<br><br>' +
+          '<a href=' + process.env.WEBSITE_URL + '/reset-password?token=' + tokenMember.new_password_token + '>Click here</a> and update your password. Otherwise please disregard this email.'  // html body
       };
 
       const result = await transporter

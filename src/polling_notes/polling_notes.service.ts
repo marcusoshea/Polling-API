@@ -25,21 +25,38 @@ export class PollingNotesService {
 
   public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
     const memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
-    let finished=0;
+    let finished = 0;
+
+
     body.forEach(x => {
-      const pollingNote: PollingNotes = new PollingNotes();
-      pollingNote.polling_notes_id = x.polling_notes_id;
-      if (x.note.length > 0) {
+      let pollingNote: PollingNotes = new PollingNotes;
+      if (x?.note?.length > 0) {
         pollingNote.note = x.note;
       }
-      pollingNote.vote = x.vote;
-      pollingNote.polling_id = x.polling_id;
-      pollingNote.candidate_id = x.candidate_id;
-      pollingNote.polling_order_id = x.polling_order_id;
-      pollingNote.pn_created_at = new Date(x.pn_created_at);
-      pollingNote.polling_order_member_id = memberID;
-      pollingNote.completed = x.completed;
-      this.repository.save(pollingNote);
+      if (x?.polling_notes_id) {
+        pollingNote.polling_notes_id = x.polling_notes_id;
+        pollingNote.vote = x.vote;
+        pollingNote.polling_id = x.polling_id;
+        pollingNote.candidate_id = x.candidate_id;
+        pollingNote.polling_order_id = x.polling_order_id;
+        pollingNote.polling_order_member_id = memberID;
+        pollingNote.completed = x.completed;
+        this.repository.update(pollingNote.polling_notes_id, pollingNote);
+      } else {
+        pollingNote.polling_notes_id = x?.polling_notes_id;
+        pollingNote.vote = x.vote;
+        pollingNote.polling_id = x.polling_id;
+        pollingNote.candidate_id = x.candidate_id;
+        pollingNote.polling_order_id = x.polling_order_id;
+        pollingNote.polling_order_member_id = memberID;
+        pollingNote.completed = x.completed;
+        this.repository.save(pollingNote);
+      }
+
+
+
+
+
       finished++;
     })
     if (finished === body.length) {
