@@ -44,6 +44,9 @@ export class EditMemberDto {
 
   @IsNotEmpty()
   public removed: boolean;
+
+  @IsNotEmpty()
+  public active: boolean;
 }
 
 export class DeleteMemberDto {

@@ -23,18 +23,28 @@ export class PollingNotesService {
     });
   }
 
-  public async createPollingNote(body: CreatePollingNoteDto): Promise<PollingNotes> {
-    const memberID = this.authService.getPollingOrderMemberId(body.authToken);
-    const pollingNote: PollingNotes = new PollingNotes();
-    pollingNote.note = body.note;
-    pollingNote.vote = body.vote;
-    pollingNote.polling_id = body.polling_id;
-    pollingNote.candidate_id = body.candidate_id;
-    pollingNote.polling_order_id = body.polling_order_id;
-    pollingNote.pn_created_at = new Date(body.pn_created_at);
-    pollingNote.polling_order_member_id = memberID;
-    pollingNote.completed = body.completed;
-    return this.repository.save(pollingNote);
+  public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
+    const memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
+    let finished=0;
+    body.forEach(x => {
+      const pollingNote: PollingNotes = new PollingNotes();
+      pollingNote.polling_notes_id = x.polling_notes_id;
+      if (x.note.length > 0) {
+        pollingNote.note = x.note;
+      }
+      pollingNote.vote = x.vote;
+      pollingNote.polling_id = x.polling_id;
+      pollingNote.candidate_id = x.candidate_id;
+      pollingNote.polling_order_id = x.polling_order_id;
+      pollingNote.pn_created_at = new Date(x.pn_created_at);
+      pollingNote.polling_order_member_id = memberID;
+      pollingNote.completed = x.completed;
+      this.repository.save(pollingNote);
+      finished++;
+    })
+    if (finished === body.length) {
+      return true;
+    }
   }
 
   public async editPollingNote(body: EditPollingNoteDto, isRecordOwner: number): Promise<boolean> {
@@ -42,10 +52,10 @@ export class PollingNotesService {
       throw new UnauthorizedException();
     }
     const bodyUpdate = {
-      note : body.note,
-      vote : body.vote,
-      candidate_id : body.candidate_id,
-      completed : body.completed
+      note: body.note,
+      vote: body.vote,
+      candidate_id: body.candidate_id,
+      completed: body.completed
     }
     await this.repository.update(body.polling_notes_id, bodyUpdate);
     return true;

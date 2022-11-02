@@ -28,7 +28,7 @@ export class ExternalNotesService {
     .select('externalnotes','member')
     .innerJoinAndMapOne('externalnotes.polling_order_member_id', Member, 'member', 'member.polling_order_member_id=externalnotes.polling_order_member_id')
     .where('externalnotes.candidate_id = :id', { id })
-    .orderBy('externalnotes.en_created_at')
+    .orderBy('externalnotes.en_created_at', 'DESC')
     .getMany()
     ;
     return result;

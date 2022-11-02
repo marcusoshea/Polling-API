@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { NamingStrategyNotFoundError, Repository } from 'typeorm';
 import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -103,7 +103,7 @@ export class PollingService {
     await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
-      .addSelect('t2.*', 'pollingcandidates')
+      .select('t2.*', 'pollingcandidates')
       .addSelect('t3.*', 'candidate')
       .addSelect('t4.*', 'pollingnotes')
       .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
@@ -163,7 +163,8 @@ export class PollingService {
       .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
       .where('t3.candidate_id = :candidateId', { candidateId })
       .andWhere('t4.candidate_id = :candidateId', { candidateId })
-      .orderBy('pn_created_at')
+      .andWhere('t4.completed = true')
+      .orderBy('pn_created_at', 'DESC')
       .getRawMany()
     return result;
   }

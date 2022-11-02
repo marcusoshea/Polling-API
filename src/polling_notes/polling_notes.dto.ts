@@ -2,6 +2,8 @@ import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreatePollingNoteDto {
+    public polling_notes_id: number;
+    
     @IsString()
     public note: string;
 

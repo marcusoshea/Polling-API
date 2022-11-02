@@ -23,7 +23,7 @@ export class PollingNoteController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/create')
-  public createPollingNote(@Body() body: CreatePollingNoteDto): Promise<PollingNotes> {
+  public createPollingNote(@Body() body: CreatePollingNoteDto[]): Promise<boolean> {
     return this.service.createPollingNote(body);
   }
 

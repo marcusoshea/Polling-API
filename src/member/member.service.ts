@@ -32,7 +32,7 @@ export class MemberService {
   public async getAllMembers(orderId: number): Promise<Member[]> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved', 'member.removed'])
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved', 'member.removed', 'member.active'])
       .where('member.polling_order_id = :orderId', { orderId })
       .getMany();
     return result;
@@ -41,7 +41,7 @@ export class MemberService {
   public async getMember(memberEmail: string, orderID: number): Promise<Member> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved'])
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved','member.active'])
       .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
       .where('member.email = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
@@ -139,7 +139,9 @@ export class MemberService {
         email: body.email,
         name: body.name,
         pom_created_at: created,
-        approved: memberInfo.approved
+        approved: memberInfo.approved,
+        removed: memberInfo.removed,
+        active: body.active
       }
     } else {
       bodyUpdate = {
@@ -147,7 +149,8 @@ export class MemberService {
         name: body.name,
         pom_created_at: created,
         approved: body.approved,
-        removed: body.removed
+        removed: body.removed,
+        active: body.active
       }
     }
     await this.repository.update(body.polling_order_member_id, bodyUpdate);
@@ -202,7 +205,7 @@ export class MemberService {
     const isOrderAdmin = await this.authService.isOrderAdmin(accessToken)
     return {
       access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id,
-      memberId: goodLogin.polling_order_member_id, name: goodLogin.name, email: goodLogin.email
+      memberId: goodLogin.polling_order_member_id, name: goodLogin.name, email: goodLogin.email, active: goodLogin.active
     };
   }
 

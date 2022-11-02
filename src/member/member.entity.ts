@@ -33,4 +33,7 @@ export class Member {
   @Column({ type: 'boolean' })
   public removed: boolean;
 
+  @Column({ type: 'boolean' })
+  public active: boolean;
+
 }
