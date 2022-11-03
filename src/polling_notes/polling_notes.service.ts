@@ -6,6 +6,7 @@ import { PollingNotes } from './polling_notes.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { Candidate } from 'src/candidate/candidate.entity';
 
 @Injectable()
 
@@ -52,11 +53,6 @@ export class PollingNotesService {
         pollingNote.completed = x.completed;
         this.repository.save(pollingNote);
       }
-
-
-
-
-
       finished++;
     })
     if (finished === body.length) {
@@ -86,5 +82,21 @@ export class PollingNotesService {
 
     return true;
   }
+
+  public async getPollingReportTotals(pollingId: number): Promise<any> {
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('t2.name, t2.candidate_id, vote, count(vote) AS TOTAL')
+      .addSelect('t2.*', 'Candidate')
+      .innerJoin(Candidate, 't2', 't1.candidate_id = t2.candidate_id')
+      .where('t1.polling_id = :pollingId', { pollingId })
+      .groupBy('"t2"."candidate_id",vote')
+      .orderBy('"t2"."name"', 'ASC')
+      .getRawMany()      
+    return result;
+  }
+
+
+
 
 }

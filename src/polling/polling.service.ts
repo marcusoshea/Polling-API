@@ -5,22 +5,25 @@ import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPolling
 import { Polling } from './polling.entity';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
+import { PollingNotesService } from 'src/polling_notes/polling_notes.service';
 import { PollingNotes } from 'src/polling_notes/polling_notes.entity';
 import { Candidate } from 'src/candidate/candidate.entity';
 import { Member } from 'src/member/member.entity';
 import { PollingCandidate } from './polling_candidate.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
+import { PollingOrder } from 'src/polling_order/polling_order.entity';
 
 @Injectable()
 
 export class PollingService {
-  constructor(public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) { }
+  constructor(public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService, public pollingNotesService: PollingNotesService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
   @InjectRepository(PollingNotes)
   @InjectRepository(Candidate)
   @InjectRepository(Member)
   @InjectRepository(PollingCandidate)
+  @InjectRepository(PollingOrder)
 
   private readonly repository: Repository<Polling>;
 
@@ -98,6 +101,45 @@ export class PollingService {
     }
    */
 
+  public async getPollingReport(pollingOrderId: number): Promise<any> {
+    let result = {};
+    let polling_id = 0;
+    await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'polling')
+      .addSelect('t2.*', 'pollingOrder')
+      .innerJoin(PollingOrder, 't2', 't1.polling_order_id = t2.polling_order_id')
+      .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
+      .andWhere('CURRENT_DATE > t1.end_date')
+      .orderBy('t1.end_date', 'DESC')
+      .limit(1)
+      .getRawMany()
+      .then(async (data) => {
+        if (data.length > 0) {
+          polling_id = data[0].polling_id
+        }
+        const result2 = await this.repository
+          .createQueryBuilder('t1')
+          .select('count(t1.*)', 'active_members')
+          .innerJoin(Member, 't2', 't1.polling_order_id = t2.polling_order_id')
+          .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
+          .andWhere('t1.polling_id = :polling_id', { polling_id })
+          .andWhere('t2.active=true')
+          .getRawMany()
+        data.push(result2);
+        result = data.flat();
+        return data;
+      })
+    /*       .then(async (dataFinal) => {
+            const result3 = await this.pollingNotesService.getPollingReport(polling_id);
+            dataFinal.push(result3);
+            result =  dataFinal.flat();
+        }) */
+
+
+    return result;
+  }
+
   public async getPollingSummary(pollingId: number, orderMemberId: number): Promise<any> {
     let result = {};
     await this.repository
@@ -115,7 +157,7 @@ export class PollingService {
       .getRawMany()
       .then(async (data) => {
         let candidateIds = [0];
-        if(data.length > 0) { 
+        if (data.length > 0) {
           candidateIds = data.map(d => d.candidate_id);
         }
         const result2 = await this.repository
@@ -132,9 +174,9 @@ export class PollingService {
           .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
           .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
           .where('t1.polling_id = :pollingId', { pollingId })
-          .andWhere('t3.candidate_id not in ('+ candidateIds +')')          
+          .andWhere('t3.candidate_id not in (' + candidateIds + ')')
           .getRawMany()
-          data.push(result2);
+        data.push(result2);
         result = data.flat();
       })
     return result;

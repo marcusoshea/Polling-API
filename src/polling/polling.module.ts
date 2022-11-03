@@ -7,7 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from '../auth/constants';
 import { JwtStrategy } from '../auth/jwt.strategy';
-import { AuthModule } from '../auth/auth.module'
+import { AuthModule } from '../auth/auth.module';
+import { PollingNotesService } from '../polling_notes/polling_notes.service'
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { PollingNotes } from 'src/polling_notes/polling_notes.entity';
 import { Candidate } from 'src/candidate/candidate.entity';
@@ -25,6 +26,6 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
     TypeOrmModule.forFeature([Candidate]),TypeOrmModule.forFeature([Member]),TypeOrmModule.forFeature([PollingCandidate]),
     AuthModule],
   controllers: [PollingController],
-  providers: [PollingService, JwtStrategy, TypeOrmConfigService]
+  providers: [PollingService, PollingNotesService, JwtStrategy, TypeOrmConfigService]
 })
 export class PollingModule {}

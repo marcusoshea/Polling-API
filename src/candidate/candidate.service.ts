@@ -21,10 +21,6 @@ export class CandidateService {
   @InjectRepository(PollingNotes)
 
   private readonly repository: Repository<Candidate>;
-  
-  private readonly ENRepo: Repository<ExternalNotes>;
-    
-  private readonly PNRepo: Repository<PollingNotes>;
 
   public getCandidateById(id: number): Promise<Candidate> {
     return this.repository.findOneBy({
