@@ -86,7 +86,7 @@ export class PollingNotesService {
   public async getPollingReportTotals(pollingId: number): Promise<any> {
     const result = await this.repository
       .createQueryBuilder('t1')
-      .select('t2.name, t2.candidate_id, vote, count(vote) AS TOTAL')
+      .select('t2.name, t2.candidate_id, CASE WHEN vote=1 THEN \'Yes\' WHEN vote=2 THEN \'Wait\' WHEN vote=3 THEN \'No\' WHEN vote=4 THEN \'Abstain\' ELSE \'Null\' END as vote, count(vote) AS TOTAL')
       .addSelect('t2.*', 'Candidate')
       .innerJoin(Candidate, 't2', 't1.candidate_id = t2.candidate_id')
       .where('t1.polling_id = :pollingId', { pollingId })
