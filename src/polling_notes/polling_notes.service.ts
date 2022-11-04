@@ -96,7 +96,15 @@ export class PollingNotesService {
     return result;
   }
 
-
+  public async getPollingReportMemberParticipation(pollingId: number): Promise<any> {
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('COUNT(DISTINCT polling_order_member_id) as member_participation')
+      .where('t1.polling_id = :pollingId', { pollingId })
+      .andWhere('t1.completed = true')
+      .getRawMany()      
+    return result;
+  }
 
 
 }

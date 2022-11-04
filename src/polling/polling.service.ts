@@ -127,14 +127,13 @@ export class PollingService {
           .andWhere('t2.active=true')
           .getRawMany()
         data.push(result2);
-        result = data.flat();
         return data;
       })
-    /*       .then(async (dataFinal) => {
-            const result3 = await this.pollingNotesService.getPollingReport(polling_id);
+          .then(async (dataFinal) => {
+            const result3 = await this.pollingNotesService.getPollingReportMemberParticipation(polling_id);
             dataFinal.push(result3);
             result =  dataFinal.flat();
-        }) */
+        }) 
 
 
     return result;
