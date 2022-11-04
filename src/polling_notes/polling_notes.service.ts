@@ -34,7 +34,8 @@ export class PollingNotesService {
       if (x?.note?.length > 0) {
         pollingNote.note = x.note;
       }
-      if (x?.polling_notes_id) {
+
+      if (x?.polling_notes_id !== null) {
         pollingNote.polling_notes_id = x.polling_notes_id;
         pollingNote.vote = x.vote;
         pollingNote.polling_id = x.polling_id;
