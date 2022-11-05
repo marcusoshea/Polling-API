@@ -104,6 +104,7 @@ export class PollingService {
   public async getPollingReport(pollingOrderId: number): Promise<any> {
     let result = {};
     let polling_id = 0;
+    let endDate = '';
     await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
@@ -117,13 +118,17 @@ export class PollingService {
       .then(async (data) => {
         if (data.length > 0) {
           polling_id = data[0].polling_id
+          endDate = data[0].end_date;
         }
+
+
         const result2 = await this.repository
           .createQueryBuilder('t1')
           .select('count(t1.*)', 'active_members')
           .innerJoin(Member, 't2', 't1.polling_order_id = t2.polling_order_id')
           .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
           .andWhere('t1.polling_id = :polling_id', { polling_id })
+          .andWhere('t2.pom_created_at <= :endDate', { endDate })
           .andWhere('t2.active=true')
           .getRawMany()
         data.push(result2);
