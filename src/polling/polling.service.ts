@@ -175,6 +175,7 @@ export class PollingService {
           .addSelect('null', 'pn_created_at')
           .addSelect('null', 'polling_order_member_id')
           .addSelect('false', 'completed')
+          .addSelect('false', 'private')
           .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
           .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
           .where('t1.polling_id = :pollingId', { pollingId })

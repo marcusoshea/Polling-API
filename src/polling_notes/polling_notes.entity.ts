@@ -28,5 +28,8 @@ export class PollingNotes {
 
   @Column({ type: 'bool' })
   public completed: boolean;
+  
+  @Column({ type: 'bool' })
+  public private: boolean;
 
 }

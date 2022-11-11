@@ -28,7 +28,6 @@ export class PollingNotesService {
     const memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
     let finished = 0;
 
-
     body.forEach(x => {
       let pollingNote: PollingNotes = new PollingNotes;
       if (x?.note?.length > 0) {
@@ -43,6 +42,7 @@ export class PollingNotesService {
         pollingNote.polling_order_id = x.polling_order_id;
         pollingNote.polling_order_member_id = memberID;
         pollingNote.completed = x.completed;
+        pollingNote.private = x.private;
         this.repository.update(pollingNote.polling_notes_id, pollingNote);
       } else {
         pollingNote.polling_notes_id = x?.polling_notes_id;
@@ -52,6 +52,7 @@ export class PollingNotesService {
         pollingNote.polling_order_id = x.polling_order_id;
         pollingNote.polling_order_member_id = memberID;
         pollingNote.completed = x.completed;
+        pollingNote.private = x.private;
         this.repository.save(pollingNote);
       }
       finished++;

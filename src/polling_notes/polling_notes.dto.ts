@@ -28,6 +28,9 @@ export class CreatePollingNoteDto {
     @Transform(({ obj, key }) => obj[key] === 'true')
     public completed: boolean;
 
+    @IsBoolean()
+    public private: boolean;
+
     @IsNotEmpty()
     public authToken: string;
 }
@@ -59,6 +62,9 @@ export class EditPollingNoteDto {
     @IsBoolean()
     @Transform(({ obj, key }) => obj[key] === 'true')
     public completed: boolean;
+
+    @IsBoolean()
+    public private: boolean;
 
     @IsNotEmpty()
     public authToken: string;
