@@ -23,17 +23,19 @@ export class ExternalNotesService {
   }
 
   public async getExternalNoteByCandidateId(id: number): Promise<ExternalNotes[]> {
+    let cutOffDate = new Date();
+    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
+
     const result = await this.repository
     .createQueryBuilder('externalnotes')
     .select('externalnotes','member')
     .innerJoinAndMapOne('externalnotes.polling_order_member_id', Member, 'member', 'member.polling_order_member_id=externalnotes.polling_order_member_id')
     .where('externalnotes.candidate_id = :id', { id })
+    .andWhere('externalnotes.en_created_At > :cutOffDate', { cutOffDate })
     .orderBy('externalnotes.en_created_at', 'DESC')
     .getMany()
     ;
     return result;
-
-
   }
 
   public async createExternalNote(body: CreateExternalNoteDto): Promise<ExternalNotes> {

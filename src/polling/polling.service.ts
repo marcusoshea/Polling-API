@@ -120,8 +120,6 @@ export class PollingService {
           polling_id = data[0].polling_id
           endDate = data[0].end_date;
         }
-
-
         const result2 = await this.repository
           .createQueryBuilder('t1')
           .select('count(t1.*)', 'active_members')
@@ -200,6 +198,9 @@ export class PollingService {
   }
 
   public async getPollingNotesByCandidateId(candidateId: number): Promise<any> {
+    let cutOffDate = new Date();
+    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
+
     const result = await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
@@ -213,6 +214,7 @@ export class PollingService {
       .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
       .where('t3.candidate_id = :candidateId', { candidateId })
       .andWhere('t4.candidate_id = :candidateId', { candidateId })
+      .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
       .andWhere('t4.completed = true')
       .orderBy('pn_created_at', 'DESC')
       .getRawMany()

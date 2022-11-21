@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { CreatePollingNoteDto, DeletePollingNoteDto, EditPollingNoteDto } from './polling_notes.dto';
 import { PollingNotes } from './polling_notes.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -24,10 +24,25 @@ export class PollingNotesService {
     });
   }
 
-  public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
-    const memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
-    let finished = 0;
+  
+  public getAllPollingNotesById(id: number): Promise<PollingNotes[]> {
+    let cutOffDate = new Date();
+    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
+    return this.repository.findBy({
+      polling_id: id,
+      pn_created_at: MoreThan(cutOffDate)
+    });
+  }
 
+
+  public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
+    let memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
+    
+    if (this.authService.isOrderAdmin(body[0].authToken) && memberID !== body[0].polling_order_member_id) {
+      memberID = body[0].polling_order_member_id;
+    }
+
+    let finished = 0;
     body.forEach(x => {
       let pollingNote: PollingNotes = new PollingNotes;
       if (x?.note?.length > 0) {

@@ -28,6 +28,12 @@ export class PollingNoteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/all/:id')
+  public getAllPollingNotesById(@Param('id', ParseIntPipe) id: number): Promise<PollingNotes[]> {
+    return this.service.getAllPollingNotesById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   public createPollingNote(@Body() body: CreatePollingNoteDto[]): Promise<boolean> {
     return this.service.createPollingNote(body);
