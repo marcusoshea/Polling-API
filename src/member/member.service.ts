@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Any, createQueryBuilder, Like, Repository } from 'typeorm';
-import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
+import { CreateMemberDto, DeleteMemberDto, EditMemberDto, ForceCreateMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -67,6 +67,21 @@ export class MemberService {
       .where('member.polling_order_id = :orderID', { orderID })
       .getOne();
     return result;
+  }
+
+  public async forceCreateMember(body: ForceCreateMemberDto): Promise<Member> {
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+    const member: Member = new Member();
+    member.name = body.name;
+    member.email = body.email;
+    const salt = await bcrypt.genSalt(10);
+    member.password = await bcrypt.hash(body.password, salt);
+    member.polling_order_id = body.polling_order_id;
+    member.pom_created_at = new Date(body.pom_created_at);
+    member.approved = true;
+    return this.repository.save(member);
   }
 
   public async createMember(body: CreateMemberDto): Promise<Member> {

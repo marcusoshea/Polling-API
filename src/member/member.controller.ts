@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { CreateMemberDto, DeleteMemberDto, EditMemberDto } from './member.dto';
+import { CreateMemberDto, DeleteMemberDto, EditMemberDto, ForceCreateMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import { MemberService } from './member.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -29,6 +29,11 @@ export class MemberController {
   @Post('/create')
   public createMember(@Body() body: CreateMemberDto): Promise<Member> {
     return this.service.createMember(body);
+  }
+
+  @Post('/forcecreate')
+  public forceCreateMember(@Body() body: ForceCreateMemberDto): Promise<Member> {
+    return this.service.forceCreateMember(body);
   }
 
   @UseGuards(JwtAuthGuard)

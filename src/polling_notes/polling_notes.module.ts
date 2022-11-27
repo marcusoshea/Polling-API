@@ -9,6 +9,7 @@ import { jwtConstants } from '../auth/constants';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { AuthModule } from '../auth/auth.module'
 import { PollingOrder } from '../polling_order/polling_order.entity';
+import { Member } from 'src/member/member.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '30d'}
-    }), TypeOrmModule.forFeature([PollingNotes]), TypeOrmModule.forFeature([PollingOrder]),
+    }), TypeOrmModule.forFeature([PollingNotes]), TypeOrmModule.forFeature([PollingOrder]), TypeOrmModule.forFeature([Member]),
     AuthModule],
   controllers: [PollingNoteController],
   providers: [PollingNotesService, JwtStrategy]

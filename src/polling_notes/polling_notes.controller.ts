@@ -29,7 +29,7 @@ export class PollingNoteController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/all/:id')
-  public getAllPollingNotesById(@Param('id', ParseIntPipe) id: number): Promise<PollingNotes[]> {
+  public getAllPollingNotesById(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
     return this.service.getAllPollingNotesById(id);
   }
 

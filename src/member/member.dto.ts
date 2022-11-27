@@ -17,6 +17,7 @@ export class CreateMemberDto {
 
   @IsNotEmpty()
   public pom_created_at: string;
+  
 }
 
 export class EditMemberDto {
@@ -55,5 +56,31 @@ export class DeleteMemberDto {
 
   @IsNotEmpty()
   public authToken: string;
+}
+
+export class ForceCreateMemberDto {
+  @IsString()
+  @IsNotEmpty()
+  public name: string;
+
+  @IsEmail()
+  public email: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  public password: string;
+  
+  @IsNotEmpty()
+  public polling_order_id: number;
+
+  @IsNotEmpty()
+  public pom_created_at: string;
+
+  @IsNotEmpty()
+  public authToken: string;
+
+  @IsNotEmpty()
+  public approved: boolean;
+  
 }
 

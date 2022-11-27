@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { Candidate } from 'src/candidate/candidate.entity';
+import { Member } from '../member/member.entity';
 
 @Injectable()
 
@@ -15,6 +16,7 @@ export class PollingNotesService {
   private readonly logger = new Logger(PollingNotesService.name)
   @InjectRepository(PollingNotes)
   @InjectRepository(PollingOrder)
+  @InjectRepository(Member)
 
   private readonly repository: Repository<PollingNotes>;
 
@@ -24,16 +26,21 @@ export class PollingNotesService {
     });
   }
 
-  
-  public getAllPollingNotesById(id: number): Promise<PollingNotes[]> {
+  public async getAllPollingNotesById(id: number): Promise<any[]> {
     let cutOffDate = new Date();
     cutOffDate.setMonth(cutOffDate.getMonth() - 24);
-    return this.repository.findBy({
-      polling_id: id,
-      pn_created_at: MoreThan(cutOffDate)
-    });
-  }
 
+    const result = await this.repository
+    .createQueryBuilder('t1')
+    .select(['t1.*', 't2.name as member_name'])
+    .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
+    .where('t1.polling_id = :id', { id })
+    .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
+    .orderBy('"t1"."vote"', 'ASC')
+    .getRawMany()
+    ;
+    return result;
+  }
 
   public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
     let memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
