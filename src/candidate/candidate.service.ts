@@ -13,7 +13,7 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 @Injectable()
 
 export class CandidateService {
-  constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService:TypeOrmConfigService) { }
+  constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) { }
   private readonly logger = new Logger(CandidateService.name)
   @InjectRepository(Candidate)
   @InjectRepository(PollingOrder)
@@ -51,23 +51,31 @@ export class CandidateService {
 
 
   public async deleteCandidate(body: DeleteCandidateDto): Promise<boolean> {
-    let candidateId = body.candidate_id; 
+    let candidateId = body.candidate_id;
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
-    }   
-        
+    }
+
     let data = this.typeOrmConfigService.workDataSource();
-    data.initialize().then(newdata => 
+    data.initialize().then(newdata =>
       newdata.createQueryBuilder()
-      .delete()
-      .from(ExternalNotes)
-      .where('candidate_id = :candidateId', { candidateId })
-      .execute()
-      .then(()=> 
-      this.repository.delete(body.candidate_id)
-      )
+        .delete()
+        .from(ExternalNotes)
+        .where('candidate_id = :candidateId', { candidateId })
+        .execute()
+        .then(() =>
+
+          newdata.createQueryBuilder()
+            .delete()
+            .from(PollingNotes)
+            .where('candidate_id = :candidateId', { candidateId })
+            .execute()
+            .then(() =>
+              this.repository.delete(body.candidate_id)
+            )
+        )
     );
-  
+
     return true;
   }
 
