@@ -84,6 +84,10 @@ export class PollingController {
     return this.service.getPollingReport(id);
   }
   
-
+  @UseGuards(JwtAuthGuard)
+  @Get('/inprocesspollingreport/:id')
+  public getInProcessPollingReport(@Param('id', ParseIntPipe) id: number): Promise<any> {
+    return this.service.getInProcessPollingReport(id);
+  }
 
 }

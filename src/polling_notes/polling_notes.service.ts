@@ -55,6 +55,9 @@ export class PollingNotesService {
       if (x?.note?.length > 0) {
         pollingNote.note = x.note;
       }
+      else {
+        pollingNote.note = null;
+      }
 
       if (x?.polling_notes_id !== null) {
         pollingNote.polling_notes_id = x.polling_notes_id;
@@ -114,6 +117,7 @@ export class PollingNotesService {
       .addSelect('t2.*', 'Candidate')
       .innerJoin(Candidate, 't2', 't1.candidate_id = t2.candidate_id')
       .where('t1.polling_id = :pollingId', { pollingId })
+      .andWhere('t1.completed = true')
       .groupBy('"t2"."candidate_id",vote')
       .orderBy('"t2"."name"', 'ASC')
       .getRawMany()      

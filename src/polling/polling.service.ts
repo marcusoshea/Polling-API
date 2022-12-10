@@ -104,7 +104,8 @@ export class PollingService {
   public async getPollingReport(pollingOrderId: number): Promise<any> {
     let result = {};
     let polling_id = 0;
-    let endDate = '';
+    let endDate = new Date();
+
     await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
@@ -117,8 +118,8 @@ export class PollingService {
       .getRawMany()
       .then(async (data) => {
         if (data.length > 0) {
-          polling_id = data[0].polling_id
-          endDate = data[0].end_date;
+          polling_id = data[0]?.polling_id
+          let endDate = new Date(data[0]?.end_date);
         }
         const result2 = await this.repository
           .createQueryBuilder('t1')
@@ -128,17 +129,57 @@ export class PollingService {
           .andWhere('t1.polling_id = :polling_id', { polling_id })
           .andWhere('t2.pom_created_at <= :endDate', { endDate })
           .andWhere('t2.active=true')
+          .andWhere('t2.removed=false')
           .getRawMany()
         data.push(result2);
         return data;
       })
-          .then(async (dataFinal) => {
-            const result3 = await this.pollingNotesService.getPollingReportMemberParticipation(polling_id);
-            dataFinal.push(result3);
-            result =  dataFinal.flat();
-        }) 
+      .then(async (dataFinal) => {
+        const result3 = await this.pollingNotesService.getPollingReportMemberParticipation(polling_id);
+        dataFinal.push(result3);
+        result = dataFinal.flat();
+      })
+    return result;
+  }
 
-
+  public async getInProcessPollingReport(pollingOrderId: number): Promise<any> {
+    let result = {};
+    let polling_id = 0;
+    let endDate = new Date();
+    await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'polling')
+      .addSelect('t2.*', 'pollingOrder')
+      .innerJoin(PollingOrder, 't2', 't1.polling_order_id = t2.polling_order_id')
+      .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
+      .andWhere('CURRENT_DATE >= t1.start_date')
+      .andWhere('CURRENT_DATE <= t1.end_date')
+      .orderBy('t1.end_date', 'DESC')
+      .limit(1)
+      .getRawMany()
+      .then(async (data) => {
+        if (data.length > 0) {
+          polling_id = data[0]?.polling_id
+          let endDate = new Date(data[0]?.end_date).toString();
+        }
+        const result2 = await this.repository
+          .createQueryBuilder('t1')
+          .select('count(t1.*)', 'active_members')
+          .innerJoin(Member, 't2', 't1.polling_order_id = t2.polling_order_id')
+          .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
+          .andWhere('t1.polling_id = :polling_id', { polling_id })
+          .andWhere('t2.pom_created_at <= :endDate', { endDate })
+          .andWhere('t2.active=true')
+          .andWhere('t2.removed=false')
+          .getRawMany()
+        data.push(result2);
+        return data;
+      })
+      .then(async (dataFinal) => {
+        const result3 = await this.pollingNotesService.getPollingReportMemberParticipation(polling_id);
+        dataFinal.push(result3);
+        result = dataFinal.flat();
+      })
     return result;
   }
 
@@ -192,7 +233,7 @@ export class PollingService {
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .where('t1.polling_order_id = :orderId', { orderId })
-      .andWhere('CURRENT_DATE BETWEEN "t1"."start_date" AND "t1"."end_date"')
+      .andWhere('now() BETWEEN "t1"."start_date" + interval \'5 hours\' AND "t1"."end_date" + interval \'5 hours\' ')
       .getRawOne()
     return result;
   }
