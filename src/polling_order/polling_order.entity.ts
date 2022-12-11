@@ -13,4 +13,8 @@ export class PollingOrder {
 
   @Column({ type: 'integer' })
   public polling_order_admin_assistant: number;
+
+  @Column({ type: 'integer' })
+  public polling_order_notes_time_visible: number;
+
 }

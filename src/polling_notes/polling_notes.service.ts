@@ -26,20 +26,29 @@ export class PollingNotesService {
     });
   }
 
-  public async getAllPollingNotesById(id: number): Promise<any[]> {
-    let cutOffDate = new Date();
-    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
 
+  public async getAllPollingNotesById(id: number): Promise<any[]> {
     const result = await this.repository
-    .createQueryBuilder('t1')
-    .select(['t1.*', 't2.name as member_name'])
-    .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
-    .where('t1.polling_id = :id', { id })
-    .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
-    .orderBy('"t1"."vote"', 'ASC')
-    .getRawMany()
-    ;
-    return result;
+      .createQueryBuilder('t1')
+      .select('t4.polling_order_notes_time_visible as pv')
+      .innerJoin(PollingOrder, 't4', 't1.polling_order_id = t4.polling_order_id')
+      .where('t1.polling_id = :id', { id })
+      .limit(1)
+      .getRawMany()
+      .then(async (data) => {
+        let cutOffDate = new Date();
+        cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
+        const resultFinal = await this.repository
+        .createQueryBuilder('t1')
+        .select(['t1.*', 't2.name as member_name'])
+        .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
+        .where('t1.polling_id = :id', { id })
+        .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
+        .orderBy('"t1"."vote"', 'ASC')
+        .getRawMany();
+        return resultFinal;
+      })
+      return result;
   }
 
   public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {

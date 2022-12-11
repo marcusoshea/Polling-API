@@ -11,7 +11,11 @@ export class CreatePollingOrderDto {
     public polling_order_admin_assistant: number;
 
     @IsNotEmpty()
+    polling_order_notes_time_visible: number;
+
+    @IsNotEmpty()
     public authToken: string;
+
 }
 
 export class EditPollingOrderDto {
@@ -26,6 +30,9 @@ export class EditPollingOrderDto {
 
     @IsNotEmpty()
     public polling_order_id: number;
+
+    @IsNotEmpty()
+    polling_order_notes_time_visible: number;
 
     @IsNotEmpty()
     public authToken: string;

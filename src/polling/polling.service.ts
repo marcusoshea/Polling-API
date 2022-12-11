@@ -239,27 +239,38 @@ export class PollingService {
   }
 
   public async getPollingNotesByCandidateId(candidateId: number): Promise<any> {
-    let cutOffDate = new Date();
-    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
-
     const result = await this.repository
-      .createQueryBuilder('t1')
-      .select('t1.*', 'polling')
-      .addSelect('t2.*', 'pollingcandidates')
-      .addSelect('t3.*', 'candidate')
-      .addSelect('t4.*', 'pollingnotes')
-      .addSelect('t5.*', 'pollingordermember')
-      .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
-      .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
-      .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
-      .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
-      .where('t3.candidate_id = :candidateId', { candidateId })
-      .andWhere('t4.candidate_id = :candidateId', { candidateId })
-      .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
-      .andWhere('t4.completed = true')
-      .orderBy('pn_created_at', 'DESC')
-      .getRawMany()
-    return result;
+    .createQueryBuilder('polling')
+    .select('pollingorder.polling_order_notes_time_visible as pv')
+    .innerJoin(PollingOrder, 'pollingorder', 'polling.polling_order_id = pollingorder.polling_order_id')
+    .innerJoin(PollingCandidate, 'pollingcandidate', 'polling.polling_id = pollingcandidate.polling_id')
+    .innerJoin(Candidate, 'candidate', 'pollingcandidate.candidate_id = candidate.candidate_id')
+    .where('candidate.candidate_id = :candidateId', { candidateId })
+    .limit(1)
+    .getRawMany()
+      .then(async (data) => {
+        let cutOffDate = new Date();
+        cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
+        const resultFinal = await this.repository
+        .createQueryBuilder('t1')
+        .select('t1.*', 'polling')
+        .addSelect('t2.*', 'pollingcandidates')
+        .addSelect('t3.*', 'candidate')
+        .addSelect('t4.*', 'pollingnotes')
+        .addSelect('t5.*', 'pollingordermember')
+        .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+        .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+        .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
+        .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
+        .where('t3.candidate_id = :candidateId', { candidateId })
+        .andWhere('t4.candidate_id = :candidateId', { candidateId })
+        .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
+        .andWhere('t4.completed = true')
+        .orderBy('pn_created_at', 'DESC')
+        .getRawMany()
+      return resultFinal;
+      })
+      return result;
   }
 
 

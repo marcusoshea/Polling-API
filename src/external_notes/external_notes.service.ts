@@ -6,6 +6,7 @@ import { ExternalNotes } from './external_notes.entity';
 import { Member } from '../member/member.entity';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
+import { PollingOrder } from '../polling_order/polling_order.entity';
 
 @Injectable()
 
@@ -13,6 +14,9 @@ export class ExternalNotesService {
   constructor(private jwtTokenService: JwtService, public authService: AuthService) { }
   private readonly logger = new Logger(ExternalNotesService.name)
   @InjectRepository(ExternalNotes)
+  @InjectRepository(PollingOrder)
+  @InjectRepository(Member)
+
 
   private readonly repository: Repository<ExternalNotes>;
 
@@ -23,18 +27,28 @@ export class ExternalNotesService {
   }
 
   public async getExternalNoteByCandidateId(id: number): Promise<ExternalNotes[]> {
-    let cutOffDate = new Date();
-    cutOffDate.setMonth(cutOffDate.getMonth() - 24);
-
     const result = await this.repository
-    .createQueryBuilder('externalnotes')
-    .select('externalnotes','member')
-    .innerJoinAndMapOne('externalnotes.polling_order_member_id', Member, 'member', 'member.polling_order_member_id=externalnotes.polling_order_member_id')
-    .where('externalnotes.candidate_id = :id', { id })
-    .andWhere('externalnotes.en_created_At > :cutOffDate', { cutOffDate })
-    .orderBy('externalnotes.en_created_at', 'DESC')
-    .getMany()
-    ;
+      .createQueryBuilder('externalnotes')
+      .select('pollingorder.polling_order_notes_time_visible as pv')
+      .innerJoin(Member, 'member', 'externalnotes.polling_order_member_id = member.polling_order_member_id')
+      .innerJoin(PollingOrder, 'pollingorder', 'member.polling_order_id = pollingorder.polling_order_id')
+      .where('externalnotes.candidate_id = :id', { id })
+      .limit(1)
+      .getRawMany()
+      .then(async (data) => {
+        let cutOffDate = new Date();
+        cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
+        const resultFinal = await this.repository
+          .createQueryBuilder('externalnotes')
+          .select('externalnotes', 'member')
+          .innerJoinAndMapOne('externalnotes.polling_order_member_id', Member, 'member', 'member.polling_order_member_id=externalnotes.polling_order_member_id')
+          .where('externalnotes.candidate_id = :id', { id })
+          .andWhere('externalnotes.en_created_At > :cutOffDate', { cutOffDate })
+          .orderBy('externalnotes.en_created_at', 'DESC')
+          .getMany()
+          ;
+        return resultFinal;
+      })
     return result;
   }
 
@@ -48,16 +62,16 @@ export class ExternalNotesService {
     return this.repository.save(externalNote);
   }
 
-  
+
 
   public async editExternalNote(body: EditExternalNoteDto, isRecordOwner: number): Promise<boolean> {
     if (!this.authService.isRecordOwner(body.authToken, isRecordOwner)) {
       throw new UnauthorizedException();
     }
     const bodyUpdate = {
-      note : body.external_note,
-      candidate_id : body.candidate_id,
-      polling_order_member_id : body.polling_order_member_id
+      note: body.external_note,
+      candidate_id: body.candidate_id,
+      polling_order_member_id: body.polling_order_member_id
     }
     await this.repository.update(body.external_notes_id, bodyUpdate);
     return true;
