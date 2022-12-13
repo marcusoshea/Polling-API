@@ -115,7 +115,7 @@ export class MemberService {
 
     const member: Member = new Member();
     member.name = body.name;
-    member.email = body.email;
+    member.email = body.email.toLowerCase();
     const salt = await bcrypt.genSalt(10);
     member.password = await bcrypt.hash(body.password, salt);
     member.polling_order_id = body.polling_order_id;
@@ -151,7 +151,7 @@ export class MemberService {
 
     if (recordOwner) {
       bodyUpdate = {
-        email: body.email,
+        email: body.email.toLowerCase(),
         name: body.name,
         pom_created_at: created,
         approved: memberInfo.approved,
@@ -160,7 +160,7 @@ export class MemberService {
       }
     } else {
       bodyUpdate = {
-        email: body.email,
+        email: body.email.toLowerCase(),
         name: body.name,
         pom_created_at: created,
         approved: body.approved,
@@ -184,7 +184,7 @@ export class MemberService {
       });
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
-        to: body.email,
+        to: body.email.toLowerCase(),
         subject: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
         text: orderClerk.pollingOrderInfo.polling_order_name + ' Registration complete',
         html: 'Hi! <br><br>Your registration has been approved for the polling website<br><br>' +
@@ -200,7 +200,7 @@ export class MemberService {
   }
 
   async checkMemberCredentials(memberEmail: string, password: string, polling_order_id: number): Promise<any> {
-    const member = await this.getMemberAuth(memberEmail, polling_order_id);
+    const member = await this.getMemberAuth(memberEmail.toLowerCase(), polling_order_id);
     if (member) {
       const validPassword = await bcrypt.compare(password, member.password);
       if (validPassword && member.approved && !member.removed) {
@@ -212,7 +212,7 @@ export class MemberService {
   }
 
   async loginWithCredentials(member: any) {
-    const goodLogin = await this.checkMemberCredentials(member.body.email, member.body.password, member.body.polling_order_id);
+    const goodLogin = await this.checkMemberCredentials(member.body.email.toLowerCase(), member.body.password, member.body.polling_order_id);
     if (!goodLogin) {
       throw new UnauthorizedException();
     }
@@ -220,7 +220,7 @@ export class MemberService {
     const isOrderAdmin = await this.authService.isOrderAdmin(accessToken)
     return {
       access_token: accessToken, isOrderAdmin: isOrderAdmin, pollingOrder: member.body.polling_order_id,
-      memberId: goodLogin.polling_order_member_id, name: goodLogin.name, email: goodLogin.email, active: goodLogin.active
+      memberId: goodLogin.polling_order_member_id, name: goodLogin.name, email: goodLogin.email.toLowerCase(), active: goodLogin.active
     };
   }
 
@@ -229,7 +229,7 @@ export class MemberService {
     let tempDate = new Date();
 
     const tokenUpdate = {
-      email: member.email,
+      email: member.email.toLowerCase(),
       new_password_token: tempToken,
       new_password_token_timestamp: tempDate
     }
@@ -241,7 +241,7 @@ export class MemberService {
   }
 
   async sendEmailForgotPassword(reqMember: any): Promise<boolean> {
-    const member = await this.getMember(reqMember.body.email, reqMember.body.polling_order_id);
+    const member = await this.getMember(reqMember.body.email.toLowerCase(), reqMember.body.polling_order_id);
     if (!member) throw new HttpException('USER_NOT_FOUND', HttpStatus.NOT_FOUND);
 
     const tokenMember = await this.createForgottenPasswordToken(member);
@@ -259,7 +259,7 @@ export class MemberService {
 
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
-        to: member.email,
+        to: member.email.toLowerCase(),
         subject: 'Forgotten Password',
         text: 'Forgot Password',
         html: 'Hi! <br><br> This is a message from the AEPolling.org website. If you requested to reset your polling member password<br><br>' +
@@ -280,7 +280,7 @@ export class MemberService {
   async resetPassword(reqMember: any): Promise<boolean> {
     const memberFound = await this.repository.findOneBy({
       new_password_token: reqMember.token,
-      email: reqMember.body.email
+      email: reqMember.body.email.toLowerCase()
     });
 
     if (memberFound) {
@@ -301,7 +301,7 @@ export class MemberService {
 
 
   async changePassword(reqMember: any): Promise<boolean> {
-    const goodLogin = await this.checkMemberCredentials(reqMember.body.email, reqMember.body.password, reqMember.body.pollingOrderId);
+    const goodLogin = await this.checkMemberCredentials(reqMember.body.email.toLowerCase(), reqMember.body.password, reqMember.body.pollingOrderId);
     if (!goodLogin) {
       throw new UnauthorizedException();
     }
