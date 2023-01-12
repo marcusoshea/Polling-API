@@ -43,7 +43,7 @@ export class MemberService {
       .createQueryBuilder('member')
       .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved','member.active'])
       .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
-      .where('member.email = :memberEmail', { memberEmail })
+      .where('LOWER(member.email) = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
       .getOne();
     return result;
@@ -54,7 +54,7 @@ export class MemberService {
       .createQueryBuilder('member')
       .select('member')
       .leftJoinAndMapOne('member.pollingOrderInfo', PollingOrder, 'order', 'order.polling_order_id=member.polling_order_id')
-      .where('member.email = :memberEmail', { memberEmail })
+      .where('LOWER(member.email) = :memberEmail', { memberEmail })
       .andWhere('member.polling_order_id = :orderID', { orderID })
       .getOne();
     return result;

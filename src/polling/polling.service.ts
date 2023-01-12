@@ -233,7 +233,8 @@ export class PollingService {
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .where('t1.polling_order_id = :orderId', { orderId })
-      .andWhere('now() BETWEEN "t1"."start_date" + interval \'5 hours\' AND "t1"."end_date" + interval \'5 hours\' ')
+      .andWhere('now() >= "t1"."start_date" + time \'00:00:00\'')
+      .andWhere('now() <= "t1"."end_date" + time \'23:59:59\'')
       .getRawOne()
     return result;
   }
