@@ -41,7 +41,7 @@ export class ExternalNoteController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('/delete')
+  @Post('/delete')
   public deleteExternalNote(@Body() body: DeleteExternalNoteDto): Promise<boolean> {
     return this.service.deleteExternalNote(body);
   }
