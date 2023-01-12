@@ -6,7 +6,6 @@ export class CreateCandidateDto {
     public name: string;
     
     @IsString()
-    @IsNotEmpty()
     public link: string;
 
     @IsNotEmpty()
@@ -22,7 +21,6 @@ export class EditCandidateDto {
     public name: string;
 
     @IsString()
-    @IsNotEmpty()
     public link: string;
 
     @IsNotEmpty()
