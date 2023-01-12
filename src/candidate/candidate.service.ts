@@ -34,6 +34,7 @@ export class CandidateService {
     }
     const candidate: Candidate = new Candidate();
     candidate.name = body.name;
+    candidate.link = body.link;
     candidate.polling_order_id = body.polling_order_id;
     return this.repository.save(candidate);
   }

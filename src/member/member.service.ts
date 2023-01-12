@@ -86,7 +86,7 @@ export class MemberService {
 
   public async createMember(body: CreateMemberDto): Promise<Member> {
     const orderClerk = await this.getOrderClerk(body.polling_order_id);
-    if ((await this.getMember(body.email, body.polling_order_id))?.email) {
+    if ((await this.getMember(body.email.toLowerCase(), body.polling_order_id))?.email) {
       throw new HttpException('Account exists already.', HttpStatus.NOT_ACCEPTABLE);         
     }
     let transporter = nodemailer.createTransport({

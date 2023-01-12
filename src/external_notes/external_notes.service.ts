@@ -37,7 +37,9 @@ export class ExternalNotesService {
       .getRawMany()
       .then(async (data) => {
         let cutOffDate = new Date();
-        cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
+        if (data[0] && data[0].pv) {
+          cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
+         } 
         const resultFinal = await this.repository
           .createQueryBuilder('externalnotes')
           .select('externalnotes', 'member')

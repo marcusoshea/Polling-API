@@ -4,6 +4,10 @@ export class CreateCandidateDto {
     @IsString()
     @IsNotEmpty()
     public name: string;
+    
+    @IsString()
+    @IsNotEmpty()
+    public link: string;
 
     @IsNotEmpty()
     public polling_order_id: number;
@@ -16,6 +20,10 @@ export class EditCandidateDto {
     @IsString()
     @IsNotEmpty()
     public name: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public link: string;
 
     @IsNotEmpty()
     public polling_order_id: number;
