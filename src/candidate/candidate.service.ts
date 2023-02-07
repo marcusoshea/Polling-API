@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto } from './candidate.dto';
+import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
@@ -9,11 +9,21 @@ import { AuthService } from 'src/auth/auth.service';
 import { ExternalNotes } from '../external_notes/external_notes.entity';
 import { PollingNotes } from '../polling_notes/polling_notes.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
+import { Req, Res } from '@nestjs/common';
+import * as AWS from "aws-sdk";
 
 @Injectable()
 
 export class CandidateService {
-  constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) { }
+  AWS_S3_BUCKET = process.env.AWS_BUCKET_NAME;
+  s3 = new AWS.S3
+  ({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  });
+
+  constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) {
+   }
   private readonly logger = new Logger(CandidateService.name)
   @InjectRepository(Candidate)
   @InjectRepository(PollingOrder)
@@ -38,6 +48,48 @@ export class CandidateService {
     candidate.polling_order_id = body.polling_order_id;
     return this.repository.save(candidate);
   }
+
+  public async createCandidateImage(body: CreateCandidateImageDto)
+  {
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+
+    this.logger.warn('bbbbbbbbbbbbbbbbbbbbb', body)
+
+
+      await this.s3_upload(body.file.arrayBuffer, this.AWS_S3_BUCKET, body.file.name.toString(), body.file.type);
+  }
+
+  public async s3_upload(file, bucket, name, mimetype)
+  {
+      const params = 
+      {
+          Bucket: bucket,
+          Key: String(name),
+          Body: file,
+          ACL: "public-read",
+          ContentType: mimetype,
+          ContentDisposition:"inline",
+          CreateBucketConfiguration: 
+          {
+              LocationConstraint: process.env.AWS_REGION
+          }
+      };
+
+      console.log(params);
+      try
+      {
+          let s3Response = await this.s3.upload(params).promise();
+          console.log(s3Response);
+      }
+      catch (e)
+      {
+          console.log(e);
+      }
+  }
+
+
 
   public async editCandidate(body: EditCandidateDto): Promise<boolean> {
     if (!this.authService.isOrderAdmin(body.authToken)) {

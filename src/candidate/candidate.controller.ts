@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto } from './candidate.dto';
+import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { CandidateService } from './candidate.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -31,6 +31,12 @@ export class CandidateController {
   @Post('/create')
   public createCandidate(@Body() body: CreateCandidateDto): Promise<Candidate> {
     return this.service.createCandidate(body);
+  }
+  
+  @UseGuards(JwtAuthGuard)
+  @Post('/createImage')
+  public createCandidateImage(@Body() body: CreateCandidateImageDto) {
+    return this.service.createCandidateImage(body);
   }
 
   @UseGuards(JwtAuthGuard)
