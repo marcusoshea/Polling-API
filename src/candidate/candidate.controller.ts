@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UploadedFile, UseGuards, UseInterceptors, Version } from '@nestjs/common';
 import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { CandidateService } from './candidate.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Headers } from '@nestjs/common';
+import { ApiConsumes } from '@nestjs/swagger';
 
 @Injectable()
 
@@ -33,10 +36,20 @@ export class CandidateController {
     return this.service.createCandidate(body);
   }
   
+  // @UseGuards(JwtAuthGuard)
+  // @Post('/createImage/:candidate_id')
+  // @UseInterceptors(FileInterceptor('file'))
+  // public createCandidateImage(@Headers() headers, @Param('candidate_id', ParseIntPipe) candidate_id: number, @UploadedFile() body: CreateCandidateImageDto) {
+  //   return this.service.createCandidateImage(headers, candidate_id, body);
+  // }
+
   @UseGuards(JwtAuthGuard)
   @Post('/createImage')
-  public createCandidateImage(@Body() body: CreateCandidateImageDto) {
-    return this.service.createCandidateImage(body);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  public createCandidateImage(@Body() data: any, @UploadedFile() file: Express.Multer.File) {
+      //console.log({ data, file })
+      return this.service.createCandidateImage(file, data);
   }
 
   @UseGuards(JwtAuthGuard)

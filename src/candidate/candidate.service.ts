@@ -11,24 +11,28 @@ import { PollingNotes } from '../polling_notes/polling_notes.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 import { Req, Res } from '@nestjs/common';
 import * as AWS from "aws-sdk";
+import { CandidateImages } from './candidate_images.entity';
 
 @Injectable()
 
 export class CandidateService {
   AWS_S3_BUCKET = process.env.AWS_BUCKET_NAME;
   s3 = new AWS.S3
-  ({
+    ({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  });
+    });
 
   constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) {
-   }
+  }
   private readonly logger = new Logger(CandidateService.name)
   @InjectRepository(Candidate)
   @InjectRepository(PollingOrder)
   @InjectRepository(ExternalNotes)
   @InjectRepository(PollingNotes)
+  @InjectRepository(CandidateImages)
+
+
 
   private readonly repository: Repository<Candidate>;
 
@@ -39,9 +43,6 @@ export class CandidateService {
   }
 
   public async createCandidate(body: CreateCandidateDto): Promise<Candidate> {
-    if (!this.authService.isOrderAdmin(body.authToken)) {
-      throw new UnauthorizedException();
-    }
     const candidate: Candidate = new Candidate();
     candidate.name = body.name;
     candidate.link = body.link;
@@ -49,47 +50,62 @@ export class CandidateService {
     return this.repository.save(candidate);
   }
 
-  public async createCandidateImage(body: CreateCandidateImageDto)
-  {
-    if (!this.authService.isOrderAdmin(body.authToken)) {
+  public async createCandidateImage(file: any, data: CreateCandidateImageDto) {
+    //this.logger.warn('data', Object.keys(data));
+    //this.logger.warn('bodybody', Object.keys(file));
+    if (!this.authService.isOrderAdmin(data.authToken)) {
       throw new UnauthorizedException();
     }
+    await this.s3_upload(file.buffer, this.AWS_S3_BUCKET, file.originalname.toString(), file.mimetype).then(() => {
+    this.logger.warn('data', Object.keys(data));
+    this.logger.warn('bodybody', Object.keys(file));
+    this.logger.warn('bodybody',file.originalname);
 
-    this.logger.warn('bbbbbbbbbbbbbbbbbbbbb', body)
+
+      const candidateImages: CandidateImages = new CandidateImages();
+      candidateImages.aws_key = file.originalname;
+      candidateImages.candidate_id = data.candidate_id;
+      candidateImages.image_description = data.imageDesc;
 
 
-      await this.s3_upload(body.file.arrayBuffer, this.AWS_S3_BUCKET, body.file.name.toString(), body.file.type);
+     this.repository
+      .createQueryBuilder()
+      .insert()
+      .into(CandidateImages)
+      .values(candidateImages)
+      .execute()
+
+
+
+    }
+
+    );
   }
 
-  public async s3_upload(file, bucket, name, mimetype)
-  {
-      const params = 
+  public async s3_upload(file, bucket, name, mimetype) {
+    const params =
+    {
+      Bucket: bucket,
+      Key: String(name),
+      Body: file,
+      ACL: "public-read",
+      ContentType: mimetype,
+      ContentDisposition: "inline",
+      CreateBucketConfiguration:
       {
-          Bucket: bucket,
-          Key: String(name),
-          Body: file,
-          ACL: "public-read",
-          ContentType: mimetype,
-          ContentDisposition:"inline",
-          CreateBucketConfiguration: 
-          {
-              LocationConstraint: process.env.AWS_REGION
-          }
-      };
+        LocationConstraint: process.env.AWS_REGION
+      }
+    };
 
-      console.log(params);
-      try
-      {
-          let s3Response = await this.s3.upload(params).promise();
-          console.log(s3Response);
-      }
-      catch (e)
-      {
-          console.log(e);
-      }
+    //console.log(params);
+    try {
+      let s3Response = await this.s3.upload(params).promise();
+      console.log(s3Response);
+    }
+    catch (e) {
+      console.log(e);
+    }
   }
-
-
 
   public async editCandidate(body: EditCandidateDto): Promise<boolean> {
     if (!this.authService.isOrderAdmin(body.authToken)) {
