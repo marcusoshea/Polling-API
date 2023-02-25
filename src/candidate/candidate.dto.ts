@@ -75,3 +75,14 @@ export class DeleteCandidateDto {
     public authToken: string;
 }
 
+export class DeleteCandidateImageDto {
+    @IsNotEmpty()
+    public image_id: string;
+    
+    @IsNotEmpty()
+    public key: string;
+
+    @IsNotEmpty()
+    public authToken: string;
+}
+

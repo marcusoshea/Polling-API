@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto } from './candidate.dto';
+import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto, DeleteCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
@@ -32,8 +32,6 @@ export class CandidateService {
   @InjectRepository(PollingNotes)
   @InjectRepository(CandidateImages)
 
-
-
   private readonly repository: Repository<Candidate>;
 
   public getCandidateById(id: number): Promise<Candidate> {
@@ -51,34 +49,26 @@ export class CandidateService {
   }
 
   public async createCandidateImage(file: any, data: CreateCandidateImageDto) {
-    //this.logger.warn('data', Object.keys(data));
-    //this.logger.warn('bodybody', Object.keys(file));
     if (!this.authService.isOrderAdmin(data.authToken)) {
       throw new UnauthorizedException();
     }
     await this.s3_upload(file.buffer, this.AWS_S3_BUCKET, file.originalname.toString(), file.mimetype).then(() => {
-    this.logger.warn('data', Object.keys(data));
-    this.logger.warn('bodybody', Object.keys(file));
-    this.logger.warn('bodybody',file.originalname);
-
+      this.logger.warn('data', Object.keys(data));
+      this.logger.warn('bodybody', Object.keys(file));
+      this.logger.warn('bodybody', file.originalname);
 
       const candidateImages: CandidateImages = new CandidateImages();
       candidateImages.aws_key = file.originalname;
       candidateImages.candidate_id = data.candidate_id;
       candidateImages.image_description = data.imageDesc;
 
-
-     this.repository
-      .createQueryBuilder()
-      .insert()
-      .into(CandidateImages)
-      .values(candidateImages)
-      .execute()
-
-
-
+      this.repository
+        .createQueryBuilder()
+        .insert()
+        .into(CandidateImages)
+        .values(candidateImages)
+        .execute()
     }
-
     );
   }
 
@@ -97,10 +87,48 @@ export class CandidateService {
       }
     };
 
-    //console.log(params);
     try {
       let s3Response = await this.s3.upload(params).promise();
       console.log(s3Response);
+    }
+    catch (e) {
+      console.log(e);
+    }
+  }
+
+  public async deleteCandidateImage(body: DeleteCandidateImageDto): Promise<boolean> {
+    if (!this.authService.isOrderAdmin(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+    let key = body.key;
+    let image_id = body.image_id;
+    let data = this.typeOrmConfigService.workDataSource();
+    data.initialize().then(newdata =>
+      newdata.createQueryBuilder()
+        .delete()
+        .from(CandidateImages)
+        .where('image_id = :image_id', { image_id })
+        .execute()
+        .then(() =>
+          this.s3_delete(key)
+        ));
+    return true;
+  }
+
+  public async s3_delete(name) {
+    try {
+      this.s3.deleteObjects(
+        {
+          Bucket: 'aepolling.org',
+          Delete: {
+            Objects: [{ Key: String(name) }],
+            Quiet: false,
+          },
+        },
+        function (err, data) {
+          console.log('delete successfully', data);
+        }
+      );
     }
     catch (e) {
       console.log(e);
@@ -118,13 +146,11 @@ export class CandidateService {
     return true;
   }
 
-
   public async deleteCandidate(body: DeleteCandidateDto): Promise<boolean> {
     let candidateId = body.candidate_id;
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
-
     let data = this.typeOrmConfigService.workDataSource();
     data.initialize().then(newdata =>
       newdata.createQueryBuilder()
@@ -144,7 +170,6 @@ export class CandidateService {
             )
         )
     );
-
     return true;
   }
 
