@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Headers } from '@nestjs/common';
 import { ApiConsumes } from '@nestjs/swagger';
+import { CandidateImages } from './candidate_images.entity';
 
 @Injectable()
 
@@ -68,6 +69,11 @@ export class CandidateController {
   @Delete('/deleteImage')
   public deleteCandidateImage(@Body() body: DeleteCandidateImageDto): Promise<boolean> {
     return this.service.deleteCandidateImage(body);
+  }
+
+  @Get('/candidateImages/:id')
+  public getAllCandidateImages(@Param('id', ParseIntPipe) id: number): Promise<CandidateImages> {
+    return this.service.getAllCandidateImages(id);
   }
 
 }

@@ -53,10 +53,6 @@ export class CandidateService {
       throw new UnauthorizedException();
     }
     await this.s3_upload(file.buffer, this.AWS_S3_BUCKET, file.originalname.toString(), file.mimetype).then(() => {
-      this.logger.warn('data', Object.keys(data));
-      this.logger.warn('bodybody', Object.keys(file));
-      this.logger.warn('bodybody', file.originalname);
-
       const candidateImages: CandidateImages = new CandidateImages();
       candidateImages.aws_key = file.originalname;
       candidateImages.candidate_id = data.candidate_id;
@@ -100,28 +96,52 @@ export class CandidateService {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
-    let key = body.key;
-    let image_id = body.image_id;
+    let keys = body.keys;
+    let all = body.all;
     let data = this.typeOrmConfigService.workDataSource();
-    data.initialize().then(newdata =>
-      newdata.createQueryBuilder()
-        .delete()
-        .from(CandidateImages)
-        .where('image_id = :image_id', { image_id })
-        .execute()
-        .then(() =>
-          this.s3_delete(key)
-        ));
+
+    data.initialize().then(newdata => {
+      if (all) {
+        let candidate_id = body.candidate_id;
+        newdata.createQueryBuilder()
+          .select(['aws_key as "Key"'])
+          .from(CandidateImages, 'images')
+          .where('candidate_id = :candidate_id', { candidate_id })
+          .execute()
+          .then((response: any) =>
+            newdata.createQueryBuilder()
+              .delete()
+              .from(CandidateImages)
+              .where('candidate_id = :candidate_id', { candidate_id })
+              .execute()
+              .then(() =>
+                this.s3_delete(response)
+              )
+          )
+      } else {
+        let image_id = body.image_id;
+        newdata.createQueryBuilder()
+          .delete()
+          .from(CandidateImages)
+          .where('image_id = :image_id', { image_id })
+          .execute()
+          .then(() =>
+            this.s3_delete(keys)
+          )
+      }
+    });
+
     return true;
   }
 
-  public async s3_delete(name) {
+  public async s3_delete(names) {
+    // { Key: String(name) }
     try {
       this.s3.deleteObjects(
         {
           Bucket: 'aepolling.org',
           Delete: {
-            Objects: [{ Key: String(name) }],
+            Objects: names,
             Quiet: false,
           },
         },
@@ -159,7 +179,6 @@ export class CandidateService {
         .where('candidate_id = :candidateId', { candidateId })
         .execute()
         .then(() =>
-
           newdata.createQueryBuilder()
             .delete()
             .from(PollingNotes)
@@ -170,6 +189,16 @@ export class CandidateService {
             )
         )
     );
+
+    let bodyImage: DeleteCandidateImageDto = {
+      image_id: '',
+      candidate_id: candidateId,
+      keys: '',
+      authToken: body.authToken,
+      all: true
+    }
+
+    this.deleteCandidateImage(bodyImage);
     return true;
   }
 
@@ -180,6 +209,17 @@ export class CandidateService {
       .where('candidate.polling_order_id = :orderId', { orderId })
       .orderBy('name')
       .getMany();
+    return result;
+  }
+
+  public async getAllCandidateImages(candidate_id: number): Promise<any> {
+    const result = await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.*', 'candidate')
+      .addSelect('t2.*', 'candidateimages')
+      .innerJoin(CandidateImages, 't2', 't1.candidate_id = t2.candidate_id')
+      .where('t1.candidate_id = :candidate_id', { candidate_id })
+      .getRawMany()
     return result;
   }
 

@@ -78,11 +78,17 @@ export class DeleteCandidateDto {
 export class DeleteCandidateImageDto {
     @IsNotEmpty()
     public image_id: string;
+
+    @IsNotEmpty()
+    public candidate_id: number;
     
     @IsNotEmpty()
-    public key: string;
+    public keys: string;
 
     @IsNotEmpty()
     public authToken: string;
+
+    @IsNotEmpty()
+    public all: boolean;
 }
 
