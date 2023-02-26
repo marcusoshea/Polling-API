@@ -12,6 +12,7 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
 import { ExternalNotes } from '../external_notes/external_notes.entity';
 import { PollingNotes } from '../polling_notes/polling_notes.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
+import { CandidateImages } from './candidate_images.entity';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '30d'}
     }), TypeOrmModule.forFeature([Candidate]), TypeOrmModule.forFeature([PollingOrder]),
-     TypeOrmModule.forFeature([ExternalNotes]), TypeOrmModule.forFeature([PollingNotes]),
+     TypeOrmModule.forFeature([ExternalNotes]), TypeOrmModule.forFeature([PollingNotes]),  TypeOrmModule.forFeature([CandidateImages]), 
     AuthModule],
   controllers: [CandidateController],
   providers: [CandidateService, JwtStrategy, TypeOrmConfigService]

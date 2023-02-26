@@ -15,7 +15,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
   imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, 
-    ConfigModule.forRoot({ envFilePath, isGlobal: true }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],
+    ConfigModule.forRoot({ 
+      envFilePath, isGlobal: true 
+    }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],
   controllers: [],
   providers: [AppService],
 })
