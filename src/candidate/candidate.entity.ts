@@ -14,4 +14,7 @@ export class Candidate {
   @Column({ type: 'integer' })
   public polling_order_id: number;
 
+  @Column({ type: 'boolean' })
+  public watch_list: boolean;
+
 }

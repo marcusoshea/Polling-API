@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, isBoolean } from 'class-validator';
 
 export interface File extends Blob {
     readonly lastModified: number;
@@ -65,6 +65,9 @@ export class EditCandidateDto {
 
     @IsNotEmpty()
     public authToken: string;
+
+    @IsBoolean()
+    public watch_list: boolean;
 }
 
 export class DeleteCandidateDto {

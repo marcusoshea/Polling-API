@@ -36,24 +36,28 @@ export class PollingNotesService {
       .limit(1)
       .getRawMany()
       .then(async (data) => {
-        let cutOffDate = new Date();
-        cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
-        const resultFinal = await this.repository
-        .createQueryBuilder('t1')
-        .select(['t1.*', 't2.name as member_name'])
-        .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
-        .where('t1.polling_id = :id', { id })
-        .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
-        .orderBy('"t1"."vote"', 'ASC')
-        .getRawMany();
-        return resultFinal;
+        if (data.length > 0) {
+          let cutOffDate = new Date();
+          cutOffDate.setMonth(cutOffDate.getMonth() - data[0]?.pv);
+          const resultFinal = await this.repository
+            .createQueryBuilder('t1')
+            .select(['t1.*', 't2.name as member_name'])
+            .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
+            .where('t1.polling_id = :id', { id })
+            .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
+            .orderBy('"t1"."vote"', 'ASC')
+            .getRawMany();
+          return resultFinal;
+        }
+
+        return;
       })
-      return result;
+    return result;
   }
 
   public async createPollingNote(body: CreatePollingNoteDto[]): Promise<boolean> {
     let memberID = this.authService.getPollingOrderMemberId(body[0].authToken);
-    
+
     if (this.authService.isOrderAdmin(body[0].authToken) && memberID !== body[0].polling_order_member_id) {
       memberID = body[0].polling_order_member_id;
     }
@@ -129,7 +133,7 @@ export class PollingNotesService {
       .andWhere('t1.completed = true')
       .groupBy('"t2"."candidate_id",vote')
       .orderBy('"t2"."name"', 'ASC')
-      .getRawMany()      
+      .getRawMany()
     return result;
   }
 
@@ -140,7 +144,7 @@ export class PollingNotesService {
       .where('t1.polling_id = :pollingId', { pollingId })
       .andWhere('t1.completed = true')
       .andWhere('t1.polling_id = :pollingId', { pollingId })
-      .getRawMany()      
+      .getRawMany()
     return result;
   }
 

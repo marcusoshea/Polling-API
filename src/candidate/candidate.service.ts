@@ -159,8 +159,18 @@ export class CandidateService {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
+
+    let linkString = '';
+    if (body.link !== null && body.link !== '') {
+      linkString = body.link;
+    }
+
     const bodyUpdate = {
-      name: body.name
+      candidate_id: body.candidate_id,
+      link: linkString,
+      name: body.name,
+      polling_order_id: body.polling_order_id,
+      watch_list: body.watch_list
     }
     await this.repository.update(body.candidate_id, bodyUpdate);
     return true;
