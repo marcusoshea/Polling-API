@@ -146,14 +146,22 @@ export class PollingService {
     let result = {};
     let polling_id = 0;
     let endDate = new Date();
+
+    const date = new Date()
+    const today = date.toLocaleDateString("en-CA", { 
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+
     await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .addSelect('t2.*', 'pollingOrder')
       .innerJoin(PollingOrder, 't2', 't1.polling_order_id = t2.polling_order_id')
       .where('t1.polling_order_id = :pollingOrderId', { pollingOrderId })
-      .andWhere('CURRENT_DATE >= t1.start_date')
-      .andWhere('CURRENT_DATE <= t1.end_date')
+      .andWhere(':today >= t1.start_date', { today })
+      .andWhere(':today <= t1.end_date', { today })
       .orderBy('t1.end_date', 'DESC')
       .limit(1)
       .getRawMany()
