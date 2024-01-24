@@ -234,15 +234,15 @@ export class PollingService {
     return result;
   }
 
-
+  //Server and Database should be in UTC time, which would set this to eastern time zone
   public async getCurrentPolling(orderId: number): Promise<any> {
     const today = new Date();
     const result = await this.repository
       .createQueryBuilder('t1')
       .select('t1.*', 'polling')
       .where('t1.polling_order_id = :orderId', { orderId })
-      .andWhere('now() >= "t1"."start_date" + time \'00:00:00\'')
-      .andWhere('now() <= "t1"."end_date" + time \'23:59:59\'')
+      .andWhere('now() >= "t1"."start_date" + time \'05:00:00\'')
+      .andWhere('now() <= "t1"."end_date" + 1 + time \'05:00:00\'')
       .getRawOne()
     return result;
   }
