@@ -1,7 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource } from "typeorm"
+import { DataSource } from "typeorm";
+import * as fs from 'fs';
 
 
 @Injectable()
@@ -22,6 +23,12 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       migrationsTableName: 'typeorm_migrations',
       logger: 'file',
       synchronize: false, // never use TRUE in production!
+      
+      "extra": {
+        ssl: {
+          ca: fs.readFileSync('certs/rds-combined-ca-bundle.pem').toString(),
+        },
+      }
     };
   }
 
