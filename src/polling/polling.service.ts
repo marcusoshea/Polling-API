@@ -50,7 +50,7 @@ export class PollingService {
       throw new UnauthorizedException();
     }
     const bodyUpdate = {
-      name: body.name,
+      polling_name: body.name,
       start_date: body.start_date,
       end_date: body.end_date
     }
