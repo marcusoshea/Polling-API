@@ -293,7 +293,7 @@ export class MemberService {
         pom_created_at: memberFound.pom_created_at,
         new_password_token: 0
       }
-      await this.repository.update(memberFound.polling_order_member_id, passwordUpdate);
+      await this.repository.update({ email: memberFound.email.toLowerCase() }, passwordUpdate);
       return true;
     }
     return false;
@@ -316,7 +316,7 @@ export class MemberService {
         pom_created_at: goodLogin.pom_created_at,
         new_password_token: 0
       }
-      await this.repository.update(goodLogin.polling_order_member_id, passwordUpdate);
+      await this.repository.update({ email: goodLogin.email.toLowerCase() }, passwordUpdate);
       return true;
     }
     return false;
