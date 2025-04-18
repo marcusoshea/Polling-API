@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { CreatePollingNoteDto, EditPollingNoteDto, DeletePollingNoteDto } from './polling_notes.dto';
+import { CreatePollingNoteDto, EditPollingNoteDto, DeletePollingNoteDto, GetAllPollingNoteDto } from './polling_notes.dto';
 import { PollingNotes } from './polling_notes.entity';
 import { PollingNotesService } from './polling_notes.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -28,9 +28,9 @@ export class PollingNoteController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/all/:id')
-  public getAllPollingNotesById(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
-    return this.service.getAllPollingNotesById(id);
+  @Post('/all')
+  public getAllPollingNotesById(@Body() body: GetAllPollingNoteDto): Promise<any[]> {
+    return this.service.getAllPollingNotesById(body);
   }
 
   @UseGuards(JwtAuthGuard)

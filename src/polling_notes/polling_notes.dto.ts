@@ -78,3 +78,10 @@ export class DeletePollingNoteDto {
     public authToken: string;
 }
 
+export class GetAllPollingNoteDto {
+    @IsNotEmpty()
+    public polling_notes_id: number;
+
+    @IsNotEmpty()
+    public authToken: string;
+}

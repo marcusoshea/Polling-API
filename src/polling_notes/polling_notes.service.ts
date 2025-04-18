@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
-import { CreatePollingNoteDto, DeletePollingNoteDto, EditPollingNoteDto } from './polling_notes.dto';
+import { CreatePollingNoteDto, DeletePollingNoteDto, EditPollingNoteDto, GetAllPollingNoteDto } from './polling_notes.dto';
 import { PollingNotes } from './polling_notes.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PollingOrder } from '../polling_order/polling_order.entity';
@@ -27,7 +27,15 @@ export class PollingNotesService {
   }
 
 
-  public async getAllPollingNotesById(id: number): Promise<any[]> {
+  public async getAllPollingNotesById(body: GetAllPollingNoteDto): Promise<any[]> {
+    this.logger.log('got here');
+    this.logger.log(body);
+    let id = body.polling_notes_id;
+    let isOrderAdmin = false;
+    if (this.authService.isOrderAdmin(body.authToken)) {
+      isOrderAdmin = true;
+    }
+    
     const result = await this.repository
       .createQueryBuilder('t1')
       .select('t4.polling_order_notes_time_visible as pv')
@@ -39,14 +47,27 @@ export class PollingNotesService {
         if (data.length > 0) {
           let cutOffDate = new Date();
           cutOffDate.setMonth(cutOffDate.getMonth() - data[0]?.pv);
-          const resultFinal = await this.repository
-            .createQueryBuilder('t1')
-            .select(['t1.*', 't2.name as member_name'])
-            .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
-            .where('t1.polling_id = :id', { id })
-            .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
-            .orderBy('"t1"."vote"', 'ASC')
-            .getRawMany();
+          let resultFinal;
+          if (isOrderAdmin) {
+            resultFinal = await this.repository
+              .createQueryBuilder('t1')
+              .select(['t1.*', 't2.name as member_name'])
+              .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
+              .where('t1.polling_id = :id', { id })
+              .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
+              .orderBy('"t1"."vote"', 'ASC')
+              .getRawMany();
+          } else {
+            resultFinal = await this.repository
+              .createQueryBuilder('t1')
+              .select(['t1.*', 't2.name as member_name'])
+              .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
+              .where('t1.polling_id = :id', { id })
+              .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
+              .andWhere('t1.private = false')
+              .orderBy('"t1"."vote"', 'ASC')
+              .getRawMany();
+          }
           return resultFinal;
         }
 
