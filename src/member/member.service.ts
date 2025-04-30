@@ -262,7 +262,7 @@ export class MemberService {
         to: member.email.toLowerCase(),
         subject: 'Forgotten Password',
         text: 'Forgot Password',
-        html: 'Hi! <br><br> This is a message from the AEPolling.org website. If you requested to reset your polling member password<br><br>' +
+        html: 'Hi! <br><br> This is a message from the Polling website. If you requested to reset your polling member password<br><br>' +
           '<a href=' + process.env.WEBSITE_URL + '/reset-password?token=' + tokenMember.new_password_token + '>Click here</a> and update your password. Otherwise please disregard this email.'  // html body
       };
 
