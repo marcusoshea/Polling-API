@@ -28,8 +28,6 @@ export class PollingNotesService {
 
 
   public async getAllPollingNotesById(body: GetAllPollingNoteDto): Promise<any[]> {
-    this.logger.log('got here');
-    this.logger.log(body);
     let id = body.polling_notes_id;
     let isOrderAdmin = false;
     if (this.authService.isOrderAdmin(body.authToken)) {

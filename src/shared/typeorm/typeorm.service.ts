@@ -46,6 +46,11 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       migrationsTableName: 'typeorm_migrations',
       logger: 'file',
       synchronize: false, // never use TRUE in production!
+      "extra": {
+        ssl: {
+          ca: fs.readFileSync('certs/rds-combined-ca-bundle.pem').toString(),
+        },
+      }
     });
 
     AppDataSource.initialize()

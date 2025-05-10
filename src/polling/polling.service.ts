@@ -148,7 +148,7 @@ export class PollingService {
     let endDate = new Date();
 
     const date = new Date()
-    const today = date.toLocaleDateString("en-CA", { 
+    const today = date.toLocaleDateString("en-CA", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -247,41 +247,70 @@ export class PollingService {
     return result;
   }
 
-  public async getPollingNotesByCandidateId(candidateId: number): Promise<any> {
+  public async getPollingNotesByCandidateId(candidateId: number, authorization: string): Promise<Polling[]> {
+    let isOrderAdmin = false;
+    authorization = authorization.replace('Bearer ', '');
+    if (this.authService.isOrderAdmin(authorization)) {
+      isOrderAdmin = true;
+    }
+
     const result = await this.repository
-    .createQueryBuilder('polling')
-    .select('pollingorder.polling_order_notes_time_visible as pv')
-    .innerJoin(PollingOrder, 'pollingorder', 'polling.polling_order_id = pollingorder.polling_order_id')
-    .innerJoin(PollingCandidate, 'pollingcandidate', 'polling.polling_id = pollingcandidate.polling_id')
-    .innerJoin(Candidate, 'candidate', 'pollingcandidate.candidate_id = candidate.candidate_id')
-    .where('candidate.candidate_id = :candidateId', { candidateId })
-    .limit(1)
-    .getRawMany()
+      .createQueryBuilder('polling')
+      .select('pollingorder.polling_order_notes_time_visible as pv')
+      .innerJoin(PollingOrder, 'pollingorder', 'polling.polling_order_id = pollingorder.polling_order_id')
+      .innerJoin(PollingCandidate, 'pollingcandidate', 'polling.polling_id = pollingcandidate.polling_id')
+      .innerJoin(Candidate, 'candidate', 'pollingcandidate.candidate_id = candidate.candidate_id')
+      .where('candidate.candidate_id = :candidateId', { candidateId })
+      .limit(1)
+      .getRawMany()
       .then(async (data) => {
         let cutOffDate = new Date();
         if (data[0] && data[0].pv) {
           cutOffDate.setMonth(cutOffDate.getMonth() - data[0].pv);
-        } 
-        const resultFinal = await this.repository
-        .createQueryBuilder('t1')
-        .select('t1.*', 'polling')
-        .addSelect('t2.*', 'pollingcandidates')
-        .addSelect('t3.*', 'candidate')
-        .addSelect('t4.*', 'pollingnotes')
-        .addSelect('t5.*', 'pollingordermember')
-        .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
-        .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
-        .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
-        .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
-        .where('t3.candidate_id = :candidateId', { candidateId })
-        .andWhere('t4.candidate_id = :candidateId', { candidateId })
-        .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
-        .andWhere('t4.completed = true')
-        .orderBy('pn_created_at', 'DESC')
-        .getRawMany()
-      return resultFinal;
+        }
+        let resultFinal;
+        if (isOrderAdmin) {
+          resultFinal = await this.repository
+            .createQueryBuilder('t1')
+            .select('t1.*', 'polling')
+            .addSelect('t2.*', 'pollingcandidates')
+            .addSelect('t3.*', 'candidate')
+            .addSelect('t4.*', 'pollingnotes')
+            .addSelect('t5.*', 'pollingordermember')
+            .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+            .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+            .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
+            .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
+            .where('t3.candidate_id = :candidateId', { candidateId })
+            .andWhere('t4.candidate_id = :candidateId', { candidateId })
+            .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
+            .andWhere('t4.completed = true')
+            .orderBy('pn_created_at', 'DESC')
+            .getRawMany()
+        } else {
+          resultFinal = await this.repository
+            .createQueryBuilder('t1')
+            .select('t1.*', 'polling')
+            .addSelect('t2.*', 'pollingcandidates')
+            .addSelect('t3.*', 'candidate')
+            .addSelect('t4.*', 'pollingnotes')
+            .addSelect('t5.*', 'pollingordermember')
+            .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
+            .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
+            .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
+            .innerJoin(Member, 't5', 't4.polling_order_member_id = t5.polling_order_member_id')
+            .where('t3.candidate_id = :candidateId', { candidateId })
+            .andWhere('t4.candidate_id = :candidateId', { candidateId })
+            .andWhere('t4.pn_created_At > :cutOffDate', { cutOffDate })
+            .andWhere('t4.private = false')
+            .andWhere('t4.completed = true')
+            .orderBy('pn_created_at', 'DESC')
+            .getRawMany()
+        }
+
+        return resultFinal;
       })
-      return result;
+    return result;
   }
 
 

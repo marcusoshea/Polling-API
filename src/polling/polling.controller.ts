@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, Req, UseGuards } from '@nestjs/common';
 import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { PollingService } from './polling.service';
@@ -67,8 +67,12 @@ export class PollingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/allpn/:id')
-  public getPollingNotesByCandidateId(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
-    return this.service.getPollingNotesByCandidateId(id);
+  public getPollingNotesByCandidateId(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: Request
+  ): Promise<Polling[]> {
+    const authorization = request.headers['authorization'];
+    return this.service.getPollingNotesByCandidateId(id, authorization);
   }
 
   
