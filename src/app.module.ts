@@ -10,11 +10,12 @@ import { CandidateModule } from './candidate/candidate.module';
 import { PollingOrderModule } from './polling_order/polling_order.module';
 import { PollingNotesModule } from './polling_notes/polling_notes.module';
 import { ExternalNotesModule } from './external_notes/external_notes.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
-  imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, 
+  imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, FeedbackModule,
     ConfigModule.forRoot({ 
       envFilePath, isGlobal: true 
     }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],

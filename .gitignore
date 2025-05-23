@@ -39,3 +39,5 @@ lerna-debug.log*
 src/auth/constants.ts
 src/common/envs/.env
 src/common/envs/development.env
+src/common/envs/.env
+src/common/envs/development.env
