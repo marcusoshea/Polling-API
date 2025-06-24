@@ -15,6 +15,7 @@ import { Candidate } from 'src/candidate/candidate.entity';
 import { Member } from 'src/member/member.entity';
 import { PollingCandidate } from './polling_candidate.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
+import { MemberModule } from '../member/member.module';
 
 @Module({
   imports: [
@@ -24,7 +25,9 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
       signOptions: {expiresIn: '30d'}
     }), TypeOrmModule.forFeature([Polling]), TypeOrmModule.forFeature([PollingOrder]), TypeOrmModule.forFeature([PollingNotes]), 
     TypeOrmModule.forFeature([Candidate]),TypeOrmModule.forFeature([Member]),TypeOrmModule.forFeature([PollingCandidate]),
-    AuthModule],
+    AuthModule,
+    MemberModule
+  ],
   controllers: [PollingController],
   providers: [PollingService, PollingNotesService, JwtStrategy, TypeOrmConfigService]
 })

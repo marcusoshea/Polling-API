@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NamingStrategyNotFoundError, Repository } from 'typeorm';
 import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
@@ -12,11 +12,12 @@ import { Member } from 'src/member/member.entity';
 import { PollingCandidate } from './polling_candidate.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 import { PollingOrder } from 'src/polling_order/polling_order.entity';
+import { MemberService } from 'src/member/member.service';
 
 @Injectable()
 
 export class PollingService {
-  constructor(public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService, public pollingNotesService: PollingNotesService) { }
+  constructor(public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService, public pollingNotesService: PollingNotesService, @Inject(MemberService) public memberService: MemberService) { }
   private readonly logger = new Logger(PollingService.name)
   @InjectRepository(Polling)
   @InjectRepository(PollingNotes)
@@ -352,6 +353,54 @@ export class PollingService {
       .orderBy('polling_name')
       .getMany();
     return result;
+  }
+
+  /**
+   * Returns, for the most recent N pollings in a polling order, the members who did NOT submit a vote.
+   */
+  public async getMissingVotesReport(orderId: number, count: number): Promise<any[]> {
+    // 1. Get the most recent N pollings for the order
+    const pollingsAvailable = await this.repository
+      .createQueryBuilder('polling')
+      .where('polling.polling_order_id = :orderId', { orderId })
+      .orderBy('polling.end_date', 'DESC')
+      .limit(count)
+      .getMany();
+
+    // 2. Get all members for the polling order
+    const allMembers = (await this.memberService.getAllMembers(orderId)).filter(m => m.active);
+    const allMemberIds = allMembers.map(m => m.polling_order_member_id);
+
+    this.logger.log(allMembers);
+
+    // 3. For each polling, get all members who submitted a vote (completed=true)
+    const missingByPolling: { [memberId: number]: number } = {};
+    const pollingResults = [];
+    for (const polling of pollingsAvailable) {
+      const notes = await this.pollingNotesService['repository']
+        .createQueryBuilder('note')
+        .select('DISTINCT note.polling_order_member_id', 'polling_order_member_id')
+        .where('note.polling_id = :pollingId', { pollingId: polling.polling_id })
+        .andWhere('note.completed = true')
+        .getRawMany();
+      const votedMemberIds = notes.map(n => n.polling_order_member_id);
+      const missingMembers = allMembers.filter(m => !votedMemberIds.includes(m.polling_order_member_id));
+      // Count how many times each member is missing
+      for (const member of missingMembers) {
+        missingByPolling[member.polling_order_member_id] = (missingByPolling[member.polling_order_member_id] || 0) + 1;
+      }
+      pollingResults.push({
+        polling_id: polling.polling_id,
+        polling_name: polling.polling_name,
+        missing_members: missingMembers
+      });
+    }
+    // Only include members who are missing from ALL pollings
+    const missingAllMembers = allMembers.filter(m => missingByPolling[m.polling_order_member_id] === pollingsAvailable.length);
+    return [{
+      pollings: pollingsAvailable.map(p => ({ polling_id: p.polling_id, polling_name: p.polling_name })),
+      missing_in_all: missingAllMembers
+    }];
   }
 
 }

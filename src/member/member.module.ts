@@ -19,6 +19,7 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
     }), TypeOrmModule.forFeature([Member]), TypeOrmModule.forFeature([PollingOrder]),
     AuthModule],
   controllers: [MemberController],
-  providers: [MemberService, JwtStrategy]
+  providers: [MemberService, JwtStrategy],
+  exports: [MemberService]
 })
 export class MemberModule {}

@@ -94,4 +94,13 @@ export class PollingController {
     return this.service.getInProcessPollingReport(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/missingvotes/:orderId/:count')
+  public getMissingVotesReport(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Param('count', ParseIntPipe) count: number
+  ): Promise<any[]> {
+    return this.service.getMissingVotesReport(orderId, count);
+  }
+
 }
