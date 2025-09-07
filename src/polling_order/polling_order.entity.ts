@@ -17,4 +17,13 @@ export class PollingOrder {
   @Column({ type: 'integer' })
   public polling_order_notes_time_visible: number;
 
+  @Column({ type: 'integer', nullable: true })
+  public polling_order_polling_participation: number;
+
+  @Column({ type: 'integer', nullable: true })
+  public polling_order_polling_score: number;
+
+  @Column({ type: 'integer', nullable: true })
+  public polling_order_polling_type: number;
+
 }
