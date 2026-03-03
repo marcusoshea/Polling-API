@@ -82,7 +82,7 @@ export class PollingNotesService {
     }
 
     let finished = 0;
-    body.forEach(x => {
+    for (const x of body) {
       let pollingNote: PollingNotes = new PollingNotes;
       if (x?.note?.length > 0) {
         pollingNote.note = x.note;
@@ -100,20 +100,43 @@ export class PollingNotesService {
         pollingNote.polling_order_member_id = memberID;
         pollingNote.completed = x.completed;
         pollingNote.private = x.private;
-        this.repository.update(pollingNote.polling_notes_id, pollingNote);
+        await this.repository.update(pollingNote.polling_notes_id, pollingNote);
       } else {
-        pollingNote.polling_notes_id = x?.polling_notes_id;
-        pollingNote.vote = x.vote;
-        pollingNote.polling_id = x.polling_id;
-        pollingNote.candidate_id = x.candidate_id;
-        pollingNote.polling_order_id = x.polling_order_id;
-        pollingNote.polling_order_member_id = memberID;
-        pollingNote.completed = x.completed;
-        pollingNote.private = x.private;
-        this.repository.save(pollingNote);
+        // Check if a record already exists for this combination to prevent duplicates
+        const existingNote = await this.repository.findOne({
+          where: {
+            polling_id: x.polling_id,
+            candidate_id: x.candidate_id,
+            polling_order_member_id: memberID
+          }
+        });
+
+        if (existingNote) {
+          // Update existing record instead of creating duplicate
+          pollingNote.polling_notes_id = existingNote.polling_notes_id;
+          pollingNote.vote = x.vote;
+          pollingNote.polling_id = x.polling_id;
+          pollingNote.candidate_id = x.candidate_id;
+          pollingNote.polling_order_id = x.polling_order_id;
+          pollingNote.polling_order_member_id = memberID;
+          pollingNote.completed = x.completed;
+          pollingNote.private = x.private;
+          await this.repository.update(existingNote.polling_notes_id, pollingNote);
+        } else {
+          // Create new record only if none exists
+          pollingNote.polling_notes_id = x?.polling_notes_id;
+          pollingNote.vote = x.vote;
+          pollingNote.polling_id = x.polling_id;
+          pollingNote.candidate_id = x.candidate_id;
+          pollingNote.polling_order_id = x.polling_order_id;
+          pollingNote.polling_order_member_id = memberID;
+          pollingNote.completed = x.completed;
+          pollingNote.private = x.private;
+          await this.repository.save(pollingNote);
+        }
       }
       finished++;
-    })
+    }
     if (finished === body.length) {
       return true;
     }

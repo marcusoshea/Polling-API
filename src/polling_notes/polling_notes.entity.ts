@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Unique } from 'typeorm';
 
 @Entity({name: 'PollingNotes'})
+@Unique(['polling_id', 'candidate_id', 'polling_order_member_id'])
 export class PollingNotes {
   @PrimaryGeneratedColumn()
   public polling_notes_id!: number;
