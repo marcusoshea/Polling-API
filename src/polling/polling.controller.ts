@@ -1,18 +1,15 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
 import { PollingService } from './polling.service';
-import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PollingCandidate } from './polling_candidate.entity';
 
-@Injectable()
-
 @Controller('polling')
 export class PollingController {
-  constructor(){}
+  constructor() {}
 
-  private readonly logger = new Logger(PollingController.name)
   @Inject(PollingService)
   private readonly service: PollingService;
 
@@ -58,7 +55,6 @@ export class PollingController {
     return this.service.deletePolling(body);
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Get('/all/:id')
   public getAllPollings(@Param('id', ParseIntPipe) id: number): Promise<Polling[]> {
@@ -69,13 +65,12 @@ export class PollingController {
   @Get('/allpn/:id')
   public getPollingNotesByCandidateId(
     @Param('id', ParseIntPipe) id: number,
-    @Req() request: Request
+    @Req() request: ExpressRequest
   ): Promise<Polling[]> {
     const authorization = request.headers['authorization'];
     return this.service.getPollingNotesByCandidateId(id, authorization);
   }
 
-  
   @UseGuards(JwtAuthGuard)
   @Get('/currentpolling/:id')
   public getCurrentPolling(@Param('id', ParseIntPipe) id: number): Promise<Polling> {
@@ -84,13 +79,13 @@ export class PollingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/pollingreport/:id')
-  public getPollingReport(@Param('id', ParseIntPipe) id: number): Promise<any> {
+  public getPollingReport(@Param('id', ParseIntPipe) id: number): Promise<unknown[]> {
     return this.service.getPollingReport(id);
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Get('/inprocesspollingreport/:id')
-  public getInProcessPollingReport(@Param('id', ParseIntPipe) id: number): Promise<any> {
+  public getInProcessPollingReport(@Param('id', ParseIntPipe) id: number): Promise<unknown[]> {
     return this.service.getInProcessPollingReport(id);
   }
 
@@ -99,8 +94,7 @@ export class PollingController {
   public getMissingVotesReport(
     @Param('orderId', ParseIntPipe) orderId: number,
     @Param('count', ParseIntPipe) count: number
-  ): Promise<any[]> {
+  ): Promise<unknown[]> {
     return this.service.getMissingVotesReport(orderId, count);
   }
-
 }

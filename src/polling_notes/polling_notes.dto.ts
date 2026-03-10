@@ -1,12 +1,15 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreatePollingNoteDto {
     public polling_notes_id: number;
-    
+
     @IsString()
+    @IsNotEmpty()
     public note: string;
 
+    @IsNumber()
+    @IsNotEmpty()
     public vote: number;
 
     @IsNotEmpty()
@@ -31,6 +34,7 @@ export class CreatePollingNoteDto {
     @IsBoolean()
     public private: boolean;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -40,8 +44,11 @@ export class EditPollingNoteDto {
     public polling_notes_id: number;
 
     @IsString()
+    @IsNotEmpty()
     public note: string;
 
+    @IsNumber()
+    @IsNotEmpty()
     public vote: number;
 
     @IsNotEmpty()
@@ -58,7 +65,7 @@ export class EditPollingNoteDto {
 
     @IsNotEmpty()
     public polling_order_member_id: number;
-    
+
     @IsBoolean()
     @Transform(({ obj, key }) => obj[key] === 'true')
     public completed: boolean;
@@ -66,6 +73,7 @@ export class EditPollingNoteDto {
     @IsBoolean()
     public private: boolean;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -74,6 +82,7 @@ export class DeletePollingNoteDto {
     @IsNotEmpty()
     public polling_notes_id: number;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -82,6 +91,7 @@ export class GetAllPollingNoteDto {
     @IsNotEmpty()
     public polling_notes_id: number;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }

@@ -1,21 +1,16 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UploadedFile, UseGuards, UseInterceptors, Version } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto, DeleteCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { CandidateService } from './candidate.service';
-import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Headers } from '@nestjs/common';
 import { ApiConsumes } from '@nestjs/swagger';
 import { CandidateImages } from './candidate_images.entity';
 
-@Injectable()
-
 @Controller('candidate')
 export class CandidateController {
-  constructor(){}
+  constructor() {}
 
-  private readonly logger = new Logger(CandidateController.name)
   @Inject(CandidateService)
   private readonly service: CandidateService;
 
@@ -36,21 +31,13 @@ export class CandidateController {
   public createCandidate(@Body() body: CreateCandidateDto): Promise<Candidate> {
     return this.service.createCandidate(body);
   }
-  
-  // @UseGuards(JwtAuthGuard)
-  // @Post('/createImage/:candidate_id')
-  // @UseInterceptors(FileInterceptor('file'))
-  // public createCandidateImage(@Headers() headers, @Param('candidate_id', ParseIntPipe) candidate_id: number, @UploadedFile() body: CreateCandidateImageDto) {
-  //   return this.service.createCandidateImage(headers, candidate_id, body);
-  // }
 
   @UseGuards(JwtAuthGuard)
   @Post('/createImage')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  public createCandidateImage(@Body() data: any, @UploadedFile() file: Express.Multer.File) {
-      //console.log({ data, file })
-      return this.service.createCandidateImage(file, data);
+  public createCandidateImage(@Body() data: CreateCandidateImageDto, @UploadedFile() file: Express.Multer.File): Promise<unknown> {
+    return this.service.createCandidateImage(file, data);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -75,5 +62,4 @@ export class CandidateController {
   public getAllCandidateImages(@Param('id', ParseIntPipe) id: number): Promise<CandidateImages> {
     return this.service.getAllCandidateImages(id);
   }
-
 }

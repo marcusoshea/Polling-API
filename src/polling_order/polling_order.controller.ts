@@ -1,17 +1,13 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { CreatePollingOrderDto, DeletePollingOrderDto, EditPollingOrderDto } from './polling_order.dto';
 import { PollingOrder } from './polling_order.entity';
 import { PollingOrderService } from './polling_order.service';
-import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-@Injectable()
 
 @Controller('pollingorder')
 export class PollingOrderController {
-  constructor(){}
+  constructor() {}
 
-  private readonly logger = new Logger(PollingOrderController.name)
   @Inject(PollingOrderService)
   private readonly service: PollingOrderService;
 
@@ -35,7 +31,6 @@ export class PollingOrderController {
   @UseGuards(JwtAuthGuard)
   @Put('/edit')
   public editPollingOrder(@Body() body: EditPollingOrderDto): Promise<boolean> {
-    console.log('body', body);
     return this.service.editPollingOrder(body);
   }
 
@@ -44,5 +39,4 @@ export class PollingOrderController {
   public deletePollingOrder(@Body() body: DeletePollingOrderDto): Promise<boolean> {
     return this.service.deletePollingOrder(body);
   }
-
 }

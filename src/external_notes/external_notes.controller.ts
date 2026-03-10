@@ -1,17 +1,13 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { CreateExternalNoteDto, EditExternalNoteDto, DeleteExternalNoteDto } from './external_notes.dto';
 import { ExternalNotes } from './external_notes.entity';
 import { ExternalNotesService } from './external_notes.service';
-import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-@Injectable()
 
 @Controller('externalnote')
 export class ExternalNoteController {
-  constructor(){}
+  constructor() {}
 
-  private readonly logger = new Logger(ExternalNoteController.name)
   @Inject(ExternalNotesService)
   private readonly service: ExternalNotesService;
 
@@ -33,10 +29,9 @@ export class ExternalNoteController {
     return this.service.createExternalNote(body);
   }
 
-  
   @UseGuards(JwtAuthGuard)
   @Put('/edit/:id')
-  public editPollingNote(@Body() body: EditExternalNoteDto, @Param('id', ParseIntPipe) id: number,): Promise<boolean> {
+  public editPollingNote(@Body() body: EditExternalNoteDto, @Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.service.editExternalNote(body, id);
   }
 
@@ -45,5 +40,4 @@ export class ExternalNoteController {
   public deleteExternalNote(@Body() body: DeleteExternalNoteDto): Promise<boolean> {
     return this.service.deleteExternalNote(body);
   }
-
 }

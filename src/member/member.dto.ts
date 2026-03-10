@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, isNumber, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateMemberDto {
   @IsString()
@@ -6,18 +6,18 @@ export class CreateMemberDto {
   public name: string;
 
   @IsEmail()
+  @IsNotEmpty()
   public email: string;
-  
+
   @IsString()
   @IsNotEmpty()
   public password: string;
-  
+
   @IsNotEmpty()
   public polling_order_id: number;
 
   @IsNotEmpty()
   public pom_created_at: string;
-  
 }
 
 export class EditMemberDto {
@@ -28,13 +28,14 @@ export class EditMemberDto {
   @IsEmail()
   @IsNotEmpty()
   public email: string;
-  
+
   @IsNotEmpty()
   public polling_order_id: number;
 
   @IsNotEmpty()
   public polling_order_member_id: number;
 
+  @IsString()
   @IsNotEmpty()
   public authToken: string;
 
@@ -54,6 +55,7 @@ export class DeleteMemberDto {
   @IsNotEmpty()
   public polling_order_member_id: number;
 
+  @IsString()
   @IsNotEmpty()
   public authToken: string;
 }
@@ -64,23 +66,23 @@ export class ForceCreateMemberDto {
   public name: string;
 
   @IsEmail()
+  @IsNotEmpty()
   public email: string;
-  
+
   @IsString()
   @IsNotEmpty()
   public password: string;
-  
+
   @IsNotEmpty()
   public polling_order_id: number;
 
   @IsNotEmpty()
   public pom_created_at: string;
 
+  @IsString()
   @IsNotEmpty()
   public authToken: string;
 
   @IsNotEmpty()
   public approved: boolean;
-  
 }
-

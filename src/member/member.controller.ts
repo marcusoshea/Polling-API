@@ -1,17 +1,14 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { CreateMemberDto, DeleteMemberDto, EditMemberDto, ForceCreateMemberDto } from './member.dto';
 import { Member } from './member.entity';
 import { MemberService } from './member.service';
-import { Injectable, Logger } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-@Injectable()
 
 @Controller('member')
 export class MemberController {
-  constructor(){}
+  constructor() {}
 
-  private readonly logger = new Logger(MemberController.name)
   @Inject(MemberService)
   private readonly service: MemberService;
 
@@ -44,28 +41,27 @@ export class MemberController {
 
   @UseGuards(JwtAuthGuard)
   @Put('/edit/:id')
-  public editMember(@Body() body: EditMemberDto, @Param('id', ParseIntPipe) id: number,): Promise<boolean> {
+  public editMember(@Body() body: EditMemberDto, @Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.service.editMember(body, id);
   }
 
   @Post('login')
-  async login(@Request() req) {
+  async login(@Req() req: ExpressRequest): Promise<unknown> {
     return this.service.loginWithCredentials(req);
   }
 
   @Post('passwordToken')
-  async sendEmailToken(@Request() req) {
+  async sendEmailToken(@Req() req: ExpressRequest): Promise<unknown> {
     return this.service.sendEmailForgotPassword(req);
   }
 
   @Post('verify/:token')
-  public async resetPassword(@Request() params): Promise<boolean> {
-      return await this.service.resetPassword(params);
+  public async resetPassword(@Req() req: ExpressRequest): Promise<boolean> {
+    return await this.service.resetPassword(req);
   }
 
   @Put('changePassword')
-  public async changePassword(@Request() params): Promise<boolean> {
-      return await this.service.changePassword(params);
+  public async changePassword(@Req() req: ExpressRequest): Promise<boolean> {
+    return await this.service.changePassword(req);
   }
-
 }

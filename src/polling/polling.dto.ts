@@ -14,6 +14,7 @@ export class CreatePollingDto {
     @IsNotEmpty()
     public end_date: string;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -35,6 +36,7 @@ export class EditPollingDto {
     @IsNotEmpty()
     public end_date: string;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -43,6 +45,7 @@ export class DeletePollingDto {
     @IsNotEmpty()
     public polling_id: number;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -50,8 +53,11 @@ export class DeletePollingDto {
 export class AddPollingCandidateDto {
     @IsNotEmpty()
     public polling_id: number;
+
     @IsNotEmpty()
     public candidate_id: number;
+
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }
@@ -60,6 +66,7 @@ export class RemovePollingCandidateDto {
     @IsNotEmpty()
     public polling_candidate_id: number;
 
+    @IsString()
     @IsNotEmpty()
     public authToken: string;
 }

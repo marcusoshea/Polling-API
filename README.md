@@ -72,15 +72,23 @@ If you use Postman ( https://www.postman.com/downloads/ ) you can use the
 Polling.postman_collection.json file which will have the most up to date endpoints listed.
 ```
 
-## Test
+## Running tests
+
+Tests use **Jest**.
 
 ```bash
-# unit tests
-$ npm run test
+# Run all tests once
+npm test -- --watchAll=false
 
-# e2e tests
-$ npm run test:e2e
+# Run tests in watch mode (reruns on file changes)
+npm test
 
-# test coverage
-$ npm run test:cov
+# Run with coverage report
+npm run test:cov
 ```
+
+### Test setup notes
+
+- Module path aliases (`src/...`) are resolved via `moduleNameMapper` in `package.json` Jest config.
+- Repository mocks require both `getRepositoryToken(Entity)` providers when a service depends on multiple entities (e.g. `MemberService` needs `Member` and `PollingOrder` repositories).
+- DTOs use `class-validator` — `@IsNumber()`, `@IsString()`, `@IsNotEmpty()` decorators are tested via `ValidationPipe` in e2e tests.
