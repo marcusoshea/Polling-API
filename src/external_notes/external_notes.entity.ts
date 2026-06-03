@@ -6,13 +6,13 @@ export class ExternalNotes {
   public external_notes_id!: number;
 
   @Column({ type: 'integer' })
-  public candidate_id: number;
+  public candidate_id!: number;
 
   @Column({ type: 'integer' })
-  public polling_order_member_id: number;
-  
+  public polling_order_member_id!: number;
+
   @Column({ type: 'varchar' })
-  public external_note: string;
+  public external_note!: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   public en_created_at!: Date;

@@ -6,15 +6,15 @@ export class Candidate {
   public candidate_id!: number;
 
   @Column({ type: 'varchar', length: 120 })
-  public name: string;
-  
+  public name!: string;
+
   @Column({ type: 'varchar', length: 120 })
-  public link: string;
+  public link!: string;
 
   @Column({ type: 'integer' })
-  public polling_order_id: number;
+  public polling_order_id!: number;
 
   @Column({ type: 'boolean' })
-  public watch_list: boolean;
+  public watch_list!: boolean;
 
 }

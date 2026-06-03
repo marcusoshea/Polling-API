@@ -12,7 +12,7 @@ export class CandidateController {
   constructor() {}
 
   @Inject(CandidateService)
-  private readonly service: CandidateService;
+  private readonly service!: CandidateService;
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

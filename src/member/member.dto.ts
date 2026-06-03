@@ -3,86 +3,86 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class CreateMemberDto {
   @IsString()
   @IsNotEmpty()
-  public name: string;
+  public name!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  public email: string;
+  public email!: string;
 
   @IsString()
   @IsNotEmpty()
-  public password: string;
+  public password!: string;
 
   @IsNotEmpty()
-  public polling_order_id: number;
+  public polling_order_id!: number;
 
   @IsNotEmpty()
-  public pom_created_at: string;
+  public pom_created_at!: string;
 }
 
 export class EditMemberDto {
   @IsString()
   @IsNotEmpty()
-  public name: string;
+  public name!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  public email: string;
+  public email!: string;
 
   @IsNotEmpty()
-  public polling_order_id: number;
+  public polling_order_id!: number;
 
   @IsNotEmpty()
-  public polling_order_member_id: number;
+  public polling_order_member_id!: number;
 
   @IsString()
   @IsNotEmpty()
-  public authToken: string;
+  public authToken!: string;
 
-  public pom_created_at: string;
-
-  @IsNotEmpty()
-  public approved: boolean;
+  public pom_created_at!: string;
 
   @IsNotEmpty()
-  public removed: boolean;
+  public approved!: boolean;
 
   @IsNotEmpty()
-  public active: boolean;
+  public removed!: boolean;
+
+  @IsNotEmpty()
+  public active!: boolean;
 }
 
 export class DeleteMemberDto {
   @IsNotEmpty()
-  public polling_order_member_id: number;
+  public polling_order_member_id!: number;
 
   @IsString()
   @IsNotEmpty()
-  public authToken: string;
+  public authToken!: string;
 }
 
 export class ForceCreateMemberDto {
   @IsString()
   @IsNotEmpty()
-  public name: string;
+  public name!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  public email: string;
+  public email!: string;
 
   @IsString()
   @IsNotEmpty()
-  public password: string;
+  public password!: string;
 
   @IsNotEmpty()
-  public polling_order_id: number;
+  public polling_order_id!: number;
 
   @IsNotEmpty()
-  public pom_created_at: string;
+  public pom_created_at!: string;
 
   @IsString()
   @IsNotEmpty()
-  public authToken: string;
+  public authToken!: string;
 
   @IsNotEmpty()
-  public approved: boolean;
+  public approved!: boolean;
 }

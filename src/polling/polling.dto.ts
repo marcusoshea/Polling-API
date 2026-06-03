@@ -3,70 +3,70 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreatePollingDto {
     @IsString()
     @IsNotEmpty()
-    public name: string;
+    public name!: string;
 
     @IsNotEmpty()
-    public polling_order_id: number;
+    public polling_order_id!: number;
 
     @IsNotEmpty()
-    public start_date: string;
+    public start_date!: string;
 
     @IsNotEmpty()
-    public end_date: string;
+    public end_date!: string;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class EditPollingDto {
     @IsString()
     @IsNotEmpty()
-    public name: string;
+    public name!: string;
 
     @IsNotEmpty()
-    public polling_order_id: number;
+    public polling_order_id!: number;
 
     @IsNotEmpty()
-    public polling_id: number;
+    public polling_id!: number;
 
     @IsNotEmpty()
-    public start_date: string;
+    public start_date!: string;
 
     @IsNotEmpty()
-    public end_date: string;
+    public end_date!: string;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class DeletePollingDto {
     @IsNotEmpty()
-    public polling_id: number;
+    public polling_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class AddPollingCandidateDto {
     @IsNotEmpty()
-    public polling_id: number;
+    public polling_id!: number;
 
     @IsNotEmpty()
-    public candidate_id: number;
+    public candidate_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class RemovePollingCandidateDto {
     @IsNotEmpty()
-    public polling_candidate_id: number;
+    public polling_candidate_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }

@@ -9,7 +9,7 @@ export class PollingOrderController {
   constructor() {}
 
   @Inject(PollingOrderService)
-  private readonly service: PollingOrderService;
+  private readonly service!: PollingOrderService;
 
   @Get()
   public getPollingOrders(): Promise<PollingOrder[]> {

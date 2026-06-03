@@ -9,7 +9,7 @@ export class ExternalNoteController {
   constructor() {}
 
   @Inject(ExternalNotesService)
-  private readonly service: ExternalNotesService;
+  private readonly service!: ExternalNotesService;
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

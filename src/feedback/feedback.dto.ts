@@ -3,13 +3,13 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class FeedbackDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name!: string;
 
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
   @IsString()
-  message: string;
+  message!: string;
 }

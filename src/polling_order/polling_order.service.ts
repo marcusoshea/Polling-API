@@ -14,7 +14,7 @@ export class PollingOrderService {
   private readonly logger = new Logger(PollingOrderService.name)
   @InjectRepository(PollingOrder)
 
-  private readonly repository: Repository<PollingOrder>;
+  private readonly repository!: Repository<PollingOrder>;
 
 
   public getPollingOrders(): Promise<PollingOrder[]> {

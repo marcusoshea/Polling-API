@@ -9,19 +9,21 @@ import { AuthService } from 'src/auth/auth.service';
 import { ExternalNotes } from '../external_notes/external_notes.entity';
 import { PollingNotes } from '../polling_notes/polling_notes.entity';
 import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
-import { Req, Res } from '@nestjs/common';
-import * as AWS from "aws-sdk";
+import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { CandidateImages } from './candidate_images.entity';
 
 @Injectable()
 
 export class CandidateService {
   AWS_S3_BUCKET = process.env.AWS_BUCKET_NAME;
-  s3 = new AWS.S3
-    ({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+  s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
+  });
 
   constructor(private jwtTokenService: JwtService, public authService: AuthService, public typeOrmConfigService: TypeOrmConfigService) {
   }
@@ -32,7 +34,7 @@ export class CandidateService {
   @InjectRepository(PollingNotes)
   @InjectRepository(CandidateImages)
 
-  private readonly repository: Repository<Candidate>;
+  private readonly repository!: Repository<Candidate>;
 
   public getCandidateById(id: number): Promise<Candidate> {
     return this.repository.findOneBy({
@@ -68,23 +70,20 @@ export class CandidateService {
     );
   }
 
-  public async s3_upload(file, bucket, name, mimetype) {
-    const params =
-    {
-      Bucket: bucket,
-      Key: String(name),
-      Body: file,
-      ACL: "public-read",
-      ContentType: mimetype,
-      ContentDisposition: "inline",
-      CreateBucketConfiguration:
-      {
-        LocationConstraint: process.env.AWS_REGION
-      }
-    };
-
+  public async s3_upload(file: Buffer, bucket: string, name: string, mimetype: string) {
     try {
-      let s3Response = await this.s3.upload(params).promise();
+      const upload = new Upload({
+        client: this.s3,
+        params: {
+          Bucket: bucket,
+          Key: String(name),
+          Body: file,
+          ACL: 'public-read',
+          ContentType: mimetype,
+          ContentDisposition: 'inline',
+        },
+      });
+      const s3Response = await upload.done();
       console.log(s3Response);
     }
     catch (e) {
@@ -134,21 +133,16 @@ export class CandidateService {
     return true;
   }
 
-  public async s3_delete(names) {
-    // { Key: String(name) }
+  public async s3_delete(names: any) {
     try {
-      this.s3.deleteObjects(
-        {
-          Bucket: 'aepolling.org',
-          Delete: {
-            Objects: names,
-            Quiet: false,
-          },
+      const response = await this.s3.send(new DeleteObjectsCommand({
+        Bucket: 'aepolling.org',
+        Delete: {
+          Objects: names,
+          Quiet: false,
         },
-        function (err, data) {
-          console.log('delete successfully', data);
-        }
-      );
+      }));
+      console.log('delete successfully', response);
     }
     catch (e) {
       console.log(e);

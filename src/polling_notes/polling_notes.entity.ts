@@ -7,30 +7,30 @@ export class PollingNotes {
   public polling_notes_id!: number;
 
   @Column({ type: 'varchar'})
-  public note: string;
+  public note!: string;
 
   @Column({ type: 'integer' })
-  public vote: number;
+  public vote!: number;
 
   @Column({ type: 'integer' })
-  public polling_id: number;
-  
-  @Column({ type: 'integer' })
-  public candidate_id: number;
+  public polling_id!: number;
 
   @Column({ type: 'integer' })
-  public polling_order_id: number;
+  public candidate_id!: number;
+
+  @Column({ type: 'integer' })
+  public polling_order_id!: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   public pn_created_at!: Date;
 
   @Column({ type: 'integer' })
-  public polling_order_member_id: number;
+  public polling_order_member_id!: number;
 
   @Column({ type: 'bool' })
-  public completed: boolean;
-  
+  public completed!: boolean;
+
   @Column({ type: 'bool' })
-  public private: boolean;
+  public private!: boolean;
 
 }

@@ -7,33 +7,33 @@ export class Member {
   public polling_order_member_id!: number;
 
   @Column({ type: 'varchar', length: 120 })
-  public name: string;
+  public name!: string;
 
   @Column({ type: 'varchar', length: 120 })
-  public email: string;
+  public email!: string;
 
   @Column({ type: 'varchar', length: 120 })
-  public password: string;
+  public password!: string;
 
   @Column({ type: 'integer' })
-  public polling_order_id: number;
+  public polling_order_id!: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   public pom_created_at!: Date;
 
   @Column({ type: 'integer' })
-  public new_password_token: number;
+  public new_password_token!: number;
 
   @Column({ type: 'date' })
-  public new_password_token_timestamp: Date;
+  public new_password_token_timestamp!: Date;
 
   @Column({ type: 'boolean' })
-  public approved: boolean;
+  public approved!: boolean;
 
   @Column({ type: 'boolean' })
-  public removed: boolean;
+  public removed!: boolean;
 
   @Column({ type: 'boolean' })
-  public active: boolean;
+  public active!: boolean;
 
 }

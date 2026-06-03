@@ -8,7 +8,7 @@ import * as fs from 'fs';
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   @Inject(ConfigService)
-  private readonly config: ConfigService;
+  private readonly config!: ConfigService;
 
   public createTypeOrmOptions(): TypeOrmModuleOptions {
     return {

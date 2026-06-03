@@ -10,7 +10,7 @@ export class MemberController {
   constructor() {}
 
   @Inject(MemberService)
-  private readonly service: MemberService;
+  private readonly service!: MemberService;
 
   @UseGuards(JwtAuthGuard)
   @Get('/all/:id')

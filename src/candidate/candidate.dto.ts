@@ -9,17 +9,17 @@ export interface File extends Blob {
 export class CreateCandidateDto {
     @IsString()
     @IsNotEmpty()
-    public name: string;
+    public name!: string;
 
     @IsString()
-    public link: string;
+    public link!: string;
 
     @IsNotEmpty()
-    public polling_order_id: number;
+    public polling_order_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class CreateCandidateImageDto {
@@ -36,62 +36,62 @@ export class CreateCandidateImageDto {
     candidate_id?: number;
 
     @ApiProperty({ type: 'string', format: 'binary', required: true })
-    file: Express.Multer.File;
+    file!: Express.Multer.File;
 
-    public filename: string;
-    public fieldname: string;
-    public originalname: string;
-    public encoding: string;
-    public mimetype: string;
-    public buffer: Buffer;
-    public size: number;
+    public filename!: string;
+    public fieldname!: string;
+    public originalname!: string;
+    public encoding!: string;
+    public mimetype!: string;
+    public buffer!: Buffer;
+    public size!: number;
 }
 
 export class EditCandidateDto {
     @IsString()
     @IsNotEmpty()
-    public name: string;
+    public name!: string;
 
     @IsString()
-    public link: string;
+    public link!: string;
 
     @IsNotEmpty()
-    public polling_order_id: number;
+    public polling_order_id!: number;
 
     @IsNotEmpty()
-    public candidate_id: number;
+    public candidate_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 
     @IsBoolean()
-    public watch_list: boolean;
+    public watch_list!: boolean;
 }
 
 export class DeleteCandidateDto {
     @IsNotEmpty()
-    public candidate_id: number;
+    public candidate_id!: number;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 }
 
 export class DeleteCandidateImageDto {
     @IsNotEmpty()
-    public image_id: string;
+    public image_id!: string;
 
     @IsNotEmpty()
-    public candidate_id: number;
+    public candidate_id!: number;
 
     @IsNotEmpty()
-    public keys: string;
+    public keys!: string;
 
     @IsString()
     @IsNotEmpty()
-    public authToken: string;
+    public authToken!: string;
 
     @IsNotEmpty()
-    public all: boolean;
+    public all!: boolean;
 }

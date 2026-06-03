@@ -9,7 +9,7 @@ export class PollingNoteController {
   constructor() {}
 
   @Inject(PollingNotesService)
-  private readonly service: PollingNotesService;
+  private readonly service!: PollingNotesService;
 
   @UseGuards(JwtAuthGuard)
   @Get('/totals/:id')

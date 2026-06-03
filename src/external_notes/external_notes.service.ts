@@ -18,7 +18,7 @@ export class ExternalNotesService {
   @InjectRepository(Member)
 
 
-  private readonly repository: Repository<ExternalNotes>;
+  private readonly repository!: Repository<ExternalNotes>;
 
   public getExternalNoteById(id: number): Promise<ExternalNotes> {
     return this.repository.findOneBy({

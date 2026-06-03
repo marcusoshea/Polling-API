@@ -17,7 +17,7 @@ export class MemberService {
   @InjectRepository(Member)
   @InjectRepository(PollingOrder)
 
-  private readonly repository: Repository<Member>;
+  private readonly repository!: Repository<Member>;
 
   public async getMemberById(id: number): Promise<Member> {
     const result = await this.repository
@@ -97,7 +97,7 @@ export class MemberService {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD
       }
-    });
+    } as any);
 
     let mailOptions = {
       from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
@@ -110,8 +110,7 @@ export class MemberService {
 
     await transporter
       .sendMail(mailOptions)
-      .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
-      .catch(e => { this.logger.warn('error', e) });
+      .catch((e: unknown) => { this.logger.warn('error', e) });
 
     const member: Member = new Member();
     member.name = body.name;
@@ -181,7 +180,7 @@ export class MemberService {
           user: process.env.MAIL_USERNAME,
           pass: process.env.MAIL_PASSWORD
         }
-      });
+      } as any);
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
         to: body.email.toLowerCase(),
@@ -193,8 +192,7 @@ export class MemberService {
 
       await transporter
         .sendMail(mailOptions)
-        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
-        .catch(e => { this.logger.warn('error', e) });
+        .catch((e: unknown) => { this.logger.warn('error', e) });
     }
     return true;
   }
@@ -255,7 +253,7 @@ export class MemberService {
           user: process.env.MAIL_USERNAME,
           pass: process.env.MAIL_PASSWORD
         }
-      });
+      } as any);
 
       let mailOptions = {
         from: '"Polling Order" <' + process.env.MAIL_FROM + '>',
@@ -266,12 +264,11 @@ export class MemberService {
           '<a href=' + process.env.WEBSITE_URL + '/reset-password?token=' + tokenMember.new_password_token + '>Click here</a> and update your password. Otherwise please disregard this email.'  // html body
       };
 
-      const result = await transporter
+      await transporter
         .sendMail(mailOptions)
-        .then(this.logger.warn('MAIL_PORT', process.env.MAIL_PORT))
-        .catch(e => { this.logger.warn('error', e) });
+        .catch((e: unknown) => { this.logger.warn('error', e) });
 
-      return result;
+      return true;
     } else {
       throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }

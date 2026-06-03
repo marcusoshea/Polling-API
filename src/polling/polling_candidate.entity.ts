@@ -6,10 +6,10 @@ export class PollingCandidate {
   public polling_candidate_id!: number;
 
   @Column({ type: 'integer' })
-  public polling_id: number;
+  public polling_id!: number;
 
   @Column({ type: 'integer' })
-  public candidate_id: number;
+  public candidate_id!: number;
 
 }
 

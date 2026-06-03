@@ -11,7 +11,7 @@ export class PollingController {
   constructor() {}
 
   @Inject(PollingService)
-  private readonly service: PollingService;
+  private readonly service!: PollingService;
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

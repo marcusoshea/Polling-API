@@ -26,7 +26,7 @@ export class PollingService {
   @InjectRepository(PollingCandidate)
   @InjectRepository(PollingOrder)
 
-  private readonly repository: Repository<Polling>;
+  private readonly repository!: Repository<Polling>;
 
   public getPollingById(id: number): Promise<Polling> {
     return this.repository.findOneBy({
