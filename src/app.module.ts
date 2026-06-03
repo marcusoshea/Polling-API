@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { getEnvPath } from './common/helper/env.helper';
 import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 import { MemberModule } from './member/member.module';
@@ -17,10 +19,13 @@ const envFilePath: string = getEnvPath(`${process.cwd()}/src/common/envs`);
 
 @Module({
   imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, FeedbackModule, OrderPoliciesModule,
-    ConfigModule.forRoot({ 
-      envFilePath, isGlobal: true 
-    }), TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService })],
+    ConfigModule.forRoot({
+      envFilePath, isGlobal: true
+    }),
+    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 20 }]),
+  ],
   controllers: [],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

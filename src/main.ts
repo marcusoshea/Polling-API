@@ -13,16 +13,20 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidUnknownValues: false }));
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.WEBSITE_URL,
+  });
 
-  const configsw = new DocumentBuilder()
-  .setTitle('PollingAPI')
-  .setDescription('The polling API description')
-  .setVersion('1.0')
-  .addTag('polling')
-  .build();
-const document = SwaggerModule.createDocument(app, configsw);
-SwaggerModule.setup('api', app, document);
+  if (process.env.NODE_ENV !== 'production') {
+    const configsw = new DocumentBuilder()
+      .setTitle('PollingAPI')
+      .setDescription('The polling API description')
+      .setVersion('1.0')
+      .addTag('polling')
+      .build();
+    const document = SwaggerModule.createDocument(app, configsw);
+    SwaggerModule.setup('api', app, document);
+  }
 
 
 
