@@ -15,7 +15,7 @@ import { ExternalNotesModule } from './external_notes/external_notes.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { OrderPoliciesModule } from './order_policies/order_policies.module';
 
-const envFilePath: string = getEnvPath(`${process.cwd()}/src/common/envs`);
+const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
   imports: [PollingNotesModule, PollingOrderModule, CandidateModule, PollingModule, ExternalNotesModule, MemberModule, FeedbackModule, OrderPoliciesModule,
