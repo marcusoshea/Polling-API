@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateCandidateDto, DeleteCandidateDto, EditCandidateDto, CreateCandidateImageDto, DeleteCandidateImageDto } from './candidate.dto';
 import { Candidate } from './candidate.entity';
 import { CandidateService } from './candidate.service';
@@ -6,6 +6,30 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { CandidateImages } from './candidate_images.entity';
+
+// Candidate image upload constraints (prevents large-file DoS and non-image uploads to S3)
+const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
+const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+
+const imageUploadOptions = {
+  limits: { fileSize: MAX_IMAGE_SIZE_BYTES, files: 1 },
+  fileFilter: (
+    _req: unknown,
+    file: Express.Multer.File,
+    cb: (error: Error | null, acceptFile: boolean) => void,
+  ): void => {
+    if (!ALLOWED_IMAGE_MIME_TYPES.includes(file.mimetype)) {
+      cb(
+        new BadRequestException(
+          `Unsupported file type: ${file.mimetype}. Allowed types: JPEG, PNG, GIF, WEBP, HEIC, HEIF.`,
+        ),
+        false,
+      );
+      return;
+    }
+    cb(null, true);
+  },
+};
 
 @Controller('candidate')
 export class CandidateController {
@@ -35,7 +59,7 @@ export class CandidateController {
   @UseGuards(JwtAuthGuard)
   @Post('/createImage')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', imageUploadOptions))
   public createCandidateImage(@Body() data: CreateCandidateImageDto, @UploadedFile() file: Express.Multer.File): Promise<unknown> {
     return this.service.createCandidateImage(file, data);
   }
