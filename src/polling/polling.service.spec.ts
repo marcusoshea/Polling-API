@@ -22,6 +22,8 @@ const mockQueryBuilder: any = {
   leftJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   andWhere: jest.fn().mockReturnThis(),
+  groupBy: jest.fn().mockReturnThis(),
+  addGroupBy: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   limit: jest.fn().mockReturnThis(),
   insert: jest.fn().mockReturnThis(),
@@ -36,12 +38,25 @@ const mockQueryBuilder: any = {
   getOne: jest.fn()
 };
 
+// Separate query builder for the candidate scope-check lookup so its
+// getRawOne can be mocked independently of the aggregate query builder.
+const mockCandidateQueryBuilder: any = {
+  select: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  getRawOne: jest.fn()
+};
+
 const mockRepository = {
   createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
   findOneBy: jest.fn(),
   save: jest.fn(),
   update: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
+  manager: {
+    getRepository: jest.fn().mockReturnValue({
+      createQueryBuilder: jest.fn().mockReturnValue(mockCandidateQueryBuilder)
+    })
+  }
 };
 
 const mockPolling: Partial<Polling> = {
@@ -98,7 +113,8 @@ describe('PollingService', () => {
         {
           provide: AuthService,
           useValue: {
-            isOrderAdmin: jest.fn().mockReturnValue(true)
+            isOrderAdmin: jest.fn().mockReturnValue(true),
+            getPollingOrderId: jest.fn().mockReturnValue(5)
           }
         },
         {
@@ -316,6 +332,110 @@ describe('PollingService', () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
 
       await expect(service.removePollingCandidate(removeBody)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('getCandidateTrend', () => {
+    it('should return points ordered by end_date ASC with correct rating math', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      // Candidate belongs to requester's order (5)
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+
+      // Raw rows come back already ordered by end_date ASC (DB does the ordering).
+      // Counts as strings to mirror TypeORM raw output; verify coercion to numbers.
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        {
+          polling_id: '1',
+          polling_name: 'Winter Polling',
+          end_date: new Date('2026-01-31'),
+          yes: '4',
+          wait: '1',
+          no: '0',
+          abstain: '0',
+          total: '5'
+        },
+        {
+          polling_id: '2',
+          polling_name: 'Spring Polling',
+          end_date: new Date('2026-04-30'),
+          yes: '8',
+          wait: '2',
+          no: '1',
+          abstain: '3',
+          total: '14'
+        }
+      ]);
+
+      const result = await service.getCandidateTrend(1, 'Bearer token');
+
+      // Ordering preserved (Winter before Spring)
+      expect(result.map(r => r.polling_name)).toEqual(['Winter Polling', 'Spring Polling']);
+
+      // Rating math: 8 / (8+2+1) * 100 = 72.727... -> 72.73
+      expect(result[1].rating).toBe(72.73);
+      // Counts coerced to numbers
+      expect(result[1].yes).toBe(8);
+      expect(result[1].wait).toBe(2);
+      expect(result[1].no).toBe(1);
+      expect(result[1].abstain).toBe(3);
+      expect(result[1].total).toBe(14);
+      expect(result[1].polling_id).toBe(2);
+    });
+
+    it('should return rating null when only abstain votes exist (denominator 0)', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        {
+          polling_id: '3',
+          polling_name: 'All Abstain Polling',
+          end_date: new Date('2026-05-31'),
+          yes: '0',
+          wait: '0',
+          no: '0',
+          abstain: '5',
+          total: '5'
+        }
+      ]);
+
+      const result = await service.getCandidateTrend(1, 'Bearer token');
+
+      expect(result[0].rating).toBeNull();
+      expect(result[0].abstain).toBe(5);
+      expect(result[0].total).toBe(5);
+    });
+
+    it('should filter to completed=true in the query', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
+
+      await service.getCandidateTrend(1, 'Bearer token');
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('t2.completed = true');
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('t1.end_date', 'ASC');
+    });
+
+    it('should return empty array for a candidate in a different polling order', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      // Candidate belongs to order 99, not requester's order 5
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 99 });
+
+      const result = await service.getCandidateTrend(1, 'Bearer token');
+
+      expect(result).toEqual([]);
+      // Aggregate query should never run for a cross-order candidate
+      expect(mockQueryBuilder.getRawMany).not.toHaveBeenCalled();
+    });
+
+    it('should return empty array when the candidate does not exist', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue(undefined);
+
+      const result = await service.getCandidateTrend(999, 'Bearer token');
+
+      expect(result).toEqual([]);
     });
   });
 

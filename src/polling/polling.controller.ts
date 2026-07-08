@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, 
 import { Request as ExpressRequest } from 'express';
 import { AddPollingCandidateDto, CreatePollingDto, DeletePollingDto, EditPollingDto, RemovePollingCandidateDto } from './polling.dto';
 import { Polling } from './polling.entity';
-import { PollingService } from './polling.service';
+import { CandidateTrendPoint, PollingService } from './polling.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PollingCandidate } from './polling_candidate.entity';
 
@@ -69,6 +69,16 @@ export class PollingController {
   ): Promise<Polling[]> {
     const authorization = request.headers['authorization'];
     return this.service.getPollingNotesByCandidateId(id, authorization);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/candidatetrend/:candidateId')
+  public getCandidateTrend(
+    @Param('candidateId', ParseIntPipe) candidateId: number,
+    @Req() request: ExpressRequest
+  ): Promise<CandidateTrendPoint[]> {
+    const authorization = request.headers['authorization'];
+    return this.service.getCandidateTrend(candidateId, authorization);
   }
 
   @UseGuards(JwtAuthGuard)

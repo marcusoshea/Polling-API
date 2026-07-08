@@ -14,6 +14,18 @@ import { TypeOrmConfigService } from '../shared/typeorm/typeorm.service'
 import { PollingOrder } from 'src/polling_order/polling_order.entity';
 import { MemberService } from 'src/member/member.service';
 
+export interface CandidateTrendPoint {
+  polling_id: number;
+  polling_name: string;
+  end_date: Date;
+  yes: number;
+  wait: number;
+  no: number;
+  abstain: number;
+  total: number;
+  rating: number | null;
+}
+
 @Injectable()
 
 export class PollingService {
@@ -314,6 +326,65 @@ export class PollingService {
     return result;
   }
 
+
+  public async getCandidateTrend(candidateId: number, authorization: string): Promise<CandidateTrendPoint[]> {
+    const authToken = (authorization || '').replace('Bearer ', '');
+    const requesterOrderId = this.authService.getPollingOrderId(authToken);
+
+    // Scope check: confirm the candidate belongs to the requester's polling order.
+    const candidate = await this.repository.manager
+      .getRepository(Candidate)
+      .createQueryBuilder('candidate')
+      .select('candidate.polling_order_id', 'polling_order_id')
+      .where('candidate.candidate_id = :candidateId', { candidateId })
+      .getRawOne();
+
+    if (!candidate || Number(candidate.polling_order_id) !== requesterOrderId) {
+      // Do not leak whether the candidate exists in another order.
+      return [];
+    }
+
+    const rows = await this.repository
+      .createQueryBuilder('t1')
+      .select('t1.polling_id', 'polling_id')
+      .addSelect('t1.polling_name', 'polling_name')
+      .addSelect('t1.end_date', 'end_date')
+      .addSelect('SUM(CASE WHEN t2.vote = 1 THEN 1 ELSE 0 END)', 'yes')
+      .addSelect('SUM(CASE WHEN t2.vote = 2 THEN 1 ELSE 0 END)', 'wait')
+      .addSelect('SUM(CASE WHEN t2.vote = 3 THEN 1 ELSE 0 END)', 'no')
+      .addSelect('SUM(CASE WHEN t2.vote = 4 THEN 1 ELSE 0 END)', 'abstain')
+      .addSelect('COUNT(t2.polling_notes_id)', 'total')
+      .innerJoin(PollingNotes, 't2', 't1.polling_id = t2.polling_id')
+      .where('t2.candidate_id = :candidateId', { candidateId })
+      .andWhere('t2.completed = true')
+      .groupBy('t1.polling_id')
+      .addGroupBy('t1.polling_name')
+      .addGroupBy('t1.end_date')
+      .orderBy('t1.end_date', 'ASC')
+      .getRawMany();
+
+    return rows.map((row) => {
+      const yes = Number(row.yes) || 0;
+      const wait = Number(row.wait) || 0;
+      const no = Number(row.no) || 0;
+      const abstain = Number(row.abstain) || 0;
+      const total = Number(row.total) || 0;
+      const denominator = yes + wait + no;
+      const rating = denominator === 0 ? null : Math.round((yes / denominator) * 100 * 100) / 100;
+
+      return {
+        polling_id: Number(row.polling_id),
+        polling_name: row.polling_name,
+        end_date: row.end_date,
+        yes,
+        wait,
+        no,
+        abstain,
+        total,
+        rating
+      };
+    });
+  }
 
   public async addPollingCandidates(body: AddPollingCandidateDto[]): Promise<PollingCandidate[]> {
     if (!this.authService.isOrderAdmin(body[0].authToken)) {

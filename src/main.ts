@@ -20,7 +20,20 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidUnknownValues: false }));
   app.enableCors({
-    origin: process.env.WEBSITE_URL,
+    origin: (origin, callback) => {
+      // No Origin header (same-origin, curl, server-to-server) is always allowed.
+      if (!origin || origin === process.env.WEBSITE_URL) {
+        return callback(null, true);
+      }
+      // Outside production, allow the local Angular dev server on any localhost port.
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        /^http:\/\/localhost(:\d+)?$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
   });
 
   if (process.env.NODE_ENV !== 'production') {
