@@ -52,37 +52,40 @@ export class AuthService {
     }
 
     public getPollingOrderId(authToken: any): number {
-        try {
-            if (!authToken) {
-                throw new UnauthorizedException();
-            }
-
-            const requestingMember = JSON.parse(JSON.stringify(this.jwtService.verify(authToken)));
-
-            if (!requestingMember) {
-                throw new UnauthorizedException();
-            }
-
-            const mappedReqMember = new Map(Object.entries(requestingMember));
-
-            let pollingOrderId = mappedReqMember.get("polling_order_id");
-
-            if (!pollingOrderId) {
-                const pollingOrderInfo = mappedReqMember.get("pollingOrderInfo");
-                if (pollingOrderInfo) {
-                    const mappedPollingOrder = new Map(Object.entries(pollingOrderInfo));
-                    pollingOrderId = mappedPollingOrder.get("polling_order_id");
-                }
-            }
-
-            if (!pollingOrderId) {
-                throw new UnauthorizedException();
-            }
-
-            return Number(pollingOrderId);
-        } catch {
-            throw new UnauthorizedException();
+        if (!authToken) {
+            throw new UnauthorizedException('Authentication token is required');
         }
+
+        let requestingMember: unknown;
+        try {
+            // verify() (not decode()) so the token signature is validated — this token
+            // arrives in the request body, separate from the header token the guard checks.
+            requestingMember = this.jwtService.verify(authToken);
+        } catch {
+            throw new UnauthorizedException('Invalid authentication token');
+        }
+
+        if (!requestingMember) {
+            throw new UnauthorizedException('Invalid authentication token');
+        }
+
+        const mappedReqMember = new Map(Object.entries(requestingMember));
+
+        let pollingOrderId = mappedReqMember.get("polling_order_id");
+
+        if (!pollingOrderId) {
+            const pollingOrderInfo = mappedReqMember.get("pollingOrderInfo");
+            if (pollingOrderInfo) {
+                const mappedPollingOrder = new Map(Object.entries(pollingOrderInfo));
+                pollingOrderId = mappedPollingOrder.get("polling_order_id");
+            }
+        }
+
+        if (!pollingOrderId) {
+            throw new UnauthorizedException('Polling order ID not found in authentication token');
+        }
+
+        return Number(pollingOrderId);
     }
 
     public isMemberOfPollingOrder(authToken: any, pollingOrderId: number): boolean {

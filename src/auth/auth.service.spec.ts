@@ -24,8 +24,10 @@ describe('AuthService', () => {
         AuthService,
         {
           provide: JwtService,
+          // verify() (not decode()) mirrors the service: these authz helpers validate
+          // the token signature, since the token comes from the request body.
           useValue: {
-            decode: jest.fn().mockReturnValue(mockPayload)
+            verify: jest.fn().mockReturnValue(mockPayload)
           }
         }
       ]
@@ -40,31 +42,31 @@ describe('AuthService', () => {
   });
 
   describe('validate', () => {
-    it('should decode and return the JWT payload', () => {
+    it('should verify and return the JWT payload', () => {
       const result = service.validate(mockToken);
-      expect(jwtService.decode).toHaveBeenCalledWith(mockToken);
+      expect(jwtService.verify).toHaveBeenCalledWith(mockToken);
       expect(result).toEqual(mockPayload);
     });
   });
 
   describe('isOrderAdmin', () => {
     it('should return true when member is the order admin', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue({ ...mockPayload, polling_order_member_id: 42 });
+      jest.spyOn(jwtService, 'verify').mockReturnValue({ ...mockPayload, polling_order_member_id: 42 });
       expect(service.isOrderAdmin(mockToken)).toBe(true);
     });
 
     it('should return true when member is the admin assistant', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue({ ...mockPayload, polling_order_member_id: 100 });
+      jest.spyOn(jwtService, 'verify').mockReturnValue({ ...mockPayload, polling_order_member_id: 100 });
       expect(service.isOrderAdmin(mockToken)).toBe(true);
     });
 
     it('should return false when member is a regular member', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue({ ...mockPayload, polling_order_member_id: 999 });
+      jest.spyOn(jwtService, 'verify').mockReturnValue({ ...mockPayload, polling_order_member_id: 999 });
       expect(service.isOrderAdmin(mockToken)).toBe(false);
     });
 
-    it('should return false when token decodes to null', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue(null);
+    it('should return false when token verifies to null', () => {
+      jest.spyOn(jwtService, 'verify').mockReturnValue(null);
       expect(service.isOrderAdmin(mockToken)).toBe(false);
     });
   });
@@ -106,7 +108,7 @@ describe('AuthService', () => {
           polling_order_admin_assistant: 100
         }
       };
-      jest.spyOn(jwtService, 'decode').mockReturnValue(payloadWithoutDirectId);
+      jest.spyOn(jwtService, 'verify').mockReturnValue(payloadWithoutDirectId);
       const result = service.getPollingOrderId(mockToken);
       expect(result).toBe(7);
     });
@@ -119,13 +121,13 @@ describe('AuthService', () => {
       expect(() => service.getPollingOrderId(undefined)).toThrow('Authentication token is required');
     });
 
-    it('should throw when token cannot be decoded', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue(null);
+    it('should throw when token cannot be verified', () => {
+      jest.spyOn(jwtService, 'verify').mockReturnValue(null);
       expect(() => service.getPollingOrderId(mockToken)).toThrow('Invalid authentication token');
     });
 
     it('should throw when polling_order_id is not found anywhere in token', () => {
-      jest.spyOn(jwtService, 'decode').mockReturnValue({ polling_order_member_id: 42 });
+      jest.spyOn(jwtService, 'verify').mockReturnValue({ polling_order_member_id: 42 });
       expect(() => service.getPollingOrderId(mockToken)).toThrow('Polling order ID not found in authentication token');
     });
   });
