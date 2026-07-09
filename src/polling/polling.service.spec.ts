@@ -114,7 +114,8 @@ describe('PollingService', () => {
           provide: AuthService,
           useValue: {
             isOrderAdmin: jest.fn().mockReturnValue(true),
-            getPollingOrderId: jest.fn().mockReturnValue(5)
+            getPollingOrderId: jest.fn().mockReturnValue(5),
+            getPollingOrderMemberId: jest.fn().mockReturnValue(42)
           }
         },
         {
@@ -436,6 +437,116 @@ describe('PollingService', () => {
       const result = await service.getCandidateTrend(999, 'Bearer token');
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getMyNotesByCandidateId', () => {
+    it('should return only the requesting member\'s notes, derived from the token (not a param)', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        {
+          polling_id: '12',
+          polling_name: 'Spring Polling',
+          end_date: new Date('2026-04-30'),
+          vote: '1',
+          note: 'Strong progress',
+          private: false,
+          completed: true,
+          pn_created_at: new Date('2026-04-10')
+        }
+      ]);
+
+      const result = await service.getMyNotesByCandidateId(7, 'Bearer token');
+
+      // member id comes from the token, filtered in the query
+      expect(authService.getPollingOrderMemberId).toHaveBeenCalledWith('token');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        't1.polling_order_member_id = :memberId',
+        { memberId: 42 }
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].polling_id).toBe(12);
+      expect(result[0].vote).toBe(1);
+      expect(result[0].note).toBe('Strong progress');
+      expect(result[0].polling_name).toBe('Spring Polling');
+    });
+
+    it('should include the member\'s own private notes (no private filter applied)', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+
+      mockQueryBuilder.getRawMany.mockResolvedValue([
+        {
+          polling_id: '9',
+          polling_name: 'Private Polling',
+          end_date: new Date('2026-02-28'),
+          vote: '2',
+          note: 'my private thoughts',
+          private: true,
+          completed: true,
+          pn_created_at: new Date('2026-02-10')
+        }
+      ]);
+
+      const result = await service.getMyNotesByCandidateId(7, 'Bearer token');
+
+      // A private note IS returned...
+      expect(result).toHaveLength(1);
+      expect(result[0].private).toBe(true);
+      // ...and no private filter was ever added to the query.
+      const privateFilterUsed = mockQueryBuilder.andWhere.mock.calls.some(
+        (call: any[]) => typeof call[0] === 'string' && call[0].includes('private')
+      );
+      expect(privateFilterUsed).toBe(false);
+    });
+
+    it('should filter to completed=true in the query', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
+
+      await service.getMyNotesByCandidateId(7, 'Bearer token');
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('t1.completed = true');
+    });
+
+    it('should order by end_date DESC', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
+
+      await service.getMyNotesByCandidateId(7, 'Bearer token');
+
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('t2.end_date', 'DESC');
+    });
+
+    it('should return empty array for a candidate in a different polling order and not run the notes query', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      // Candidate belongs to order 99, not requester's order 5
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 99 });
+
+      const result = await service.getMyNotesByCandidateId(7, 'Bearer token');
+
+      expect(result).toEqual([]);
+      expect(mockQueryBuilder.getRawMany).not.toHaveBeenCalled();
+    });
+
+    it('should return empty array when the candidate does not exist', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(42);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue(undefined);
+
+      const result = await service.getMyNotesByCandidateId(999, 'Bearer token');
+
+      expect(result).toEqual([]);
+      expect(mockQueryBuilder.getRawMany).not.toHaveBeenCalled();
     });
   });
 

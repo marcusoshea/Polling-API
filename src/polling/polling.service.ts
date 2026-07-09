@@ -26,6 +26,17 @@ export interface CandidateTrendPoint {
   rating: number | null;
 }
 
+export interface MyCandidateNote {
+  polling_id: number;
+  polling_name: string;
+  end_date: Date;
+  vote: number;
+  note: string | null;
+  private: boolean;
+  completed: boolean;
+  pn_created_at: Date;
+}
+
 @Injectable()
 
 export class PollingService {
@@ -384,6 +395,53 @@ export class PollingService {
         rating
       };
     });
+  }
+
+  public async getMyNotesByCandidateId(candidateId: number, authorization: string): Promise<MyCandidateNote[]> {
+    const authToken = (authorization || '').replace('Bearer ', '');
+    const memberId = this.authService.getPollingOrderMemberId(authToken);
+    const requesterOrderId = this.authService.getPollingOrderId(authToken);
+
+    // Scope check: confirm the candidate belongs to the requester's polling order.
+    const candidate = await this.repository.manager
+      .getRepository(Candidate)
+      .createQueryBuilder('candidate')
+      .select('candidate.polling_order_id', 'polling_order_id')
+      .where('candidate.candidate_id = :candidateId', { candidateId })
+      .getRawOne();
+
+    if (!candidate || Number(candidate.polling_order_id) !== requesterOrderId) {
+      // Do not leak whether the candidate exists in another order.
+      return [];
+    }
+
+    const rows = await this.repository
+      .createQueryBuilder('t2')
+      .select('t2.polling_id', 'polling_id')
+      .addSelect('t2.polling_name', 'polling_name')
+      .addSelect('t2.end_date', 'end_date')
+      .addSelect('t1.vote', 'vote')
+      .addSelect('t1.note', 'note')
+      .addSelect('t1.private', 'private')
+      .addSelect('t1.completed', 'completed')
+      .addSelect('t1.pn_created_at', 'pn_created_at')
+      .innerJoin(PollingNotes, 't1', 't1.polling_id = t2.polling_id')
+      .where('t1.candidate_id = :candidateId', { candidateId })
+      .andWhere('t1.polling_order_member_id = :memberId', { memberId })
+      .andWhere('t1.completed = true')
+      .orderBy('t2.end_date', 'DESC')
+      .getRawMany();
+
+    return rows.map((row) => ({
+      polling_id: Number(row.polling_id),
+      polling_name: row.polling_name,
+      end_date: row.end_date,
+      vote: Number(row.vote),
+      note: row.note,
+      private: row.private,
+      completed: row.completed,
+      pn_created_at: row.pn_created_at
+    }));
   }
 
   public async addPollingCandidates(body: AddPollingCandidateDto[]): Promise<PollingCandidate[]> {
