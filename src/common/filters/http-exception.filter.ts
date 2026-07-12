@@ -7,6 +7,9 @@ import {
   Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { QueryFailedError } from 'typeorm';
+
+const PG_UNIQUE_VIOLATION = '23505';
 
 export interface ErrorResponse {
   statusCode: number;
@@ -42,8 +45,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message = body.message ?? 'Request failed';
         if (body.error) errorName = body.error;
       }
+    } else if (this.isUniqueViolation(exception)) {
+      // Concurrent duplicate insert (e.g. the same vote row from two tabs):
+      // a conflict, not a server fault - and never the raw Postgres text.
+      status = HttpStatus.CONFLICT;
+      errorName = 'Conflict';
+      message = 'This record already exists. Please refresh and try again.';
     } else if (exception instanceof Error) {
-      message = exception.message || 'An unexpected error occurred';
+      // Never expose internal error text (raw driver/ORM messages leak schema
+      // details); the full message and stack are still logged below.
+      message = 'An unexpected error occurred. Please try again.';
     }
 
     const errorResponse: ErrorResponse = {
@@ -60,11 +71,26 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : String(exception)
       );
     } else {
+      // For sanitized non-HttpException responses (e.g. 409), keep the real
+      // cause in the server log even though the client only sees the generic text.
+      const detail =
+        !(exception instanceof HttpException) && exception instanceof Error
+          ? ` [${exception.message}]`
+          : '';
       this.logger.warn(
-        `${request.method} ${request.url} → ${status}: ${JSON.stringify(message)}`
+        `${request.method} ${request.url} → ${status}: ${JSON.stringify(message)}${detail}`
       );
     }
 
     response.status(status).json(errorResponse);
+  }
+
+  private isUniqueViolation(exception: unknown): boolean {
+    if (!(exception instanceof QueryFailedError)) {
+      return false;
+    }
+    const code =
+      (exception as any).code ?? (exception as any).driverError?.code;
+    return code === PG_UNIQUE_VIOLATION;
   }
 }
