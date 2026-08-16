@@ -355,6 +355,23 @@ export class PollingService {
       return [];
     }
 
+    // Apply the same time-visibility cutoff the polling-notes list uses, so the
+    // trend chart only goes back as far as the notes shown for this candidate.
+    // (See getPollingNotesByCandidateId.) Notes older than
+    // polling_order_notes_time_visible months are hidden there and must be
+    // excluded here too, otherwise the chart shows pollings the notes don't.
+    const orderRow = await this.repository.manager
+      .getRepository(PollingOrder)
+      .createQueryBuilder('po')
+      .select('po.polling_order_notes_time_visible', 'pv')
+      .where('po.polling_order_id = :orderId', { orderId: requesterOrderId })
+      .getRawOne();
+
+    const cutOffDate = new Date();
+    if (orderRow && orderRow.pv) {
+      cutOffDate.setMonth(cutOffDate.getMonth() - Number(orderRow.pv));
+    }
+
     const rows = await this.repository
       .createQueryBuilder('t1')
       .select('t1.polling_id', 'polling_id')
@@ -368,6 +385,7 @@ export class PollingService {
       .innerJoin(PollingNotes, 't2', 't1.polling_id = t2.polling_id')
       .where('t2.candidate_id = :candidateId', { candidateId })
       .andWhere('t2.completed = true')
+      .andWhere('t2.pn_created_at > :cutOffDate', { cutOffDate })
       .groupBy('t1.polling_id')
       .addGroupBy('t1.polling_name')
       .addGroupBy('t1.end_date')
@@ -513,7 +531,16 @@ export class PollingService {
         .andWhere('note.completed = true')
         .getRawMany();
       const votedMemberIds = notes.map(n => n.polling_order_member_id);
-      const missingMembers = allMembers.filter(m => !votedMemberIds.includes(m.polling_order_member_id));
+      // A member can only be "missing" from a polling if they were already a
+      // member when that polling closed. Members added after a polling's
+      // end_date had no chance to vote in it, so they must not be counted as
+      // missing (otherwise a brand-new member is wrongly flagged as a chronic
+      // non-voter). Members with no pom_created_at (legacy rows) are treated as
+      // always eligible.
+      const missingMembers = allMembers.filter(m =>
+        !votedMemberIds.includes(m.polling_order_member_id) &&
+        (!m.pom_created_at || new Date(m.pom_created_at) <= new Date(polling.end_date))
+      );
       // Count how many times each member is missing
       for (const member of missingMembers) {
         missingByPolling[member.polling_order_member_id] = (missingByPolling[member.polling_order_member_id] || 0) + 1;

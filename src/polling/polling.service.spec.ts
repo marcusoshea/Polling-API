@@ -418,6 +418,19 @@ describe('PollingService', () => {
       expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('t1.end_date', 'ASC');
     });
 
+    it('should apply the notes time-visibility cutoff so the chart matches the notes list', async () => {
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
+      mockCandidateQueryBuilder.getRawOne.mockResolvedValue({ polling_order_id: 5 });
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
+
+      await service.getCandidateTrend(1, 'Bearer token');
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        't2.pn_created_at > :cutOffDate',
+        expect.objectContaining({ cutOffDate: expect.any(Date) })
+      );
+    });
+
     it('should return empty array for a candidate in a different polling order', async () => {
       jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(5);
       // Candidate belongs to order 99, not requester's order 5
@@ -609,6 +622,36 @@ describe('PollingService', () => {
 
       expect(result[0].missing_in_all).toHaveLength(1);
       expect(result[0].missing_in_all[0].name).toBe('Missing Member');
+    });
+
+    it('should not flag a member added after the polling closed', async () => {
+      const pollings = [
+        { polling_id: 1, polling_name: 'Poll 1', end_date: '2026-01-10T00:00:00Z' }
+      ];
+      mockQueryBuilder.getMany.mockResolvedValue(pollings);
+
+      const activeMembers = [
+        // joined before the polling closed and didn't vote -> chronic
+        { polling_order_member_id: 1, name: 'Old Non-Voter', active: true, pom_created_at: '2026-01-01T00:00:00Z' },
+        // joined after the polling closed -> couldn't have voted, must be excluded
+        { polling_order_member_id: 2, name: 'New Member', active: true, pom_created_at: '2026-02-01T00:00:00Z' }
+      ];
+      jest.spyOn(memberService, 'getAllMembers').mockResolvedValue(activeMembers as any);
+
+      const notesRepoMock = {
+        createQueryBuilder: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          andWhere: jest.fn().mockReturnThis(),
+          getRawMany: jest.fn().mockResolvedValue([])
+        })
+      };
+      (service as any).pollingNotesService['repository'] = notesRepoMock;
+
+      const result = await service.getMissingVotesReport(5, 1);
+
+      expect(result[0].missing_in_all).toHaveLength(1);
+      expect(result[0].missing_in_all[0].name).toBe('Old Non-Voter');
     });
   });
 });

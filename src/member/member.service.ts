@@ -32,7 +32,7 @@ export class MemberService {
   public async getAllMembers(orderId: number): Promise<Member[]> {
     const result = await this.repository
       .createQueryBuilder('member')
-      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved', 'member.removed', 'member.active'])
+      .select(['member.polling_order_member_id', 'member.name', 'member.email', 'member.approved', 'member.removed', 'member.active', 'member.pom_created_at'])
       .where('member.polling_order_id = :orderId', { orderId })
       .getMany();
     return result;

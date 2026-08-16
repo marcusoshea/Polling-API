@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export interface File extends Blob {
     readonly lastModified: number;
@@ -32,6 +33,7 @@ export class CreateCandidateImageDto {
     authToken?: string;
 
     @ApiProperty({ type: 'string', format: 'number', required: false })
+    @Type(() => Number)
     @IsNumber()
     candidate_id?: number;
 
@@ -52,12 +54,15 @@ export class EditCandidateDto {
     @IsNotEmpty()
     public name!: string;
 
+    @IsOptional()
     @IsString()
-    public link!: string;
+    public link?: string;
 
+    @Type(() => Number)
     @IsNotEmpty()
     public polling_order_id!: number;
 
+    @Type(() => Number)
     @IsNotEmpty()
     public candidate_id!: number;
 
