@@ -33,4 +33,7 @@ export class PollingNotes {
   @Column({ type: 'bool' })
   public private!: boolean;
 
+  @Column({ type: 'bool', default: false })
+  public anonymous!: boolean;
+
 }

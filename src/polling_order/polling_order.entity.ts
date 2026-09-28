@@ -26,4 +26,7 @@ export class PollingOrder {
   @Column({ type: 'integer', nullable: true })
   public polling_order_polling_type!: number;
 
+  @Column({ type: 'bool', default: false })
+  public polling_order_allow_anonymous!: boolean;
+
 }

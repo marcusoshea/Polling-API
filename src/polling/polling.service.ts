@@ -247,6 +247,7 @@ export class PollingService {
           .addSelect('null', 'polling_order_member_id')
           .addSelect('false', 'completed')
           .addSelect('false', 'private')
+          .addSelect('false', 'anonymous')
           .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
           .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
           .where('t1.polling_id = :pollingId', { pollingId })
@@ -277,6 +278,7 @@ export class PollingService {
     if (this.authService.isOrderAdmin(authorization)) {
       isOrderAdmin = true;
     }
+    const requesterId = this.authService.getPollingOrderMemberId(authorization);
 
     const result = await this.repository
       .createQueryBuilder('polling')
@@ -330,6 +332,24 @@ export class PollingService {
             .andWhere('t4.completed = true')
             .orderBy('pn_created_at', 'DESC')
             .getRawMany()
+        }
+
+        // Mask the author on anonymous notes for non-admins. The member id has to be
+        // stripped alongside the name: any member can pull the order roster from
+        // GET /member/all/:id and join it against a retained id, which would reduce the
+        // masking to cosmetics. The requester's own id is left intact so owner-only
+        // controls still work on their own notes. Admins/clerks see the real author for
+        // accountability.
+        if (!isOrderAdmin && Array.isArray(resultFinal)) {
+          for (const row of resultFinal) {
+            if (row && row.anonymous) {
+              row.name = 'Anonymous';
+              row.email = null;
+              if (Number(row.polling_order_member_id) !== requesterId) {
+                row.polling_order_member_id = null;
+              }
+            }
+          }
         }
 
         return resultFinal;

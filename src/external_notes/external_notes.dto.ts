@@ -14,6 +14,10 @@ export class CreateExternalNoteDto {
     @IsNotEmpty()
     public en_created_at!: string;
 
+    @IsBoolean()
+    @Transform(({ obj, key }) => obj[key] === true || obj[key] === 'true')
+    public anonymous!: boolean;
+
     @IsNotEmpty()
     public authToken!: string;
 }
@@ -33,6 +37,10 @@ export class EditExternalNoteDto {
 
     @IsNotEmpty()
     public en_created_at!: string;
+
+    @IsBoolean()
+    @Transform(({ obj, key }) => obj[key] === true || obj[key] === 'true')
+    public anonymous!: boolean;
 
     @IsNotEmpty()
     public authToken!: string;

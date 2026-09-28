@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { CreateExternalNoteDto, EditExternalNoteDto, DeleteExternalNoteDto } from './external_notes.dto';
 import { ExternalNotes } from './external_notes.entity';
 import { ExternalNotesService } from './external_notes.service';
@@ -19,8 +20,11 @@ export class ExternalNoteController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/candidate/:id')
-  public getExternalNoteByCandidateId(@Param('id', ParseIntPipe) id: number): Promise<ExternalNotes[]> {
-    return this.service.getExternalNoteByCandidateId(id);
+  public getExternalNoteByCandidateId(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: ExpressRequest
+  ): Promise<ExternalNotes[]> {
+    return this.service.getExternalNoteByCandidateId(id, request.headers['authorization']);
   }
 
   @UseGuards(JwtAuthGuard)

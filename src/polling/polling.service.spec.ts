@@ -563,6 +563,62 @@ describe('PollingService', () => {
     });
   });
 
+  describe('getPollingNotesByCandidateId', () => {
+    it('should keep the real author name for admins on anonymous notes', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      mockQueryBuilder.getRawMany
+        .mockResolvedValueOnce([{ pv: 6 }])
+        .mockResolvedValueOnce([{ anonymous: true, name: 'Jane Smith', email: 'jane@example.com' }]);
+
+      const result: any = await service.getPollingNotesByCandidateId(7, 'Bearer admin-token');
+
+      expect(result[0].name).toBe('Jane Smith');
+      expect(result[0].email).toBe('jane@example.com');
+    });
+
+    it('should mask the author name to Anonymous for non-admins on anonymous notes', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
+      mockQueryBuilder.getRawMany
+        .mockResolvedValueOnce([{ pv: 6 }])
+        .mockResolvedValueOnce([{ anonymous: true, name: 'Jane Smith', email: 'jane@example.com' }]);
+
+      const result: any = await service.getPollingNotesByCandidateId(7, 'Bearer member-token');
+
+      expect(result[0].name).toBe('Anonymous');
+      expect(result[0].email).toBeNull();
+    });
+
+    it('should strip the member id on other members anonymous notes for non-admins', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
+      jest.spyOn(authService, 'getPollingOrderMemberId').mockReturnValue(99);
+      mockQueryBuilder.getRawMany
+        .mockResolvedValueOnce([{ pv: 6 }])
+        .mockResolvedValueOnce([
+          { anonymous: true, name: 'Jane Smith', polling_order_member_id: 7 },
+          { anonymous: true, name: 'Me', polling_order_member_id: 99 }
+        ]);
+
+      const result: any = await service.getPollingNotesByCandidateId(7, 'Bearer member-token');
+
+      // someone else's anonymous note: id removed (it is joinable against the roster)
+      expect(result[0].polling_order_member_id).toBeNull();
+      // the requester's own anonymous note: id kept so owner-only controls still work
+      expect(result[1].polling_order_member_id).toBe(99);
+    });
+
+    it('should not alter the author name for non-anonymous notes', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
+      mockQueryBuilder.getRawMany
+        .mockResolvedValueOnce([{ pv: 6 }])
+        .mockResolvedValueOnce([{ anonymous: false, name: 'Bob', email: 'bob@example.com' }]);
+
+      const result: any = await service.getPollingNotesByCandidateId(7, 'Bearer member-token');
+
+      expect(result[0].name).toBe('Bob');
+      expect(result[0].email).toBe('bob@example.com');
+    });
+  });
+
   describe('getMissingVotesReport', () => {
     it('should return missing votes report with empty members when all voted', async () => {
       const pollings = [

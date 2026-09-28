@@ -17,4 +17,7 @@ export class ExternalNotes {
   @CreateDateColumn({ type: 'timestamp' })
   public en_created_at!: Date;
 
+  @Column({ type: 'bool', default: false })
+  public anonymous!: boolean;
+
 }
