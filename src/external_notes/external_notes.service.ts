@@ -26,7 +26,10 @@ export class ExternalNotesService {
     });
   }
 
-  public async getExternalNoteByCandidateId(id: number): Promise<ExternalNotes[]> {
+  public async getExternalNoteByCandidateId(id: number, authorization: string = ''): Promise<ExternalNotes[]> {
+    const authToken = (authorization || '').replace('Bearer ', '');
+    const isOrderAdmin = this.authService.isOrderAdmin(authToken);
+    const requesterId = this.authService.getPollingOrderMemberId(authToken);
     const result = await this.repository
       .createQueryBuilder('externalnotes')
       .select('pollingorder.polling_order_notes_time_visible as pv')
@@ -49,6 +52,24 @@ export class ExternalNotesService {
           .orderBy('externalnotes.en_created_at', 'DESC')
           .getMany()
           ;
+        // Mask the author on anonymous notes for non-admins. The member id must go too:
+        // any member can pull the order roster from GET /member/all/:id and join it
+        // against a retained id to recover the author, which would make the masking
+        // cosmetic. The requester's own id is kept so their delete control still works
+        // on their own notes. Admins/clerks see the real author for accountability.
+        for (const note of (isOrderAdmin ? [] : resultFinal)) {
+          if (note.anonymous) {
+            const member: any = note.polling_order_member_id;
+            const memberId = member && typeof member === 'object'
+              ? member.polling_order_member_id
+              : member;
+            const isOwnNote = Number(memberId) === requesterId;
+            (note as any).polling_order_member_id = {
+              polling_order_member_id: isOwnNote ? memberId : null,
+              name: 'Anonymous'
+            };
+          }
+        }
         return resultFinal;
       })
     return result;
@@ -56,11 +77,16 @@ export class ExternalNotesService {
 
   public async createExternalNote(body: CreateExternalNoteDto): Promise<ExternalNotes> {
     const memberID = this.authService.getPollingOrderMemberId(body.authToken);
+    // Anonymity is an order-level policy; ignore the flag when the order disallows it.
+    const orderId = this.authService.getPollingOrderId(body.authToken);
+    const order = await this.repository.manager.getRepository(PollingOrder).findOneBy({ polling_order_id: orderId });
+    const allowAnonymous = !!order?.polling_order_allow_anonymous;
     const externalNote: ExternalNotes = new ExternalNotes();
     externalNote.external_note = body.external_note;
     externalNote.candidate_id = body.candidate_id;
     externalNote.polling_order_member_id = memberID;
     externalNote.en_created_at = new Date(body.en_created_at);
+    externalNote.anonymous = allowAnonymous && body.anonymous;
     return this.repository.save(externalNote);
   }
 
@@ -70,10 +96,16 @@ export class ExternalNotesService {
     if (!this.authService.isRecordOwner(body.authToken, isRecordOwner)) {
       throw new UnauthorizedException();
     }
+    // Anonymity is an order-level policy and must be re-checked on edit — otherwise a
+    // member in an order that disallows it could create a note (flag forced off) and
+    // then edit it to anonymous, escaping the policy.
+    const orderId = this.authService.getPollingOrderId(body.authToken);
+    const order = await this.repository.manager.getRepository(PollingOrder).findOneBy({ polling_order_id: orderId });
     const bodyUpdate = {
-      note: body.external_note,
+      external_note: body.external_note,
       candidate_id: body.candidate_id,
-      polling_order_member_id: body.polling_order_member_id
+      polling_order_member_id: body.polling_order_member_id,
+      anonymous: !!order?.polling_order_allow_anonymous && body.anonymous
     }
     await this.repository.update(body.external_notes_id, bodyUpdate);
     return true;

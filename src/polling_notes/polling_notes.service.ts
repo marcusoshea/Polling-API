@@ -58,13 +58,23 @@ export class PollingNotesService {
           } else {
             resultFinal = await this.repository
               .createQueryBuilder('t1')
-              .select(['t1.*', 't2.name as member_name'])
+              .select(['t1.*', `CASE WHEN t1.anonymous = true THEN 'Anonymous' ELSE t2.name END as member_name`])
               .innerJoin(Member, 't2', 't2.polling_order_member_id=t1.polling_order_member_id')
               .where('t1.polling_id = :id', { id })
               .andWhere('t1.pn_created_at > :cutOffDate', { cutOffDate })
               .andWhere('t1.private = false')
               .orderBy('"t1"."vote"', 'ASC')
               .getRawMany();
+            // t1.* carries polling_order_member_id, and any member can pull the order
+            // roster from GET /member/all/:id and join it against that id to undo the
+            // name masking above. Strip it on anonymous notes, keeping only the
+            // requester's own id so owner-only controls still work on their own notes.
+            const requesterId = this.authService.getPollingOrderMemberId(body.authToken);
+            for (const row of resultFinal) {
+              if (row?.anonymous && Number(row.polling_order_member_id) !== requesterId) {
+                row.polling_order_member_id = null;
+              }
+            }
           }
           return resultFinal;
         }
@@ -80,6 +90,10 @@ export class PollingNotesService {
     if (this.authService.isOrderAdmin(body[0].authToken) && memberID !== body[0].polling_order_member_id) {
       memberID = body[0].polling_order_member_id;
     }
+
+    // Anonymity is an order-level policy; ignore anonymous flags when the order disallows it.
+    const pollingOrder = await this.repository.manager.getRepository(PollingOrder).findOneBy({ polling_order_id: body[0].polling_order_id });
+    const allowAnonymous = !!pollingOrder?.polling_order_allow_anonymous;
 
     let finished = 0;
     for (const x of body) {
@@ -99,7 +113,8 @@ export class PollingNotesService {
         pollingNote.polling_order_id = x.polling_order_id;
         pollingNote.polling_order_member_id = memberID;
         pollingNote.completed = x.completed;
-        pollingNote.private = x.private;
+        pollingNote.anonymous = allowAnonymous && x.anonymous;
+        pollingNote.private = (allowAnonymous && x.anonymous) ? false : x.private;
         await this.repository.update(pollingNote.polling_notes_id, pollingNote);
       } else {
         // Check if a record already exists for this combination to prevent duplicates
@@ -120,7 +135,8 @@ export class PollingNotesService {
           pollingNote.polling_order_id = x.polling_order_id;
           pollingNote.polling_order_member_id = memberID;
           pollingNote.completed = x.completed;
-          pollingNote.private = x.private;
+          pollingNote.anonymous = allowAnonymous && x.anonymous;
+          pollingNote.private = (allowAnonymous && x.anonymous) ? false : x.private;
           await this.repository.update(existingNote.polling_notes_id, pollingNote);
         } else {
           // Create new record only if none exists
@@ -131,7 +147,8 @@ export class PollingNotesService {
           pollingNote.polling_order_id = x.polling_order_id;
           pollingNote.polling_order_member_id = memberID;
           pollingNote.completed = x.completed;
-          pollingNote.private = x.private;
+          pollingNote.anonymous = allowAnonymous && x.anonymous;
+          pollingNote.private = (allowAnonymous && x.anonymous) ? false : x.private;
           await this.repository.save(pollingNote);
         }
       }
@@ -146,11 +163,18 @@ export class PollingNotesService {
     if (!this.authService.isRecordOwner(body.authToken, isRecordOwner)) {
       throw new UnauthorizedException();
     }
+    // Anonymity is an order-level policy and must be re-checked on edit — otherwise a
+    // member in an order that disallows it could create a note (flag forced off) and
+    // then edit it to anonymous, escaping the policy.
+    const pollingOrder = await this.repository.manager.getRepository(PollingOrder).findOneBy({ polling_order_id: body.polling_order_id });
+    const anonymous = !!pollingOrder?.polling_order_allow_anonymous && body.anonymous;
     const bodyUpdate = {
       note: body.note,
       vote: body.vote,
       candidate_id: body.candidate_id,
-      completed: body.completed
+      completed: body.completed,
+      anonymous: anonymous,
+      private: anonymous ? false : body.private
     }
     await this.repository.update(body.polling_notes_id, bodyUpdate);
     return true;
