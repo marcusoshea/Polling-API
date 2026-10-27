@@ -52,6 +52,19 @@ export class ExternalNotesService {
           .orderBy('externalnotes.en_created_at', 'DESC')
           .getMany()
           ;
+        // innerJoinAndMapOne hydrates the whole Member entity onto each note — password
+        // (bcrypt hash) and new_password_token included — and this response goes to any
+        // logged-in member. Reduce the author to what the client renders, for everyone.
+        for (const note of resultFinal) {
+          const member: any = note.polling_order_member_id;
+          if (member && typeof member === 'object') {
+            (note as any).polling_order_member_id = {
+              polling_order_member_id: member.polling_order_member_id,
+              name: member.name
+            };
+          }
+        }
+
         // Mask the author on anonymous notes for non-admins. The member id must go too:
         // any member can pull the order roster from GET /member/all/:id and join it
         // against a retained id to recover the author, which would make the masking

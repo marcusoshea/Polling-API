@@ -162,6 +162,26 @@ describe('ExternalNotesService', () => {
       expect(result[0].polling_order_member_id.polling_order_member_id).toBe(7);
     });
 
+    it('should never return the author password hash or reset token, even to admins', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      mockQueryBuilder.getRawMany.mockResolvedValue([{ pv: 6 }]);
+      mockQueryBuilder.getMany.mockResolvedValue([{
+        external_notes_id: 3,
+        anonymous: false,
+        polling_order_member_id: {
+          polling_order_member_id: 8,
+          name: 'Bob',
+          email: 'bob@example.com',
+          password: '$2b$10$hash',
+          new_password_token: 123456789
+        }
+      }]);
+
+      const result: any = await service.getExternalNoteByCandidateId(7, 'Bearer admin-token');
+
+      expect(result[0].polling_order_member_id).toEqual({ polling_order_member_id: 8, name: 'Bob' });
+    });
+
     it('should not alter the author for non-anonymous notes', async () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
       mockQueryBuilder.getRawMany.mockResolvedValue([{ pv: 6 }]);
