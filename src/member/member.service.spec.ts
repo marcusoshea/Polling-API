@@ -75,7 +75,8 @@ describe('MemberService', () => {
           useValue: {
             isOrderAdmin: jest.fn().mockReturnValue(true),
             isRecordOwner: jest.fn().mockReturnValue(false),
-            getPollingOrderMemberId: jest.fn().mockReturnValue(1)
+            getPollingOrderMemberId: jest.fn().mockReturnValue(1),
+            getPollingOrderId: jest.fn().mockReturnValue(5)
           }
         }
       ]
@@ -128,6 +129,25 @@ describe('MemberService', () => {
 
       expect(result).toEqual(mockMember);
       expect(mockQueryBuilder.leftJoinAndMapOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('getOrderClerk', () => {
+    it('should not select the password or reset-token columns', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue({ ...mockMember });
+
+      await service.getOrderClerk(5);
+
+      // This route is reachable over the network, so the whole entity must not be
+      // selected — doing so published the clerk's bcrypt hash and reset token.
+      const selected = mockQueryBuilder.select.mock.calls[0][0];
+      expect(selected).toEqual(expect.arrayContaining([
+        'member.polling_order_member_id',
+        'member.name',
+        'member.email'
+      ]));
+      expect(selected.join(',')).not.toContain('password');
+      expect(selected.join(',')).not.toContain('new_password_token');
     });
   });
 
@@ -286,56 +306,128 @@ describe('MemberService', () => {
       expect(mockRepository.update).toHaveBeenCalled();
     });
 
-    it('should generate a 7-digit token between 1000000 and 9999999', async () => {
+    it('should generate a token across the full int4 range', async () => {
       mockRepository.update.mockResolvedValue({});
 
       const result = await service.createForgottenPasswordToken(mockMember as Member);
 
-      expect(result.new_password_token).toBeGreaterThanOrEqual(1000000);
-      expect(result.new_password_token).toBeLessThanOrEqual(9999999);
+      expect(result.new_password_token).toBeGreaterThanOrEqual(100000000);
+      expect(result.new_password_token).toBeLessThanOrEqual(2147483647);
+    });
+
+    it('should not repeat a token across calls', async () => {
+      mockRepository.update.mockResolvedValue({});
+
+      const seen = new Set<number>();
+      for (let i = 0; i < 20; i++) {
+        seen.add((await service.createForgottenPasswordToken({ ...mockMember } as Member)).new_password_token);
+      }
+
+      expect(seen.size).toBe(20);
     });
   });
 
   describe('resetPassword', () => {
-    it('should update password and return true when token matches member', async () => {
-      mockRepository.findOneBy.mockResolvedValue({ ...mockMember, new_password_token: 1234567 });
+    const validToken = 123456789;
+
+    const matchedMember = (overrides: any = {}) => ({
+      ...mockMember,
+      new_password_token: validToken,
+      new_password_token_timestamp: new Date(),
+      ...overrides
+    });
+
+    // The token is a route parameter: POST /member/verify/:token
+    const request = (token: any, body: any = { email: 'test@example.com', password: 'newpassword' }) =>
+      ({ params: { token }, body });
+
+    beforeEach(() => {
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('new_hashed_password');
+    });
+
+    it('should update the password and return true for a current, matching token', async () => {
+      mockRepository.findOneBy.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
-      const result = await service.resetPassword({
-        token: 1234567,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
+      const result = await service.resetPassword(request(validToken));
 
       expect(result).toBe(true);
       expect(mockRepository.update).toHaveBeenCalled();
     });
 
     it('should clear the token by setting new_password_token to 0', async () => {
-      mockRepository.findOneBy.mockResolvedValue({ ...mockMember, new_password_token: 1234567 });
-      (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      mockRepository.findOneBy.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({});
 
-      await service.resetPassword({
-        token: 1234567,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
+      await service.resetPassword(request(validToken));
 
-      const updateCall = mockRepository.update.mock.calls[0][1];
-      expect(updateCall.new_password_token).toBe(0);
+      expect(mockRepository.update.mock.calls[0][1].new_password_token).toBe(0);
     });
 
-    it('should return false when token does not match any member', async () => {
+    it('should look the member up by token as well as email', async () => {
+      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockRepository.update.mockResolvedValue({});
+
+      await service.resetPassword(request(validToken));
+
+      // Regression: the token used to be read from req.token (undefined), and TypeORM
+      // drops undefined conditions — so the lookup matched on email alone.
+      expect(mockRepository.findOneBy).toHaveBeenCalledWith(
+        expect.objectContaining({ new_password_token: validToken, email: 'test@example.com' })
+      );
+    });
+
+    it('should scope the update to the primary key rather than the email', async () => {
+      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockRepository.update.mockResolvedValue({});
+
+      await service.resetPassword(request(validToken));
+
+      // Updating by email rewrote the password for that address in every polling order.
+      expect(mockRepository.update).toHaveBeenCalledWith(1, expect.anything());
+    });
+
+    it('should reject a request with no token', async () => {
+      await expect(
+        service.resetPassword({ params: {}, body: { email: 'test@example.com', password: 'x' } })
+      ).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+    });
+
+    it('should reject the 0 sentinel stored on accounts with no active reset', async () => {
+      await expect(service.resetPassword(request(0))).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+    });
+
+    it('should reject a non-numeric token', async () => {
+      await expect(service.resetPassword(request('abc'))).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+    });
+
+    it('should reject an expired token', async () => {
+      const longAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+      mockRepository.findOneBy.mockResolvedValue(
+        matchedMember({ new_password_token_timestamp: longAgo })
+      );
+
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject a token with no recorded issue date', async () => {
+      mockRepository.findOneBy.mockResolvedValue(
+        matchedMember({ new_password_token_timestamp: null })
+      );
+
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject when no member matches the token', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
 
-      const result = await service.resetPassword({
-        token: 9999999,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
-
-      expect(result).toBe(false);
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -485,6 +577,27 @@ describe('MemberService', () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
 
       await expect(service.editMember(editBody, 99)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should write to the route id and ignore polling_order_member_id in the body', async () => {
+      jest.spyOn(authService, 'isRecordOwner').mockReturnValue(true);
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+
+      // Regression: authorization is checked against the route id, so naming a
+      // different member in the body used to let anyone edit anyone's record.
+      await service.editMember({ ...editBody, polling_order_member_id: 99 }, 1);
+
+      expect(mockRepository.update).toHaveBeenCalledWith(1, expect.anything());
+    });
+
+    it('should reject an admin editing a member of a different polling order', async () => {
+      jest.spyOn(authService, 'isRecordOwner').mockReturnValue(false);
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(999);
+
+      await expect(service.editMember(editBody, 99)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
     });
 
     it('should use approved/removed from body when admin edits another member', async () => {

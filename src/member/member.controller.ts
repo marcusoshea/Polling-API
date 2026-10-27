@@ -18,6 +18,7 @@ export class MemberController {
     return this.service.getAllMembers(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/orderclerk/:id')
   public getOrderClerk(@Param('id', ParseIntPipe) id: number): Promise<Member> {
     return this.service.getOrderClerk(id);
