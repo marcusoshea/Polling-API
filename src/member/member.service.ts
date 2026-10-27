@@ -326,10 +326,13 @@ export class MemberService {
       throw new HttpException('Email and password are required.', HttpStatus.BAD_REQUEST);
     }
 
-    const memberFound = await this.repository.findOneBy({
-      new_password_token: token,
-      email: email
-    });
+    // LOWER() to match login and token issuance: forceCreateMember stores the email
+    // as typed, so an exact match would reject admin-created members with capitals.
+    const memberFound = await this.repository
+      .createQueryBuilder('member')
+      .where('member.new_password_token = :token', { token })
+      .andWhere('LOWER(member.email) = :email', { email })
+      .getOne();
 
     // The issue date was recorded but never read, so a token stayed valid indefinitely.
     if (!memberFound || !this.isResetTokenCurrent(memberFound.new_password_token_timestamp)) {

@@ -347,7 +347,7 @@ describe('MemberService', () => {
     });
 
     it('should update the password and return true for a current, matching token', async () => {
-      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
       const result = await service.resetPassword(request(validToken));
@@ -357,7 +357,7 @@ describe('MemberService', () => {
     });
 
     it('should clear the token by setting new_password_token to 0', async () => {
-      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({});
 
       await service.resetPassword(request(validToken));
@@ -366,20 +366,19 @@ describe('MemberService', () => {
     });
 
     it('should look the member up by token as well as email', async () => {
-      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({});
 
       await service.resetPassword(request(validToken));
 
       // Regression: the token used to be read from req.token (undefined), and TypeORM
       // drops undefined conditions — so the lookup matched on email alone.
-      expect(mockRepository.findOneBy).toHaveBeenCalledWith(
-        expect.objectContaining({ new_password_token: validToken, email: 'test@example.com' })
-      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('member.new_password_token = :token', { token: validToken });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('LOWER(member.email) = :email', { email: 'test@example.com' });
     });
 
     it('should scope the update to the primary key rather than the email', async () => {
-      mockRepository.findOneBy.mockResolvedValue(matchedMember());
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
       mockRepository.update.mockResolvedValue({});
 
       await service.resetPassword(request(validToken));
@@ -392,22 +391,22 @@ describe('MemberService', () => {
       await expect(
         service.resetPassword({ params: {}, body: { email: 'test@example.com', password: 'x' } })
       ).rejects.toThrow(UnauthorizedException);
-      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
     });
 
     it('should reject the 0 sentinel stored on accounts with no active reset', async () => {
       await expect(service.resetPassword(request(0))).rejects.toThrow(UnauthorizedException);
-      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
     });
 
     it('should reject a non-numeric token', async () => {
       await expect(service.resetPassword(request('abc'))).rejects.toThrow(UnauthorizedException);
-      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
     });
 
     it('should reject an expired token', async () => {
       const longAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
-      mockRepository.findOneBy.mockResolvedValue(
+      mockQueryBuilder.getOne.mockResolvedValue(
         matchedMember({ new_password_token_timestamp: longAgo })
       );
 
@@ -416,7 +415,7 @@ describe('MemberService', () => {
     });
 
     it('should reject a token with no recorded issue date', async () => {
-      mockRepository.findOneBy.mockResolvedValue(
+      mockQueryBuilder.getOne.mockResolvedValue(
         matchedMember({ new_password_token_timestamp: null })
       );
 
@@ -424,8 +423,17 @@ describe('MemberService', () => {
       expect(mockRepository.update).not.toHaveBeenCalled();
     });
 
+    it('should lowercase the submitted email to match the LOWER() comparison', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
+      mockRepository.update.mockResolvedValue({});
+
+      await service.resetPassword(request(validToken, { email: 'Test@Example.COM', password: 'x' }));
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('LOWER(member.email) = :email', { email: 'test@example.com' });
+    });
+
     it('should reject when no member matches the token', async () => {
-      mockRepository.findOneBy.mockResolvedValue(null);
+      mockQueryBuilder.getOne.mockResolvedValue(null);
 
       await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
     });
