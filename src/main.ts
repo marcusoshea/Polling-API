@@ -12,6 +12,15 @@ async function bootstrap() {
   const config: ConfigService = app.get(ConfigService);
   const port: number = config.get<number>('PORT')!;
 
+  // nginx proxies to this process over loopback, so without this every request
+  // reports nginx's address as req.ip. The global ThrottlerGuard keys on req.ip,
+  // which made its 20-requests-a-minute limit one bucket shared by all users — easy
+  // to exhaust for everyone, and no limit on any individual client. Trusting only
+  // loopback means X-Forwarded-For is honoured from nginx and ignored from anyone
+  // reaching the port directly. Requires nginx to send
+  //   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  app.set('trust proxy', 'loopback');
+
   // Security headers (HSTS, nosniff, removes X-Powered-By, etc.).
   // CSP is disabled: this is a JSON API (CSP applies to rendered documents),
   // and the default CSP would block the non-prod Swagger UI at /api.

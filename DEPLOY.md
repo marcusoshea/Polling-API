@@ -62,6 +62,17 @@ Manual deploy: build locally, upload `dist/` with Transmit (SFTP), restart on th
    existing tokens → every user is logged out and must re-log in. Keep the same
    value across deploys unless you intend to force a global logout.
 
+4. **nginx must forward the client IP.** `main.ts` sets `trust proxy` to
+   `loopback`, and the global rate limiter (20 requests/minute) keys on the
+   resulting `req.ip`. The nginx `location` that proxies to the API must include:
+   ```nginx
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   ```
+   Without it every request appears to come from `127.0.0.1`, so all users share
+   one 20/minute bucket — one busy client throttles everyone. Check with
+   `pm2 logs PollingAPI` during a 429, or `grep -r X-Forwarded-For` in the
+   Bitnami nginx config (`/opt/bitnami/nginx/conf/`).
+
 ## Local development
 - API: `npm run start:dev` (watch mode; auto-frees port 3000).
 - To hit a local API+DB, set `development.env` to localhost values — but revert
