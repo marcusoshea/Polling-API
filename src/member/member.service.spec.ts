@@ -9,6 +9,10 @@ import { MemberService } from './member.service';
 import { Member } from './member.entity';
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from '../auth/auth.service';
+import { passwordFingerprint } from '../auth/password-fingerprint';
+
+// passwordFingerprint signs with JWT_SECRET; production loads it from the env file.
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 
 jest.mock('nodemailer');
 jest.mock('bcrypt');
@@ -20,7 +24,10 @@ const mockQueryBuilder: any = {
   where: jest.fn().mockReturnThis(),
   andWhere: jest.fn().mockReturnThis(),
   getOne: jest.fn(),
-  getMany: jest.fn()
+  getMany: jest.fn(),
+  update: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
+  execute: jest.fn()
 };
 
 const mockRepository = {
@@ -75,7 +82,8 @@ describe('MemberService', () => {
           useValue: {
             isOrderAdmin: jest.fn().mockReturnValue(true),
             isRecordOwner: jest.fn().mockReturnValue(false),
-            getPollingOrderMemberId: jest.fn().mockReturnValue(1)
+            getPollingOrderMemberId: jest.fn().mockReturnValue(1),
+            getPollingOrderId: jest.fn().mockReturnValue(5)
           }
         }
       ]
@@ -131,6 +139,25 @@ describe('MemberService', () => {
     });
   });
 
+  describe('getOrderClerk', () => {
+    it('should not select the password or reset-token columns', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue({ ...mockMember });
+
+      await service.getOrderClerk(5);
+
+      // This route is reachable over the network, so the whole entity must not be
+      // selected — doing so published the clerk's bcrypt hash and reset token.
+      const selected = mockQueryBuilder.select.mock.calls[0][0];
+      expect(selected).toEqual(expect.arrayContaining([
+        'member.polling_order_member_id',
+        'member.name',
+        'member.email'
+      ]));
+      expect(selected.join(',')).not.toContain('password');
+      expect(selected.join(',')).not.toContain('new_password_token');
+    });
+  });
+
   describe('forceCreateMember', () => {
     const forceCreateBody: any = {
       name: 'Force User',
@@ -170,6 +197,30 @@ describe('MemberService', () => {
 
       await expect(service.forceCreateMember(forceCreateBody)).rejects.toThrow(UnauthorizedException);
     });
+
+    it('should reject an admin creating a member in a different polling order', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+
+      await expect(service.forceCreateMember({
+        name: 'X', email: 'x@example.com', password: 'p', polling_order_id: 6,
+        pom_created_at: '2026-01-01', authToken: 'admin-token'
+      } as any)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should store the email lowercased', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      mockRepository.save.mockImplementation((m: any) => Promise.resolve(m));
+
+      await service.forceCreateMember({
+        name: 'X', email: 'New.Member@Example.com', password: 'p', polling_order_id: 5,
+        pom_created_at: '2026-01-01', authToken: 'admin-token'
+      } as any);
+
+      expect(mockRepository.save.mock.calls[0][0].email).toBe('new.member@example.com');
+    });
   });
 
   describe('deleteMember', () => {
@@ -180,6 +231,7 @@ describe('MemberService', () => {
 
     it('should delete member and return true when requester is order admin', async () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      mockRepository.findOneBy.mockResolvedValue(mockMember);
       mockRepository.delete.mockResolvedValue({ affected: 1 });
 
       const result = await service.deleteMember(deleteBody);
@@ -193,6 +245,39 @@ describe('MemberService', () => {
 
       await expect(service.deleteMember(deleteBody)).rejects.toThrow(UnauthorizedException);
     });
+
+    it('should reject an admin deleting a member of a different polling order', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(999);
+      mockRepository.findOneBy.mockResolvedValue(mockMember);
+
+      await expect(service.deleteMember(deleteBody)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should reject a missing member id without querying', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+
+      // An undefined id would be dropped from the where clause and match anyone.
+      await expect(service.deleteMember({ authToken: 'admin-token' } as any)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getAllMembersForCaller', () => {
+    it('should return the roster for the caller own order', async () => {
+      mockQueryBuilder.getMany.mockResolvedValue([mockMember]);
+
+      const result = await service.getAllMembersForCaller(5, 'Bearer member-token');
+
+      expect(result).toEqual([mockMember]);
+    });
+
+    it('should reject a request for another order roster', async () => {
+      await expect(service.getAllMembersForCaller(6, 'Bearer member-token')).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.getMany).not.toHaveBeenCalled();
+    });
   });
 
   describe('checkMemberCredentials', () => {
@@ -204,6 +289,16 @@ describe('MemberService', () => {
 
       expect(result).not.toHaveProperty('password');
       expect(result.name).toBe('Test User');
+    });
+
+    it('should include a password fingerprint, not the hash, for the token', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockMember);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.checkMemberCredentials('test@example.com', 'password123', 5);
+
+      expect(result.pwv).toBe(passwordFingerprint('hashed_password'));
+      expect(result.pwv).not.toContain('hashed_password');
     });
 
     it('should return false when password is incorrect', async () => {
@@ -286,56 +381,143 @@ describe('MemberService', () => {
       expect(mockRepository.update).toHaveBeenCalled();
     });
 
-    it('should generate a 7-digit token between 1000000 and 9999999', async () => {
+    it('should generate a token across the full int4 range', async () => {
       mockRepository.update.mockResolvedValue({});
 
       const result = await service.createForgottenPasswordToken(mockMember as Member);
 
-      expect(result.new_password_token).toBeGreaterThanOrEqual(1000000);
-      expect(result.new_password_token).toBeLessThanOrEqual(9999999);
+      expect(result.new_password_token).toBeGreaterThanOrEqual(100000000);
+      expect(result.new_password_token).toBeLessThanOrEqual(2147483647);
+    });
+
+    it('should not repeat a token across calls', async () => {
+      mockRepository.update.mockResolvedValue({});
+
+      const seen = new Set<number>();
+      for (let i = 0; i < 20; i++) {
+        seen.add((await service.createForgottenPasswordToken({ ...mockMember } as Member)).new_password_token);
+      }
+
+      expect(seen.size).toBe(20);
     });
   });
 
   describe('resetPassword', () => {
-    it('should update password and return true when token matches member', async () => {
-      mockRepository.findOneBy.mockResolvedValue({ ...mockMember, new_password_token: 1234567 });
+    const validToken = 123456789;
+
+    const matchedMember = (overrides: any = {}) => ({
+      ...mockMember,
+      new_password_token: validToken,
+      new_password_token_timestamp: new Date(),
+      ...overrides
+    });
+
+    // The token is a route parameter: POST /member/verify/:token
+    const request = (token: any, body: any = { email: 'test@example.com', password: 'newpassword' }) =>
+      ({ params: { token }, body });
+
+    beforeEach(() => {
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('new_hashed_password');
-      mockRepository.update.mockResolvedValue({ affected: 1 });
+    });
 
-      const result = await service.resetPassword({
-        token: 1234567,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
+    it('should update the password and return true for a current, matching token', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
+
+      const result = await service.resetPassword(request(validToken));
 
       expect(result).toBe(true);
-      expect(mockRepository.update).toHaveBeenCalled();
+      expect(mockQueryBuilder.execute).toHaveBeenCalled();
+      expect(mockQueryBuilder.set).toHaveBeenCalledWith(expect.objectContaining({ password: 'new_hashed_password' }));
     });
 
     it('should clear the token by setting new_password_token to 0', async () => {
-      mockRepository.findOneBy.mockResolvedValue({ ...mockMember, new_password_token: 1234567 });
-      (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
-      mockRepository.update.mockResolvedValue({});
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
 
-      await service.resetPassword({
-        token: 1234567,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
+      await service.resetPassword(request(validToken));
 
-      const updateCall = mockRepository.update.mock.calls[0][1];
-      expect(updateCall.new_password_token).toBe(0);
+      expect(mockQueryBuilder.set).toHaveBeenCalledWith(expect.objectContaining({ new_password_token: 0 }));
     });
 
-    it('should return false when token does not match any member', async () => {
-      mockRepository.findOneBy.mockResolvedValue(null);
+    it('should look the member up by token as well as email', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
 
-      const result = await service.resetPassword({
-        token: 9999999,
-        body: { email: 'test@example.com', password: 'newpassword' }
-      });
+      await service.resetPassword(request(validToken));
 
-      expect(result).toBe(false);
+      // Regression: the token used to be read from req.token (undefined), and TypeORM
+      // drops undefined conditions — so the lookup matched on email alone.
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('member.new_password_token = :token', { token: validToken });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('LOWER(member.email) = :email', { email: 'test@example.com' });
+    });
+
+    it('should update every account on the address, case-insensitively', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
+
+      await service.resetPassword(request(validToken, { email: 'Test@Example.com', password: 'x' }));
+
+      // The link proves inbox control, so the password follows the address into
+      // every polling order.
+      expect(mockQueryBuilder.update).toHaveBeenCalledWith(Member);
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('LOWER(email) = :email', { email: 'test@example.com' });
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should not copy this account join date onto the other accounts', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
+
+      await service.resetPassword(request(validToken));
+
+      expect(mockQueryBuilder.set.mock.calls[0][0]).not.toHaveProperty('pom_created_at');
+    });
+
+    it('should reject a request with no token', async () => {
+      await expect(
+        service.resetPassword({ params: {}, body: { email: 'test@example.com', password: 'x' } })
+      ).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
+    });
+
+    it('should reject the 0 sentinel stored on accounts with no active reset', async () => {
+      await expect(service.resetPassword(request(0))).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
+    });
+
+    it('should reject a non-numeric token', async () => {
+      await expect(service.resetPassword(request('abc'))).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.getOne).not.toHaveBeenCalled();
+    });
+
+    it('should reject an expired token', async () => {
+      const longAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+      mockQueryBuilder.getOne.mockResolvedValue(
+        matchedMember({ new_password_token_timestamp: longAgo })
+      );
+
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.execute).not.toHaveBeenCalled();
+    });
+
+    it('should reject a token with no recorded issue date', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(
+        matchedMember({ new_password_token_timestamp: null })
+      );
+
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.execute).not.toHaveBeenCalled();
+    });
+
+    it('should lowercase the submitted email to match the LOWER() comparison', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(matchedMember());
+
+      await service.resetPassword(request(validToken, { email: 'Test@Example.COM', password: 'x' }));
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('LOWER(member.email) = :email', { email: 'test@example.com' });
+    });
+
+    it('should reject when no member matches the token', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(null);
+
+      await expect(service.resetPassword(request(validToken))).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -352,6 +534,22 @@ describe('MemberService', () => {
   });
 
   describe('changePassword', () => {
+    it('should update only the authenticated account, by primary key', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue({ ...mockMember, email: 'Test@Example.com' });
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+
+      await service.changePassword({
+        body: { email: 'test@example.com', password: 'old', newPassword: 'new', pollingOrderId: 5 }
+      });
+
+      // Keyed on email this matched nothing when the stored address had capitals,
+      // and reached other orders' accounts on the same address.
+      expect(mockRepository.update).toHaveBeenCalledWith(1, expect.objectContaining({ password: 'hashed' }));
+    });
+
     const changeReq = {
       body: {
         email: 'test@example.com',
@@ -485,6 +683,27 @@ describe('MemberService', () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
 
       await expect(service.editMember(editBody, 99)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should write to the route id and ignore polling_order_member_id in the body', async () => {
+      jest.spyOn(authService, 'isRecordOwner').mockReturnValue(true);
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+
+      // Regression: authorization is checked against the route id, so naming a
+      // different member in the body used to let anyone edit anyone's record.
+      await service.editMember({ ...editBody, polling_order_member_id: 99 }, 1);
+
+      expect(mockRepository.update).toHaveBeenCalledWith(1, expect.anything());
+    });
+
+    it('should reject an admin editing a member of a different polling order', async () => {
+      jest.spyOn(authService, 'isRecordOwner').mockReturnValue(false);
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(999);
+
+      await expect(service.editMember(editBody, 99)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
     });
 
     it('should use approved/removed from body when admin edits another member', async () => {

@@ -302,7 +302,10 @@ export class PollingService {
             .addSelect('t2.*', 'pollingcandidates')
             .addSelect('t3.*', 'candidate')
             .addSelect('t4.*', 'pollingnotes')
-            .addSelect('t5.*', 'pollingordermember')
+            // Only the author's name. t5.* returned every Member column — password
+            // (bcrypt hash) and new_password_token included — to any member who
+            // opened a candidate. Kept last so `name` overrides the candidate's.
+            .addSelect('t5.name', 'name')
             .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
             .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
             .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')
@@ -320,7 +323,10 @@ export class PollingService {
             .addSelect('t2.*', 'pollingcandidates')
             .addSelect('t3.*', 'candidate')
             .addSelect('t4.*', 'pollingnotes')
-            .addSelect('t5.*', 'pollingordermember')
+            // Only the author's name. t5.* returned every Member column — password
+            // (bcrypt hash) and new_password_token included — to any member who
+            // opened a candidate. Kept last so `name` overrides the candidate's.
+            .addSelect('t5.name', 'name')
             .innerJoin(PollingCandidate, 't2', 't1.polling_id = t2.polling_id')
             .innerJoin(Candidate, 't3', 't2.candidate_id = t3.candidate_id')
             .innerJoin(PollingNotes, 't4', 't1.polling_id = t4.polling_id')

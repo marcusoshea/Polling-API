@@ -14,10 +14,14 @@ export class MemberController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/all/:id')
-  public getAllMembers(@Param('id', ParseIntPipe) id: number): Promise<Member[]> {
-    return this.service.getAllMembers(id);
+  public getAllMembers(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: ExpressRequest
+  ): Promise<Member[]> {
+    return this.service.getAllMembersForCaller(id, request.headers['authorization']);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/orderclerk/:id')
   public getOrderClerk(@Param('id', ParseIntPipe) id: number): Promise<Member> {
     return this.service.getOrderClerk(id);

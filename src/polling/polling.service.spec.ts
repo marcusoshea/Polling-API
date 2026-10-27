@@ -564,6 +564,20 @@ describe('PollingService', () => {
   });
 
   describe('getPollingNotesByCandidateId', () => {
+    it('should select only the author name from Member, never t5.*', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      mockQueryBuilder.getRawMany
+        .mockResolvedValueOnce([{ pv: 6 }])
+        .mockResolvedValueOnce([]);
+
+      await service.getPollingNotesByCandidateId(7, 'Bearer admin-token');
+
+      // t5.* sent every Member column, password hash included, to anyone viewing a candidate.
+      const selections = mockQueryBuilder.addSelect.mock.calls.map((c: any[]) => c[0]);
+      expect(selections).not.toContain('t5.*');
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith('t5.name', 'name');
+    });
+
     it('should keep the real author name for admins on anonymous notes', async () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
       mockQueryBuilder.getRawMany
