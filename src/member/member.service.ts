@@ -342,14 +342,18 @@ export class MemberService {
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash(newPassword, salt);
 
-    const passwordUpdate = {
-      password: password,
-      pom_created_at: memberFound.pom_created_at,
-      new_password_token: 0
-    }
-    // Scoped to the primary key. Updating by email rewrote the password for every
-    // account sharing that address, across all polling orders.
-    await this.repository.update(memberFound.polling_order_member_id, passwordUpdate);
+    // The link proves control of the inbox, so the new password applies to every
+    // account on this address across all polling orders. Case-insensitive to match
+    // the lookup. pom_created_at is deliberately left out: copying this account's
+    // value onto the others overwrote their join dates, which decide which pollings
+    // a member is counted in. Clearing the token on every row also voids any other
+    // outstanding links for this address.
+    await this.repository
+      .createQueryBuilder()
+      .update(Member)
+      .set({ password: password, new_password_token: 0 })
+      .where('LOWER(email) = :email', { email })
+      .execute();
     return true;
   }
 
@@ -370,7 +374,12 @@ export class MemberService {
         pom_created_at: goodLogin.pom_created_at,
         new_password_token: 0
       }
-      await this.repository.update({ email: goodLogin.email.toLowerCase() }, passwordUpdate);
+      // Only the account that was just authenticated. Keying on email silently matched
+      // nothing for admin-created members whose stored email has capitals, and would
+      // otherwise reach every order using this address — knowing one account's password
+      // does not prove ownership of the others, since an admin can create an approved
+      // account with any email and a password of their choosing.
+      await this.repository.update(goodLogin.polling_order_member_id, passwordUpdate);
       return true;
     }
     return false;
