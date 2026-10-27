@@ -61,6 +61,10 @@ Manual deploy: build locally, upload `dist/` with Transmit (SFTP), restart on th
    missing, so the app won't boot without it. Changing the value invalidates all
    existing tokens → every user is logged out and must re-log in. Keep the same
    value across deploys unless you intend to force a global logout.
+   - Tokens also carry `pwv`, an HMAC of the member's password hash, checked on
+     every guarded request (`jwt.strategy.ts`). Changing a password ends that
+     member's other sessions. The deploy that introduced this logged everyone out
+     once, since older tokens have no `pwv`.
 
 4. **nginx must forward the client IP.** `main.ts` sets `trust proxy` to
    `loopback`, and the global rate limiter (20 requests/minute) keys on the

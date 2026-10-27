@@ -9,6 +9,7 @@ import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from 'src/auth/auth.service';
 import * as nodemailer from 'nodemailer';
 import { randomInt } from 'crypto';
+import { passwordFingerprint } from '../auth/password-fingerprint';
 
 @Injectable()
 
@@ -251,7 +252,9 @@ export class MemberService {
       const validPassword = await bcrypt.compare(password, member.password);
       if (validPassword && member.approved && !member.removed) {
         const { password, ...result } = member
-        return result
+        // pwv ties the token signed from this result to the current password hash;
+        // see passwordFingerprint.
+        return { ...result, pwv: passwordFingerprint(password) }
       }
       return false
     }

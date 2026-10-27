@@ -9,6 +9,10 @@ import { MemberService } from './member.service';
 import { Member } from './member.entity';
 import { PollingOrder } from '../polling_order/polling_order.entity';
 import { AuthService } from '../auth/auth.service';
+import { passwordFingerprint } from '../auth/password-fingerprint';
+
+// passwordFingerprint signs with JWT_SECRET; production loads it from the env file.
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 
 jest.mock('nodemailer');
 jest.mock('bcrypt');
@@ -285,6 +289,16 @@ describe('MemberService', () => {
 
       expect(result).not.toHaveProperty('password');
       expect(result.name).toBe('Test User');
+    });
+
+    it('should include a password fingerprint, not the hash, for the token', async () => {
+      mockQueryBuilder.getOne.mockResolvedValue(mockMember);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.checkMemberCredentials('test@example.com', 'password123', 5);
+
+      expect(result.pwv).toBe(passwordFingerprint('hashed_password'));
+      expect(result.pwv).not.toContain('hashed_password');
     });
 
     it('should return false when password is incorrect', async () => {
