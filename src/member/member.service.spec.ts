@@ -193,6 +193,30 @@ describe('MemberService', () => {
 
       await expect(service.forceCreateMember(forceCreateBody)).rejects.toThrow(UnauthorizedException);
     });
+
+    it('should reject an admin creating a member in a different polling order', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+
+      await expect(service.forceCreateMember({
+        name: 'X', email: 'x@example.com', password: 'p', polling_order_id: 6,
+        pom_created_at: '2026-01-01', authToken: 'admin-token'
+      } as any)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should store the email lowercased', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+      mockRepository.save.mockImplementation((m: any) => Promise.resolve(m));
+
+      await service.forceCreateMember({
+        name: 'X', email: 'New.Member@Example.com', password: 'p', polling_order_id: 5,
+        pom_created_at: '2026-01-01', authToken: 'admin-token'
+      } as any);
+
+      expect(mockRepository.save.mock.calls[0][0].email).toBe('new.member@example.com');
+    });
   });
 
   describe('deleteMember', () => {
@@ -203,6 +227,7 @@ describe('MemberService', () => {
 
     it('should delete member and return true when requester is order admin', async () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      mockRepository.findOneBy.mockResolvedValue(mockMember);
       mockRepository.delete.mockResolvedValue({ affected: 1 });
 
       const result = await service.deleteMember(deleteBody);
@@ -215,6 +240,39 @@ describe('MemberService', () => {
       jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(false);
 
       await expect(service.deleteMember(deleteBody)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should reject an admin deleting a member of a different polling order', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+      jest.spyOn(authService, 'getPollingOrderId').mockReturnValue(999);
+      mockRepository.findOneBy.mockResolvedValue(mockMember);
+
+      await expect(service.deleteMember(deleteBody)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should reject a missing member id without querying', async () => {
+      jest.spyOn(authService, 'isOrderAdmin').mockReturnValue(true);
+
+      // An undefined id would be dropped from the where clause and match anyone.
+      await expect(service.deleteMember({ authToken: 'admin-token' } as any)).rejects.toThrow(UnauthorizedException);
+      expect(mockRepository.findOneBy).not.toHaveBeenCalled();
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getAllMembersForCaller', () => {
+    it('should return the roster for the caller own order', async () => {
+      mockQueryBuilder.getMany.mockResolvedValue([mockMember]);
+
+      const result = await service.getAllMembersForCaller(5, 'Bearer member-token');
+
+      expect(result).toEqual([mockMember]);
+    });
+
+    it('should reject a request for another order roster', async () => {
+      await expect(service.getAllMembersForCaller(6, 'Bearer member-token')).rejects.toThrow(UnauthorizedException);
+      expect(mockQueryBuilder.getMany).not.toHaveBeenCalled();
     });
   });
 

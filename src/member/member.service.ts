@@ -30,6 +30,18 @@ export class MemberService {
     return result;
   }
 
+  // HTTP entry point for the roster. getAllMembers itself is also used internally
+  // (missing-votes report), so the caller check lives here rather than in it.
+  public async getAllMembersForCaller(orderId: number, authorization: string = ''): Promise<Member[]> {
+    const authToken = (authorization || '').replace('Bearer ', '');
+    // Any logged-in member could read any order's roster (names and emails) by
+    // changing the id in the URL.
+    if (this.authService.getPollingOrderId(authToken) !== orderId) {
+      throw new UnauthorizedException();
+    }
+    return this.getAllMembers(orderId);
+  }
+
   public async getAllMembers(orderId: number): Promise<Member[]> {
     const result = await this.repository
       .createQueryBuilder('member')
@@ -76,9 +88,16 @@ export class MemberService {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
+    // isOrderAdmin only proves the caller administers *some* order. Without this, an
+    // admin could create pre-approved accounts in any other order.
+    if (Number(body.polling_order_id) !== this.authService.getPollingOrderId(body.authToken)) {
+      throw new UnauthorizedException();
+    }
     const member: Member = new Member();
     member.name = body.name;
-    member.email = body.email;
+    // Lowercased like every other write path; mixed-case rows created here are what
+    // broke exact-match email lookups.
+    member.email = body.email.toLowerCase();
     const salt = await bcrypt.genSalt(10);
     member.password = await bcrypt.hash(body.password, salt);
     member.polling_order_id = body.polling_order_id;
@@ -129,7 +148,19 @@ export class MemberService {
     if (!this.authService.isOrderAdmin(body.authToken)) {
       throw new UnauthorizedException();
     }
-    await this.repository.delete(body.polling_order_member_id);
+    // Validate before querying: TypeORM drops undefined where-conditions, so a
+    // missing id would make findOneBy match an arbitrary member.
+    const targetId = Number(body.polling_order_member_id);
+    if (!Number.isInteger(targetId) || targetId <= 0) {
+      throw new UnauthorizedException();
+    }
+    // isOrderAdmin only proves the caller administers *some* order; without this an
+    // admin could delete members of any other order.
+    const target = await this.repository.findOneBy({ polling_order_member_id: targetId });
+    if (!target || target.polling_order_id !== this.authService.getPollingOrderId(body.authToken)) {
+      throw new UnauthorizedException();
+    }
+    await this.repository.delete(targetId);
 
     return true;
   }
